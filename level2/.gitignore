@@ -24,3 +24,6 @@ logs/
 npm-debug.log*
 .vercel
 .env*
+
+# Server runtime data (seeded on first start)
+server/data/

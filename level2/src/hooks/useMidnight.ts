@@ -150,6 +150,24 @@ export function useMidnight() {
     }
   }, []);
 
+  const callCircuit = useCallback(async () => {
+    const deployed = contractRef.current;
+    if (!deployed) {
+      throw new Error('Wallet not connected / contract not joined.');
+    }
+    const result = await deployed.callTx.increment(7n);
+    await refreshLedger();
+    const providers = providersRef.current;
+    const contractState = providers
+      ? await providers.publicDataProvider.queryContractState(deployed.deployTxData.public.contractAddress)
+      : null;
+    return {
+      txId: result.public.txId,
+      blockHeight: result.public.blockHeight,
+      total: contractState ? readCounterLedger(contractState.data).total : null,
+    };
+  }, [refreshLedger]);
+
   return {
     walletState,
     walletInfo,
@@ -162,6 +180,7 @@ export function useMidnight() {
     connect,
     disconnect,
     refreshLedger,
+    callCircuit,
     providers: providersRef.current,
   };
 }

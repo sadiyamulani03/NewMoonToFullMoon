@@ -1,6 +1,8 @@
 # MidnightTrace — Private Blockchain Forensics
 
-> A privacy-first blockchain forensics tool on the Midnight Network: an on-chain counter that proves each forensic step (a hidden amount) without ever revealing the amount itself.
+![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
+
+> A privacy-first **full-stack, multi-page** blockchain forensics tool on the Midnight Network: an on-chain counter that proves each forensic step (a hidden amount) without ever revealing the amount itself.
 
 ## Live Demo
 
@@ -14,25 +16,39 @@ https://midnighttrace.vercel.app
 
 ## What This Does
 
-MidnightTrace is a privacy-preserving forensics dApp. In real-world forensic
-work you often need to *prove that you performed an analysis step* (e.g. traced
-a hidden transaction amount, counted evidence items, or verified a batch size)
-without disclosing the underlying data. This dApp demonstrates exactly that
-pattern using the Midnight counter contract from Level 1:
+MidnightTrace is a privacy-preserving forensics dApp with multiple pages. In
+real-world forensic work you often need to *prove that you performed an
+analysis step* without disclosing the underlying data:
 
-1. Connect your Midnight wallet (**1AM** or **Lace**) on **Preprod**.
-2. The dApp joins the deployed `counter` contract on-chain.
-3. Press **Run Circuit** — the `increment(amount)` circuit is called with a
+1. Browse **Cases** — server-stored forensic cases, each with its own proof receipts.
+2. Connect your Midnight wallet (**1AM** or **Lace**) on **Preprod**.
+3. From a case, press **Run the circuit** — `increment(amount)` is called with a
    **private witness amount** (`amount`). A zero-knowledge proof is generated
-   in the browser proving `total' = total + amount`, and the proof is submitted
-   on-chain.
-4. The public ledger updates (`total` increases), but the hidden `amount` is
-   never placed on-chain and never appears in the UI — it exists only inside
-   the ZK proof.
+   in the browser, proving `total' = total + amount` on-chain.
+4. The proof lands as a **receipt on the case**; the hidden `amount` is never
+   placed on-chain and never appears in the UI or the API — it exists only
+   inside the ZK proof.
 
 The same arithmetic also powers `incrementAndReveal`, which a caller could use
 to *deliberately* publish an amount via `disclose()`. MidnightTrace uses the
 private path, showing how an auditor can prove work without leaking evidence.
+
+## Pages
+
+| Route | Page |
+|-------|------|
+| `/` | Dashboard — wallet status, case stats, last proof |
+| `/cases` | Cases — list of forensic cases |
+| `/cases/:id` | Case detail — run the circuit, view proof history |
+| `/new` | New case — create a case |
+| `/about` | About — privacy model & architecture |
+
+## Architecture
+
+`Express` (server) + `React Router` (pages) + `useMidnight` hook (wallet and
+contract) shared across pages via a React context provider. The Vite dev server
+proxies `/api` to the Express server on `:4000`; in production the Express
+server serves the built `dist/` and the API together.
 
 ## Privacy Model
 
@@ -69,6 +85,8 @@ path leaves it nowhere on-chain.
 - Midnight.js SDK (`@midnight-ntwrk/midnight-js` 4.1.1)
 - DApp Connector API (`@midnight-ntwrk/dapp-connector-api`)
 - React 19 + Vite + TypeScript
+- React Router 7 (multi-page navigation)
+- Express 5 (backend API: cases, receipts, stats)
 - 1AM or Lace wallet (browser extension)
 
 ## Prerequisites
@@ -93,38 +111,27 @@ npm install
 cp .env.example .env
 # edit .env and paste your address
 
-# 4. Run the dev server
+# 4. Run the full stack (Express API on :4000 + Vite web, together)
 npm run dev
-# open http://localhost:5173, connect your wallet (1AM or Lace) on Preprod, and run the circuit
+# open the printed URL, connect your wallet (1AM or Lace) on Preprod,
+# browse Cases, and run the circuit
 
-# Or build for production
+# Or build for production — the Express server serves dist/ + API together
 npm run build
-npm run preview
+npm start
+# open http://localhost:4000
 ```
 
 ## Deploy
 
-The frontend is a static Vite build (output: `dist/`). Both `vercel.json` and
-`netlify.toml` are included.
+The app is a full-stack package: an Express server that serves the static
+Vite build (`dist/`) **and** the REST API on the same port — so any Node
+host works (`npm install && npm run build && npm start`).
 
-**Vercel:**
-
-```bash
-cd level2
-npm install -g vercel
-vercel --prod --env VITE_CONTRACT_ADDRESS=<your-preprod-address>
-```
-
-**Netlify:**
-
-```bash
-cd level2
-npm install -g netlify-cli
-netlify deploy --prod --dir dist
-```
-
-> The live URL connects to the Preprod contract address baked into
-> `src/config.ts` (via `VITE_CONTRACT_ADDRESS`).
+For static-only hosts, the built `dist/` can still be uploaded standalone
+(the API endpoints will 404 on such hosts). Both `vercel.json` and
+`netlify.toml` are included for the frontend; the live URL below connects to
+the Preprod contract address baked into `src/config.ts`.
 
 ## Demo Video
 
@@ -134,28 +141,41 @@ https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=shari
 
 ```bash
 cd level2
-npm test   # builds the app, then verifies the dist/ bundle ships the ZK assets
+npm test   # builds the app, verifies ZK assets ship in dist/, and smoke-tests the API
 ```
+
+## CI/CD
+
+The repo-wide pipeline lives at `<repo-root>/.github/workflows/ci.yml` and runs on every push to `main` and every pull request. The `frontend` job installs dependencies, runs the production Vite build, and runs both the ZK-asset smoke test and the Express API smoke test. The `contract` job compiles the counter contract and runs the unit tests in `level1`.
+
+Status badge: ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
+
+## Product Proposal
+
+See **[PROPOSAL.md](../PROPOSAL.md)** in the repo root.
 
 ## File Structure
 
 ```
 level2/
+├── server/                      (Express API: cases, receipts, stats — serves dist/ in prod)
 ├── contracts/            (reference — the counter.compact source)
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── WalletConnect.tsx
+│   │   ├── Layout.tsx           (nav shell + wallet pill)
 │   │   └── CircuitCall.tsx
+│   ├── context/
+│   │   └── MidnightContext.tsx  (shared wallet/contract state)
 │   ├── hooks/
 │   │   └── useMidnight.ts
-│   ├── lib/              (providers, wallet adapter, ledger, types)
+│   ├── lib/              (api client, providers, wallet adapter, ledger, types)
+│   ├── pages/            (Dashboard, Cases, CaseDetail, CreateCase, About)
 │   ├── contract/compiled/counter/  (compiled ZK assets, served statically)
-│   ├── App.tsx
+│   ├── App.tsx           (React Router routes)
 │   ├── main.tsx
 │   └── config.ts         (Preprod contract address)
-├── tests/
-├── .github/workflows/    (CI build check)
+├── tests/                (smoke.mjs — ZK assets; api-smoke.mjs — Express API)
 ├── vercel.json / netlify.toml
 └── package.json
 ```

@@ -64,9 +64,7 @@ private witness that only becomes public when the contract calls
 `disclose(customMessage)`. Full public/private breakdown lives in
 `level1/README.md`.
 
-## Initial product idea
 
-*Placeholder: add your own idea here.*
 
 ## Screenshots
 - <img width="1916" height="1010" alt="Screenshot 2026-08-06 161244" src="https://github.com/user-attachments/assets/c2093cb0-1d8b-40f9-ae70-3a413346f38e" />

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import type { FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
 
 import type { CounterContract } from '../lib/types';
+import { useMidnightContext } from '../context/MidnightContext';
 
 export interface CircuitCallProps {
   contract: FoundContract<CounterContract> | null;
   callCircuit: () => Promise<{ txId: string; blockHeight: number | bigint }>;
-  total: bigint | null;
-  lastDisclosed: bigint | null;
+  onLanded?: (result: { txId: string; blockHeight: number | bigint }) => void | Promise<void>;
   proofMode: 'wallet' | 'proof-server';
 }
 
@@ -18,8 +18,9 @@ type CallStatus =
   | { status: 'success'; txId: string; blockHeight: number | bigint }
   | { status: 'error'; message: string };
 
-export function CircuitCall({ contract, callCircuit, total, lastDisclosed, proofMode }: CircuitCallProps) {
+export function CircuitCall({ contract, callCircuit, onLanded, proofMode }: CircuitCallProps) {
   const [callStatus, setCallStatus] = useState<CallStatus>({ status: 'idle' });
+  const { ledgerTotal, lastDisclosed } = useMidnightContext();
 
   async function onCall() {
     if (!contract) return;
@@ -27,6 +28,9 @@ export function CircuitCall({ contract, callCircuit, total, lastDisclosed, proof
     try {
       const result = await callCircuit();
       setCallStatus({ status: 'success', txId: result.txId, blockHeight: result.blockHeight });
+      if (onLanded) {
+        await onLanded(result);
+      }
     } catch (e: unknown) {
       const err = e as Error & { reason?: string };
       setCallStatus({ status: 'error', message: err?.reason ?? err?.message ?? String(e) });
@@ -54,7 +58,7 @@ export function CircuitCall({ contract, callCircuit, total, lastDisclosed, proof
         <>
           <div className="ledger-row">
             <span className="info-label">Recorded total</span>
-            <code className="value">{total === null ? '…' : total.toString()}</code>
+            <code className="value">{ledgerTotal === null ? '…' : ledgerTotal.toString()}</code>
             <span className="info-label">Last disclosed</span>
             <code className="value">{lastDisclosed === null ? '…' : lastDisclosed.toString()}</code>
           </div>

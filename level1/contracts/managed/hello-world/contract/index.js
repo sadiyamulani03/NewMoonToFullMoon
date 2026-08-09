@@ -68,7 +68,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('storeMessage',
                                      'argument 1 (as invoked from Typescript)',
-                                     'hello-world.compact line 10 char 1',
+                                     'hello-world.compact line 11 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }

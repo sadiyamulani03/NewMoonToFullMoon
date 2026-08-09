@@ -24,8 +24,29 @@ import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-j
 globalThis.WebSocket = WebSocket;
 
 // Identifier under which this contract's private state is stored. The
-// hello-world contract has no witnesses, so its private state is empty ({}).
-const PRIVATE_STATE_ID = 'helloWorldPrivateState';
+// hello-world/counter contracts have no witnesses, so their private state
+// is empty ({}). Per-contract so multiple deployments stay isolated.
+const SUPPORTED_CONTRACTS = ['counter', 'hello-world'] as const;
+type ContractName = (typeof SUPPORTED_CONTRACTS)[number];
+
+function parseContractFlag(argv: string[]): ContractName {
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    let value: string | undefined;
+    if (arg === '--contract') value = argv[i + 1];
+    else if (arg.startsWith('--contract=')) value = arg.slice('--contract='.length);
+    if (value !== undefined) {
+      if (!(SUPPORTED_CONTRACTS as readonly string[]).includes(value)) {
+        throw new Error(`Unknown contract: ${value}. Supported: ${SUPPORTED_CONTRACTS.join(', ')}.`);
+      }
+      return value as ContractName;
+    }
+  }
+  return 'counter';
+}
+
+const CONTRACT = parseContractFlag(process.argv);
+const PRIVATE_STATE_ID = CONTRACT === 'hello-world' ? 'helloWorldPrivateState' : 'counterPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -66,17 +87,17 @@ async function waitForProofServer(maxAttempts = 60, delayMs = 2000): Promise<boo
 // ─── Compiled contract loading ─────────────────────────────────────────────────
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', CONTRACT);
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 
 if (!fs.existsSync(contractPath)) {
-  console.error('\n❌ Contract not compiled! Run: npm run compile\n');
+  console.error(`\n❌ Contract not compiled! Run: npm run compile:${CONTRACT}\n`);
   process.exit(1);
 }
 
-const HelloWorld = await import(pathToFileURL(contractPath).href);
+const ContractModule = await import(pathToFileURL(contractPath).href);
 
-const compiledContract = CompiledContract.make('hello-world', HelloWorld.Contract).pipe(
+const compiledContract = CompiledContract.make(CONTRACT, ContractModule.Contract).pipe(
   CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
@@ -112,7 +133,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'hello-world-state',
+      privateStateStoreName: `${CONTRACT}-state`,
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),

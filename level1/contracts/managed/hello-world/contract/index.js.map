@@ -4,5 +4,5 @@
   "sourceRoot": "../../../../",
   "sources": ["contracts/hello-world.compact"],
   "names": [],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;MASA,AAAA,YAEC;;;;;cAF2B,eAA+B;;;;;;;;;;;yCAA/B,eAA+B;;;;;;;;;8CAA/B,eAA+B;;;OAE1D;;;;GACA;EAZD;;;;;;;;;;;;;;;;;;;;;;;;;;IAKA;;;;;;;;;yEAAwC;;;;;;;GAOvC;EAHD,AAAA,eAEC,4BAF2B,eAA+B;IACvD;;;;;;;2HAAmB,eAAa;;yEAAzB;;GACV;;;;;;;;;;;;;;;;IAND;qCAAA;;;;;;;;;;;0GAAwC;KAAA;;;;;;;;;;"
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;MAUA,AAAA,YAIC;;;;;cAJ2B,eAA+B;;;;;;;;;;;yCAA/B,eAA+B;;;;;;;;;8CAA/B,eAA+B;;;OAI1D;;;;GACA;EAfD;;;;;;;;;;;;;;;;;;;;;;;;;;IAKA;;;;;;;;;yEAAwC;;;;;;;GAUvC;EALD,AAAA,eAIC,4BAJ2B,eAA+B;IAGvD;;;;;;;2HAAmB,eAAa;;yEAAzB;;GACV;;;;;;;;;;;;;;;;IATD;qCAAA;;;;;;;;;;;0GAAwC;KAAA;;;;;;;;;;"
 }

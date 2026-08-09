@@ -1,0 +1,60 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  counter.compact
+//
+//  A ZK counter that draws an explicit line between what lives on-chain
+//  and what is kept only inside the caller's proof.
+//
+//  ── PUBLIC (on-chain ledger, visible to anyone) ──────────────────────
+//    ledger total          : the running counter value. Every call writes
+//                            a new public value that anyone can read.
+//    ledger lastDisclosed  : the most recent Uint<16> the caller
+//                            DELIBERATELY published. Initialised to 0,
+//                            i.e. "nothing has been disclosed yet".
+//
+//  ── PRIVATE (circuit witness, never on-chain) ────────────────────────
+//    `amount` : a private parameter supplied by the caller at call time.
+//               It is fed into the ZK circuit so the network can verify
+//               that the new `total` really equals the old total plus
+//               `amount`. Unless a circuit explicitly discloses it,
+//               `amount` is never committed to the ledger; observe that
+//               in `increment` no named ledger field receives it.
+//
+//  ── disclose() — used deliberately ─────────────────────────────────────
+//  Two circuits share the same arithmetic but treat the witness
+//  differently, demonstrating privacy-vs-disclosure in one contract:
+//    increment(amount)           : total += amount. The `disclose()`
+//                                   wrapper here only declares to the
+//                                   compiler that the counter delta may
+//                                   be public; the amount itself is not
+//                                   stored anywhere it can be read back.
+//    incrementAndReveal(amount)  : total += amount AND writes `amount`
+//                                   into the named public field
+//                                   lastDisclosed via disclose() — the
+//                                   caller deliberately trading away
+//                                   that privacy.
+//
+//  A user of `increment` proves "the counter moved by my amount" without
+//  ever placing `amount` itself on-chain.
+// ═══════════════════════════════════════════════════════════════════════
+
+export ledger total: Counter;
+
+export ledger lastDisclosed: Uint<16>;
+
+// Proves `total' = total + amount` and moves the counter, but keeps the
+// amount itself out of the public ledger. The disclose() marker here only
+// declares the boundary crossing implied by the public `total` delta.
+export circuit increment(amount: Uint<16>): [] {
+    total.increment(disclose(amount));
+}
+
+// Same arithmetic, but deliberately discloses the amount: `amount` is
+// written into the named public ledger `lastDisclosed` via disclose().
+export circuit incrementAndReveal(amount: Uint<16>): [] {
+    total.increment(disclose(amount));
+    lastDisclosed = disclose(amount);
+}

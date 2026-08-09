@@ -5,7 +5,7 @@ Midnight Network Builder Challenge — Levels 1 & 2.
 - **Level 1** (`level1/`) — a private-by-default **counter** Compact contract with a deliberate `disclose()` path.
 - **Level 2** (`level2/`) — **MidnightTrace**, a browser dApp that connects your wallet and proves a private forensic step on-chain.
 
-> Live Level 2 demo: **https://level2-alpha.vercel.app**
+> Live Level 2 demo: **https://midnighttrace.vercel.app**
 
 ## Project structure
 
@@ -89,7 +89,7 @@ proving `total' = total + amount` on-chain without ever revealing `amount`.
 
 ## Live Demo
 
-**https://level2-alpha.vercel.app**
+**https://midnighttrace.vercel.app**
 
 ## Deployed contract (counter — used by level 2)
 

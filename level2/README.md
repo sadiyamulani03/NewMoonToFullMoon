@@ -4,7 +4,7 @@
 
 ## Live Demo
 
-https://level2-alpha.vercel.app
+https://midnighttrace.vercel.app
 
 ## Contract Address
 

@@ -175,5 +175,3 @@ level2/
 └── package.json
 ```
 
-See `level2/README.md` for the fuller walkthrough.
-

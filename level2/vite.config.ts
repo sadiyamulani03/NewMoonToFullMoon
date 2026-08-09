@@ -51,5 +51,8 @@ export default defineConfig({
     fs: {
       allow: ['..'],
     },
+    proxy: {
+      '/api': 'http://localhost:4000',
+    },
   },
 });

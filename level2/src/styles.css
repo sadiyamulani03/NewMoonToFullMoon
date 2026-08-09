@@ -364,3 +364,271 @@ a {
 a:hover {
   text-decoration-color: var(--amber);
 }
+
+/* --- mobile: single column, roomier, softer shadows --- */
+@media (max-width: 640px) {
+  .header-content {
+    padding: 30px 18px 22px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.92rem;
+  }
+
+  .container {
+    padding: 22px 14px 40px;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 18px 16px 20px;
+    box-shadow: 3px 3px 0 rgba(29, 27, 22, 0.9);
+  }
+
+  .section-head {
+    font-size: 1.15rem;
+  }
+
+  .ledger-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .ledger-row .value {
+    margin-bottom: 8px;
+  }
+
+  .address-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .wallet-actions .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .loading-row {
+    align-items: flex-start;
+  }
+
+  .result-box {
+    padding: 12px 12px;
+  }
+
+  .result-box::after {
+    position: static;
+    display: block;
+    margin-top: 8px;
+  }
+
+  .footer {
+    padding: 4px 16px 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .header h1 {
+    font-size: 1.7rem;
+  }
+
+  .card {
+    padding: 16px 14px 18px;
+  }
+}
+
+/* --- multi-page dApp --- */
+
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 6px 12px;
+  background: var(--card);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  border-color: var(--amber);
+}
+
+.nav-link-active {
+  color: #241a05;
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.header-wallet {
+  margin-top: 14px;
+}
+
+.wallet-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+}
+
+.pill-stamp {
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.stat-box {
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+
+.quick-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-links .btn {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.case-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.case-list li {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffdf6;
+}
+
+.case-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.case-row:hover {
+  border-left: 4px solid var(--amber);
+}
+
+.case-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.status-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px 8px;
+  color: var(--ok);
+  white-space: nowrap;
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
+  margin-bottom: -6px;
+}
+
+.breadcrumb a {
+  color: var(--ink-soft);
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 14px 0 6px;
+}
+
+.form-input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: #fffdf6;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 10px 12px;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.form-input:focus {
+  outline: 2px solid var(--amber);
+  outline-offset: 0;
+}
+
+.privacy-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .case-row {
+    flex-direction: column;
+  }
+
+  .header-wallet .btn {
+    width: 100%;
+  }
+}

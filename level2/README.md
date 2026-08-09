@@ -20,7 +20,7 @@ a hidden transaction amount, counted evidence items, or verified a batch size)
 without disclosing the underlying data. This dApp demonstrates exactly that
 pattern using the Midnight counter contract from Level 1:
 
-1. Connect your **Lace wallet** on **Preprod**.
+1. Connect your Midnight wallet (**1AM** or **Lace**) on **Preprod**.
 2. The dApp joins the deployed `counter` contract on-chain.
 3. Press **Run Circuit** — the `increment(amount)` circuit is called with a
    **private witness amount** (`amount`). A zero-knowledge proof is generated
@@ -69,12 +69,12 @@ path leaves it nowhere on-chain.
 - Midnight.js SDK (`@midnight-ntwrk/midnight-js` 4.1.1)
 - DApp Connector API (`@midnight-ntwrk/dapp-connector-api`)
 - React 19 + Vite + TypeScript
-- Lace wallet (browser extension)
+- 1AM or Lace wallet (browser extension)
 
 ## Prerequisites
 
-- **Lace wallet** extension installed in your browser and switched to
-  **Preprod**
+- **1AM** or **Lace wallet** extension installed in your browser and switched
+  to **Preprod** (1AM also sponsors proving + fees, so no DUST setup needed)
 - **Node.js v22** (the Midnight toolchain requires ≥ 22)
 - Docker (only needed if you redeploy the contract locally)
 
@@ -95,7 +95,7 @@ cp .env.example .env
 
 # 4. Run the dev server
 npm run dev
-# open http://localhost:5173, connect Lace on Preprod, and run the circuit
+# open http://localhost:5173, connect your wallet (1AM or Lace) on Preprod, and run the circuit
 
 # Or build for production
 npm run build
@@ -128,7 +128,7 @@ netlify deploy --prod --dir dist
 
 ## Demo Video
 
-[PLACEHOLDER — I will add the link after recording]
+https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=sharing
 
 ## Tests
 

@@ -17,11 +17,12 @@ export function WalletConnect({ walletState, walletInfo, connect, disconnect }: 
 
   return (
     <section className="card wallet-card">
-      <h2 className="card-title">Wallet</h2>
+      <p className="section-head">
+        <span className="section-no">01</span> Wallet
+      </p>
 
-      <div className={`status-badge ${isConnected ? 'badge-ok' : 'badge-off'}`}>
-        <span className="status-dot" />
-        {isConnected ? 'Connected' : 'Not connected'}
+      <div className={`stamp ${isConnected ? 'stamp-live' : 'stamp-standby'}`}>
+        {isConnected ? '● Live' : '○ Standby'}
       </div>
 
       {isConnected && walletInfo && (
@@ -30,40 +31,45 @@ export function WalletConnect({ walletState, walletInfo, connect, disconnect }: 
             <strong>{walletInfo.walletName}</strong> · network <code>{walletInfo.networkId}</code>
           </p>
           <p className="address-line">
-            <span className="info-label">Address:</span> <code className="address">{shortAddress(walletInfo.address)}</code>
+            <span className="info-label">Shielded address</span>
+            <code className="address">{shortAddress(walletInfo.address)}</code>
           </p>
         </div>
       )}
 
       {!isConnected && walletState.status === 'wallet-not-installed' && (
         <p className="error-text">
-          No Midnight wallet detected. Install the{' '}
-          <a href="https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk" target="_blank" rel="noreferrer">
-            Lace wallet extension
+          No Midnight wallet in this browser. Grab{' '}
+          <a href="https://chromewebstore.google.com/detail/1am/bphnkdkcnfhompoegfpgnkidcjfbojjp" target="_blank" rel="noreferrer">
+            1AM
           </a>{' '}
-          and switch it to Preprod, then reload.
+          or{' '}
+          <a href="https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk" target="_blank" rel="noreferrer">
+            Lace
+          </a>
+          , switch it to Preprod, and reload.
         </p>
       )}
 
       {!isConnected && walletState.status === 'network-mismatch' && (
         <p className="error-text">
-          Wallet network mismatch: this dApp requires <strong>{walletState.expected}</strong> but the wallet is on{' '}
-          <strong>{walletState.actual}</strong>. Switch your Lace wallet network to <strong>{walletState.expected}</strong>.
+          Wallet network mismatch: this dApp expects <strong>{walletState.expected}</strong> but the wallet is on{' '}
+          <strong>{walletState.actual}</strong>. Switch the wallet network to <strong>{walletState.expected}</strong>.
         </p>
       )}
 
       {!isConnected && walletState.status === 'rejected' && (
-        <p className="error-text">Connection request was rejected in the wallet. Click Connect to try again.</p>
+        <p className="error-text">Connection was declined in the wallet. Hit Connect to have another go.</p>
       )}
 
       {!isConnected && walletState.status === 'error' && <p className="error-text">{walletState.message}</p>}
 
-      {walletState.status === 'connecting' && <p className="muted-text">Connecting to Lace wallet…</p>}
+      {walletState.status === 'connecting' && <p className="muted-text">Waiting on the wallet…</p>}
 
       <div className="wallet-actions">
         {!isConnected && (
           <button className="btn btn-primary" onClick={connect} disabled={walletState.status === 'connecting'}>
-            {walletState.status === 'connecting' ? 'Connecting…' : 'Connect Wallet'}
+            {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
           </button>
         )}
         {isConnected && (

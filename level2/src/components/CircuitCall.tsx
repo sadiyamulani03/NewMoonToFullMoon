@@ -34,59 +34,59 @@ export function CircuitCall({ contract, callCircuit, total, lastDisclosed, proof
     }
   }
 
-  const isBusy =
-    callStatus.status === 'generating-proof' || callStatus.status === 'submitting';
+  const isBusy = callStatus.status === 'generating-proof' || callStatus.status === 'submitting';
 
   return (
     <section className="card circuit-card">
-      <h2 className="card-title">Forensics Circuit</h2>
+      <p className="section-head">
+        <span className="section-no">03</span> Run the circuit
+      </p>
 
       <p className="muted-text">
-        Calls the <code>increment</code> circuit on the deployed counter contract. The step amount is a{' '}
-        <strong>private witness</strong> fed into the zero-knowledge proof — it is never placed on-chain and never
-        shown in this UI.
+        This fires the <code>increment</code> circuit on the deployed counter. The step amount is a{' '}
+        <strong>private witness</strong> — the proof convinces the chain the counter moved, but neither the ledger nor
+        this page ever learns by how much.
       </p>
 
       {!contract ? (
-        <p className="error-text">Connect your wallet first to join the contract.</p>
+        <p className="error-text">Connect the wallet first so we can pick the contract back up.</p>
       ) : (
         <>
           <div className="ledger-row">
-            <span className="info-label">Public ledger — total:</span>
+            <span className="info-label">Recorded total</span>
             <code className="value">{total === null ? '…' : total.toString()}</code>
-            <span className="info-label">lastDisclosed:</span>
+            <span className="info-label">Last disclosed</span>
             <code className="value">{lastDisclosed === null ? '…' : lastDisclosed.toString()}</code>
           </div>
 
           <button className="btn btn-primary btn-block" onClick={onCall} disabled={isBusy}>
             {callStatus.status === 'generating-proof'
-              ? 'Generating zero-knowledge proof locally…'
+              ? 'Working out the proof…'
               : callStatus.status === 'submitting'
-                ? 'Submitting transaction…'
-                : 'Run Circuit'}
+                ? 'Sending it on-chain…'
+                : 'Run the circuit'}
           </button>
 
           {callStatus.status === 'generating-proof' && (
             <div className="loading-row">
               <span className="spinner" />
               <p className="muted-text">
-                Generating a zero-knowledge proof in the browser
-                {proofMode === 'wallet' ? ' (delegated to your wallet)' : ' (via proof server)'}. This proves the
-                counter moved by your hidden amount without revealing it.
+                Building the zero-knowledge proof{proofMode === 'wallet' ? ' with your wallet' : ' on the proof server'}.
+                It shows the counter moved the right way while keeping your step hidden.
               </p>
             </div>
           )}
 
           {callStatus.status === 'success' && (
             <div className="result-box">
-              <p className="ok-text">Transaction submitted on-chain</p>
+              <p className="ok-text">Transaction landed on-chain</p>
               <p>
-                <span className="info-label">txId:</span> <code className="tx-id">{callStatus.txId}</code>
+                <span className="info-label">txId</span> <code className="tx-id">{callStatus.txId}</code>
               </p>
               <p>
-                <span className="info-label">block:</span> <code>{callStatus.blockHeight.toString()}</code>
+                <span className="info-label">block</span> <code>{callStatus.blockHeight.toString()}</code>
               </p>
-              <p className="privacy-note">✓ Proved without revealing your input</p>
+              <p className="privacy-note">✓ proved without ever revealing your step</p>
             </div>
           )}
 

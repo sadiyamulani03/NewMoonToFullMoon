@@ -26,8 +26,12 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="header-content">
+          <p className="kicker">Midnight Network · preprod</p>
           <h1>MidnightTrace</h1>
-          <p className="subtitle">Private Blockchain Forensics on Midnight</p>
+          <p className="subtitle">
+            A pocket case-file that watches a private counter. Connect a wallet, run the circuit, and get a receipt you
+            can keep.
+          </p>
         </div>
       </header>
 
@@ -42,9 +46,11 @@ export default function App() {
         />
 
         <section className="card contract-card">
-          <h2 className="card-title">Contract</h2>
+          <p className="section-head">
+            <span className="section-no">02</span> Contract on file
+          </p>
           <p className="muted-text">
-            <span className="info-label">Address (Preprod):</span>{' '}
+            The counter contract this case follows, parked on Preprod:{' '}
             <code className="address">{midnight.contractAddress}</code>
           </p>
         </section>
@@ -58,9 +64,8 @@ export default function App() {
         />
 
         <footer className="footer">
-          <p className="muted-text">
-            MidnightTrace — private blockchain forensics. Proofs are generated locally; your private input never
-            appears on-chain or in this interface.
+          <p>
+            Proofs are generated locally — your private step never reaches the chain or this screen.
           </p>
         </footer>
       </main>

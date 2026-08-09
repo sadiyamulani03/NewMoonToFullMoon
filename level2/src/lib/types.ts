@@ -28,5 +28,6 @@ export async function findDeployedCounter(providers: CounterProviders, contractA
     compiledContract: CompiledCounterContract,
     contractAddress,
     privateStateId: 'midnighttraceCounterPrivateState',
+    initialPrivateState: {},
   });
 }

@@ -13,6 +13,46 @@ import type { CounterCircuits, CounterProviders } from './types';
 const PRIVATE_STATE_PASSWORD = 'MidnightTrace-demo-storage-password!';
 
 /**
+ * Public Midnight indexer endpoints per network. Some wallets (notably the
+ * 1AM wallet) report their own ProofStation gateway as the indexer URI in
+ * `getConfiguration()`. Those proxy endpoints require an API key and return
+ * HTTP 401 to a DApp that does not hold one, which breaks every
+ * `queryContractState` call. Since the DApp only needs public ledger data,
+ * we remap the wallet-provided indexer URIs to the public Midnight indexer
+ * for whatever network the wallet is connected to. Proving, balancing, and
+ * submission remain delegated to the wallet itself.
+ */
+const PUBLIC_INDEXER_URIS: Record<string, { http: string; ws: string }> = {
+  preprod: {
+    http: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+    ws: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+  },
+  preview: {
+    http: 'https://indexer.preview.midnight.network/api/v4/graphql',
+    ws: 'wss://indexer.preview.midnight.network/api/v4/graphql/ws',
+  },
+  mainnet: {
+    http: 'https://indexer.mainnet.midnight.network/api/v4/graphql',
+    ws: 'wss://indexer.mainnet.midnight.network/api/v4/graphql/ws',
+  },
+};
+
+function resolveIndexerUris(config: { networkId: string; indexerUri: string; indexerWsUri: string }) {
+  const publicUris = PUBLIC_INDEXER_URIS[config.networkId];
+  if (!publicUris) {
+    return { indexerUri: config.indexerUri, indexerWsUri: config.indexerWsUri };
+  }
+  const isOneAmProxy =
+    /^https?:\/\/[^/]*\.1am\.xyz/i.test(config.indexerUri) &&
+    /\/api\/v4\/graphql/i.test(config.indexerUri);
+  const isOneAmWsProxy = /wss?:\/\/[^/]*\.1am\.xyz/i.test(config.indexerWsUri);
+  return {
+    indexerUri: isOneAmProxy ? publicUris.http : config.indexerUri,
+    indexerWsUri: isOneAmWsProxy ? publicUris.ws : config.indexerWsUri,
+  };
+}
+
+/**
  * Build the full set of Midnight.js providers from a connected DApp
  * Connector wallet. Proof generation is delegated to the wallet's proving
  * provider first (proofs are produced locally in the browser/wallet). If the
@@ -28,9 +68,11 @@ export async function buildProvidersFromConnectedAPI(
 
   const config = await connectedAPI.getConfiguration();
 
+  const { indexerUri, indexerWsUri } = resolveIndexerUris(config);
+
   const publicDataProvider = indexerPublicDataProvider(
-    config.indexerUri,
-    config.indexerWsUri,
+    indexerUri,
+    indexerWsUri,
     // The browser's native WebSocket; isomorphic-ws's named export is missing
     // in the browser build, so pin the impl explicitly.
     WebSocket,

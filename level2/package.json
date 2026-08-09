@@ -5,11 +5,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"node server/index.mjs\" \"vite\"",
+    "dev:api": "node server/index.mjs",
+    "dev:web": "vite",
     "build": "tsc -b && vite build",
+    "build:web": "vite build",
     "preview": "vite preview",
+    "start": "node server/index.mjs",
     "typecheck": "tsc -b --noEmit",
-    "test": "npm run build && node tests/smoke.mjs"
+    "test": "npm run build && node tests/smoke.mjs && node tests/api-smoke.mjs"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
@@ -21,14 +25,16 @@
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
     "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
-    "@midnight-ntwrk/midnight-js-types": "4.1.1",
     "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "events": "^3.3.0",
+    "express": "^5.2.1",
     "process": "^0.11.10",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.18.2",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5"
   },
@@ -37,6 +43,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
+    "concurrently": "^9.2.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
     "vite-plugin-static-copy": "^3.1.4",

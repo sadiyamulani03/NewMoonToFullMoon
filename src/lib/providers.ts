@@ -88,13 +88,38 @@ export async function buildProvidersFromConnectedAPI(
 
   const costModel = CostModel.initialCostModel();
 
+  // An explicit proof-server URI (e.g. a self-hosted Midnight proof server,
+  // `npm run proof-server:start`) wins over whatever the wallet reports. This
+  // lets the dApp run when the wallet does not expose an in-wallet prover.
+  const configuredProverUri = (import.meta.env.VITE_PROOF_SERVER_URI as string | undefined)?.trim();
+  const proverServerUri = configuredProverUri || config.proverServerUri;
+
   const proofProvider: ProofProvider = provingProvider
     ? {
         async proveTx(unprovenTx: any) {
-          return unprovenTx.prove(provingProvider, costModel);
+          try {
+            return await unprovenTx.prove(provingProvider, costModel);
+          } catch (err) {
+            // Wallet-internal proving can fail when its proving station is
+            // unreachable (e.g. "Failed to fetch"). If a proof server URI is
+            // available, retry proving against it before giving up.
+            if (proverServerUri) {
+              return await httpClientProofProvider(proverServerUri, zkConfigProvider).proveTx(unprovenTx);
+            }
+            throw err;
+          }
         },
       }
-    : httpClientProofProvider(config.proverServerUri!, zkConfigProvider);
+    : proverServerUri
+      ? httpClientProofProvider(proverServerUri, zkConfigProvider)
+      : (() => {
+          throw new Error(
+            'No proving infrastructure available: the wallet exposed no in-wallet ' +
+              'proving provider and no prover server URI is configured. Set ' +
+              'VITE_PROOF_SERVER_URI (e.g. http://localhost:6300 for the local ' +
+              'proof server) or use a wallet that supports in-wallet proving.',
+          );
+        })();
 
   const shieldedAddress: ShieldedAddress = await connectedAPI.getShieldedAddresses();
 

@@ -1,1 +1,0 @@
-export * from './compiled/counter/contract/index.js';

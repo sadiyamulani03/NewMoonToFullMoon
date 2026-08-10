@@ -27,8 +27,8 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'src/contract/compiled',
-          dest: 'contract',
+          src: 'contracts/managed/counter',
+          dest: 'contract/compiled',
         },
       ],
     }),

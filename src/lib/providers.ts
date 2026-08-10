@@ -75,6 +75,9 @@ export async function buildProvidersFromConnectedAPI(
     indexerWsUri,
     // The browser's native WebSocket; isomorphic-ws's named export is missing
     // in the browser build, so pin the impl explicitly.
+    // @ts-expect-error ws's WebSocket constructor and the DOM WebSocket are
+    // structurally different only in their static members, and the browser's
+    // WebSocket is what we want here.
     WebSocket,
   );
 

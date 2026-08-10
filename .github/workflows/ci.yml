@@ -9,9 +9,6 @@ jobs:
   contract:
     name: Compact compile + contract tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: level1
     steps:
       - uses: actions/checkout@v4
 
@@ -19,7 +16,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: level1/package-lock.json
 
       - name: Install Compact compiler
         uses: midnightntwrk/setup-compact-action@v1
@@ -37,9 +33,6 @@ jobs:
   frontend:
     name: Frontend build + smoke test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: level2
     steps:
       - uses: actions/checkout@v4
 
@@ -47,7 +40,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: level2/package-lock.json
 
       - run: npm ci
 

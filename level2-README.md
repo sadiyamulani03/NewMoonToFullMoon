@@ -101,7 +101,7 @@ path leaves it nowhere on-chain.
 ```bash
 # 1. Clone the repo
 git clone <your-repo-url>
-cd NewMoonToFullMoon/level2
+cd NewMoonToFullMoon
 
 # 2. Install dependencies
 npm install
@@ -132,7 +132,8 @@ host works (`npm install && npm run build && npm start`).
 stack — the Vite frontend as static output (`dist/`) **and** the Express API as
 a serverless function ([`api/index.mjs`](./api/index.mjs)), with `/api/*`
 rewired to the function and all other routes SPA-fallback. Import the repo in
-Vercel (root dir `level2`, framework **Vite**), set `VITE_NETWORK_ID=preprod`
+Vercel (root directory at the repo root, framework **Vite**), set
+`VITE_NETWORK_ID=preprod`
 and `VITE_CONTRACT_ADDRESS`, and deploy. Live at
 https://midnighttrace.vercel.app.
 
@@ -148,13 +149,12 @@ https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=shari
 ## Tests
 
 ```bash
-cd level2
 npm test   # builds the app, verifies ZK assets ship in dist/, and smoke-tests the API
 ```
 
 ## CI/CD
 
-The repo-wide pipeline lives at `<repo-root>/.github/workflows/ci.yml` and runs on every push to `main` and every pull request. The `frontend` job installs dependencies, runs the production Vite build, and runs both the ZK-asset smoke test and the Express API smoke test. The `contract` job compiles the counter contract and runs the unit tests in `level1`.
+The repo-wide pipeline lives at `<repo-root>/.github/workflows/ci.yml` and runs on every push to `main` and every pull request. The `frontend` job installs dependencies, runs the production Vite build, and runs both the ZK-asset smoke test and the Express API smoke test. The `contract` job compiles the counter contract and runs the unit tests in `tests/`.
 
 Status badge: ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
 
@@ -165,26 +165,26 @@ See **[PROPOSAL.md](../PROPOSAL.md)** in the repo root.
 ## File Structure
 
 ```
-level2/
-├── server/                      (Express API: cases, receipts, stats — serves dist/ in prod)
-├── contracts/            (reference — the counter.compact source)
+NewMoonToFullMoon/
+├── contracts/                  (Compact sources + compiled artifacts + ZK keys)
+├── server/                     (Express API: cases, receipts, stats — serves dist/ in prod)
+├── api/index.mjs               (Vercel serverless entry for the Express API)
+├── scripts/                    (Level 1 CLI: deploy, network, wallet, demo)
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── Layout.tsx           (nav shell + wallet pill)
+│   │   ├── Layout.tsx          (nav shell + wallet pill)
 │   │   └── CircuitCall.tsx
 │   ├── context/
-│   │   └── MidnightContext.tsx  (shared wallet/contract state)
+│   │   └── MidnightContext.tsx (shared wallet/contract state)
 │   ├── hooks/
 │   │   └── useMidnight.ts
-│   ├── lib/              (api client, providers, wallet adapter, ledger, types)
-│   ├── pages/            (Dashboard, Cases, CaseDetail, CreateCase, About)
-│   ├── contract/compiled/counter/  (compiled ZK assets, served statically)
-│   ├── App.tsx           (React Router routes)
+│   ├── lib/                    (api client, providers, wallet adapter, ledger, types)
+│   ├── pages/                  (Dashboard, Cases, CaseDetail, CreateCase, About)
+│   ├── App.tsx                 (React Router routes)
 │   ├── main.tsx
-│   └── config.ts         (Preprod contract address)
-├── tests/                (smoke.mjs — ZK assets; api-smoke.mjs — Express API)
-├── api/index.mjs         (Vercel serverless entry for the Express API)
+│   └── config.ts               (Preprod contract address)
+├── tests/                      (counter.test.ts; smoke.mjs — ZK assets; api-smoke.mjs — Express API)
 ├── vercel.json / netlify.toml
 └── package.json
 ```

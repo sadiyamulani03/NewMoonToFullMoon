@@ -1,4 +1,4 @@
-import { ledger as compiledLedger } from '../contract/compiled/counter/contract/index.js';
+import { ledger as compiledLedger } from '../contract';
 
 import type { StateValue, ChargedState } from '@midnight-ntwrk/compact-runtime';
 

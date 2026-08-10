@@ -1,7 +1,7 @@
 [build]
   command = "npm install && npm run build"
   publish = "dist"
-  base = "level2"
+  base = "."
 
 [build.environment]
   NODE_VERSION = "22"

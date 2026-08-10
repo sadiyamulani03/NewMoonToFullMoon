@@ -10,7 +10,7 @@
 
 > Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,
 > and the Express API (`/api/health`, `/api/cases`, `/api/stats`, …). Deployed
-> from the `level2/` workspace via the included `vercel.json` (see
+> from the repo root via the included `vercel.json` (see
 > **Deploy to Vercel** below).
 
 ## Contract Address
@@ -82,7 +82,7 @@ path leaves it nowhere on-chain.
 
 - Midnight Network
 - Compact smart contract language (`counter.compact`, compiled artifacts + ZK
-  keys under `level1/contracts/managed/` and `level2/src/contract/compiled/`)
+  keys under `contracts/managed/`)
 - Midnight.js SDK (`@midnight-ntwrk/midnight-js` 4.1.1 — indexer public data
   provider, level private state provider, fetch ZK config provider, ledger-v8)
 - DApp Connector API (`@midnight-ntwrk/dapp-connector-api`)
@@ -104,24 +104,21 @@ path leaves it nowhere on-chain.
 ## Setup & Run Locally
 
 ```bash
-# Contract app (Level 1) — install, compile, test
-cd level1
-npm install
-npm run compile
-npm test
-
-# Frontend dApp (Level 2) — full-stack: Express API + Vite web, run together
-cd ../level2
+# Install dependencies (root package.json covers contracts, scripts, frontend)
 npm install
 
 # Configure the Preprod contract address (set VITE_CONTRACT_ADDRESS to the
-# Level 1 Preprod address). Default in src/config.ts already points there.
+# Preprod address below). Default in src/config.ts already points there.
 cp .env.example .env   # edit .env and paste your address if needed
 
 # Run the whole stack (API on :4000 + web on :5173)
 npm run dev
 # open the printed URL, connect your wallet (1AM or Lace) on Preprod,
 # browse Cases, and run the circuit
+
+# Contract app (Level 1) — compile + tests
+npm run compile
+npm run test:contract
 
 # Or build for production and let the Express server serve dist/ + API
 npm run build
@@ -130,13 +127,13 @@ npm start   # http://localhost:4000
 
 ## Deploy to Vercel
 
-The repo ships a [`level2/vercel.json`](./level2/vercel.json) config that deploys
+The repo ships a [`vercel.json`](./vercel.json) config that deploys
 the full-stack app: the Vite frontend as static output (`dist/`) plus the Express
-API as a serverless function (`level2/api/index.mjs`), with `/api/*` rewired to
+API as a serverless function (`api/index.mjs`), with `/api/*` rewired to
 the function and all other routes falling back to the SPA.
 
 1. Push this repo to GitHub (it is already public) and import it into Vercel.
-2. Set the root directory to `level2` and the framework preset to **Vite**.
+2. Leave the root directory at the repo root and set the framework preset to **Vite**.
 3. Add env vars: `VITE_NETWORK_ID=preprod` and `VITE_CONTRACT_ADDRESS`
    (secret) set to the Preprod address above.
 4. Deploy. Vercel builds `npm install && npm run build` and serves both the
@@ -151,18 +148,16 @@ the function and all other routes falling back to the SPA.
 
 ```bash
 # Contract unit tests (circuit logic, state transitions, privacy) — 8 tests
-cd level1
-npm test
+npm run test:contract
 
 # Frontend build + ZK smoke test + API smoke test
-cd ../level2
-npm test
+npm run test:frontend
 ```
 
 Output (contract tests):
 
 ```
-> level1@1.0.0 test
+> midnighttrace@1.0.0 test:contract
 > vitest run
 
  ✓ tests/counter.test.ts (8 tests) 110ms
@@ -212,23 +207,23 @@ NewMoonToFullMoon/
 ├── .github/workflows/ci.yml     # CI/CD pipeline (push main + PR)
 ├── PROPOSAL.md                  # product proposal
 ├── README.md
-├── level1/                      # Midnight Compact contract app
-│   ├── contracts/counter.compact
-│   ├── contracts/managed/       # compiled contract artifacts + ZK keys
-│   ├── tests/                   # counter.test.ts (8 unit tests) + simulator
-│   └── package.json
-└── level2/                      # MidnightTrace full-stack dApp
-    ├── server/                  # Express API (cases, receipts, stats) + prod static hosting
-    ├── src/
-    │   ├── components/          # Layout (nav + wallet pill), CircuitCall
-    │   ├── context/             # MidnightProvider (shared wallet/contract state)
-    │   ├── hooks/               # useMidnight.ts (connect, join, run circuit)
-    │   ├── lib/                 # api client, providers, wallet adapter, ledger, types
-    │   ├── pages/               # Dashboard, Cases, CaseDetail, CreateCase, About
-    │   ├── contract/compiled/counter/  # compiled ZK assets, served statically
-    │   ├── App.tsx              # React Router routes
-    │   ├── main.tsx
-    │   └── config.ts            # Preprod contract address
-    ├── tests/                   # ZK smoke + API smoke
-    └── package.json
+├── contracts/                   # Compact sources + compiled artifacts
+│   ├── counter.compact
+│   ├── hello-world.compact
+│   └── managed/                 # compiled contract artifacts + ZK keys
+├── api/index.mjs                # Express API entry (serverless for Vercel)
+├── server/index.mjs             # Express API (cases, receipts, stats) + prod static hosting
+├── scripts/                     # Level 1 CLI: setup, deploy, network, wallet, demo
+├── src/
+│   ├── components/              # Layout (nav + wallet pill), CircuitCall
+│   ├── context/                 # MidnightProvider (shared wallet/contract state)
+│   ├── hooks/                   # useMidnight.ts (connect, join, run circuit)
+│   ├── lib/                     # api client, providers, wallet adapter, ledger, types
+│   ├── pages/                   # Dashboard, Cases, CaseDetail, CreateCase, About
+│   ├── App.tsx                  # React Router routes
+│   ├── main.tsx
+│   └── config.ts                # Preprod contract address
+├── tests/                       # counter.test.ts (8 unit tests), simulator, ZK + API smoke
+├── vercel.json                  # Vercel full-stack deploy config
+└── package.json
 ```

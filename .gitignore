@@ -67,3 +67,4 @@ server/data/
 
 # Deploy platform
 .vercel
+.env*

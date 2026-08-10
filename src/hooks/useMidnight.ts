@@ -36,6 +36,26 @@ export function findFirstWallet(): InitialAPI | null {
   return wallets.length > 0 ? wallets[0] : null;
 }
 
+const CONNECT_TIMEOUT_MS = 20_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${what} timed out after ${ms / 1000}s — no response from the wallet extension.`));
+    }, ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
 export function useMidnight() {
   const [walletState, setWalletState] = useState<WalletState>({ status: 'idle' });
   const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
@@ -91,8 +111,8 @@ export function useMidnight() {
 
     setWalletState({ status: 'connecting' });
     try {
-      const connected = await wallet.connect(NETWORK_ID);
-      const config = await connected.getConfiguration();
+      const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
+      const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
 
       if (config.networkId !== NETWORK_ID) {
         setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });

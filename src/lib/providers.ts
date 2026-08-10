@@ -88,19 +88,16 @@ export async function buildProvidersFromConnectedAPI(
 
   const costModel = CostModel.initialCostModel();
 
-  // An explicit proof-server URI (e.g. a self-hosted Midnight proof server,
-  // `npm run proof-server:start`) wins over the wallet's in-wallet prover and
-  // over whatever the wallet reports. Many connectors (e.g. 1AM) delegate
-  // proving to a cloud proving station that this dApp cannot reach without an
-  // API key, surfacing as "Proving check failed: Failed to fetch". A reachable
-  // proof server avoids that entirely.
+  // A proof server explicitly configured by the operator (e.g. a self-hosted
+  // Midnight proof server, `npm run proof-server:start`) takes priority: many
+  // connectors (e.g. 1AM) delegate proving to a cloud proving station this
+  // dApp cannot reach without an API key, surfacing as "Proving check failed:
+  // Failed to fetch". The wallet's in-wallet prover remains the default so the
+  // connect flow never depends on a possibly-malformed wallet-reported URI.
   const configuredProverUri = (import.meta.env.VITE_PROOF_SERVER_URI as string | undefined)?.trim();
-  const proverServerUri = configuredProverUri || config.proverServerUri;
 
-  // Preferred: a configured proof server. Falls back to the wallet's in-wallet
-  // prover, and finally to the wallet-reported prover server URI.
-  const proofProvider: ProofProvider = proverServerUri
-    ? httpClientProofProvider(proverServerUri, zkConfigProvider)
+  const proofProvider: ProofProvider = configuredProverUri
+    ? httpClientProofProvider(configuredProverUri, zkConfigProvider)
     : provingProvider
       ? {
           async proveTx(unprovenTx: any) {
@@ -108,8 +105,8 @@ export async function buildProvidersFromConnectedAPI(
               return await unprovenTx.prove(provingProvider, costModel);
             } catch (err) {
               // Wallet-internal proving can fail when its proving station is
-              // unreachable (e.g. "Failed to fetch"). If a prover server URI
-              // surfaced from the wallet config, retry against it.
+              // unreachable (e.g. "Failed to fetch"). If the wallet reported a
+              // prover server URI, retry against it before giving up.
               if (config.proverServerUri) {
                 return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx);
               }
@@ -117,14 +114,16 @@ export async function buildProvidersFromConnectedAPI(
             }
           },
         }
-      : (() => {
-          throw new Error(
-            'No proving infrastructure available: no proof server URI is configured ' +
-              'and the wallet exposed no in-wallet proving provider. Set ' +
-              'VITE_PROOF_SERVER_URI (e.g. http://localhost:6300 for the local ' +
-              'proof server) or use a wallet that supports in-wallet proving.',
-          );
-        })();
+      : config.proverServerUri
+        ? httpClientProofProvider(config.proverServerUri, zkConfigProvider)
+        : (() => {
+            throw new Error(
+              'No proving infrastructure available: the wallet exposed no in-wallet ' +
+                'proving provider and no prover server URI is configured. Set ' +
+                'VITE_PROOF_SERVER_URI (e.g. http://localhost:6300 for the local ' +
+                'proof server) or use a wallet that supports in-wallet proving.',
+            );
+          })();
 
   const shieldedAddress: ShieldedAddress = await connectedAPI.getShieldedAddresses();
 

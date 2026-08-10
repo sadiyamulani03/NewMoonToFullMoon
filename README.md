@@ -1,97 +1,146 @@
-# MidnightTrace — Private Blockchain Forensics
+# MidnightTrace — Private Blockchain Forensics on Midnight
 
 ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
 
-> A privacy-first forensics dApp on the Midnight Network: an on-chain counter that proves each forensic step (a hidden amount) without ever revealing the amount itself.
+> A privacy-first forensics dApp on the Midnight Network: an on-chain counter
+> that proves each forensic step (a hidden amount) without ever revealing the
+> amount itself. Built across three levels — the Compact contract (Level 1),
+> the full-stack dApp (Level 2), and the deployed, CI-covered submission
+> (Level 3).
 
 ## Live Demo
 
-**Full-stack (Express API + frontend, Vercel):** https://midnighttrace.vercel.app
+- **Full-stack (Express API + frontend, Vercel):** https://midnighttrace.vercel.app
+- **Demo video (1 min):** https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=sharing
 
 > Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,
 > and the Express API (`/api/health`, `/api/cases`, `/api/stats`, …). Deployed
-> from the repo root via the included `vercel.json` (see
-> **Deploy to Vercel** below).
+> from the repo root via the included `vercel.json`.
 
-## Demo Video
+## Project Vision
 
-https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=sharing
+In real-world forensic work you often need to *prove that you performed an
+analysis step* — traced a hidden transaction amount, counted evidence items,
+verified a batch size — without disclosing the underlying data. MidnightTrace
+gives auditors, compliance officers, and forensic analysts exactly that:
+each forensic step runs through a Midnight circuit whose proof lands on-chain,
+while the amount that backs the proof stays private forever.
 
-## Contract Address
+Midnight is the core of this because its Compact smart contracts run
+*selective disclosure* natively: the ledger holds only the public running
+`total`, while the witness that backs it (the `amount`) is proved in
+zero-knowledge and then dropped. The DApp is delivered in three levels:
 
-| Network  | Address                          |
-|----------|----------------------------------|
-| Preprod  | `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` |
+### Level 1 — the counter contract
 
-## What This Does
+A Compact smart contract (`contracts/counter.compact`) with two circuits:
 
-MidnightTrace is a privacy-preserving **full-stack, multi-page forensics dApp**. In
-real-world forensic work you often need to *prove that you performed an analysis
-step* (e.g. traced a hidden transaction amount, counted evidence items, or
-verified a batch size) without disclosing the underlying data. This dApp
-demonstrates exactly that pattern using the Midnight counter contract:
+- `increment(amount)` advances the public counter `total` by the given amount —
+  but the amount is a **private witness** that is never stored on-chain.
+- `incrementAndReveal(amount)` does the same arithmetic but *deliberately*
+  publishes the amount into the public `lastDisclosed` ledger field via
+  `disclose()`.
+
+Both share the same arithmetic; the only difference is whether the caller
+chooses to keep the amount private or reveal it. This is the core Midnight
+pattern — selective disclosure — applied to the smallest meaningful contract.
+
+### Level 2 — the full-stack dApp
+
+A multi-page React app + Express API that puts the contract to work:
 
 1. Browse **Cases** — forensic cases stored server-side, each tracking its own
    proof receipts against the one deployed counter contract.
 2. Connect your Midnight wallet (**1AM** or **Lace**) on **Preprod**.
-3. **Run the circuit** — the `increment(amount)` circuit is called with a
-   **private witness amount** (`amount`). A zero-knowledge proof is generated
-   proving `total' = total + amount`, and the proof is submitted on-chain.
-4. The public ledger updates (`total` increases), but the hidden `amount` is
-   never placed on-chain and never appears in the UI nor the API — it exists
-   only inside the ZK proof. The proof is attached to the current case as a
-   receipt.
+3. **Run the circuit** — `increment(amount)` is called with a **private witness
+   amount**. A zero-knowledge proof is generated in the browser proving
+   `total' = total + amount`, and the proof is submitted on-chain.
+4. The public ledger updates (`total` increases), but the hidden `amount` never
+   lands on-chain and never appears in the UI nor the API — it exists only
+   inside the ZK proof. The proof is attached to the current case as a receipt.
 
-The same arithmetic also powers `incrementAndReveal`, which a caller could use
-to *deliberately* publish an amount via `disclose()`. MidnightTrace uses the
-private path, showing how an auditor can prove work without leaking evidence.
+Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`),
+**New case** (`/new`), **About** (`/about`).
 
-## Pages
+### Level 3 — this submission
 
-- **Dashboard** (`/`) — wallet status, case stats, latest proof receipt, quick actions.
-- **Cases** (`/cases`) — list forensic cases loaded from the API.
-- **Case detail** (`/cases/:id`) — run the circuit for the case and view its proof history.
-- **New case** (`/new`) — create a case (stored via the API).
-- **About** (`/about`) — the privacy model and architecture explained.
+The unified, deployed product: the repo is a single package (contracts, CLI
+scripts, API, and frontend together), live on Vercel, gated by a two-job CI/CD
+pipeline, with a written product proposal and this README.
 
-## Architecture
+## Contract Deployment
 
-`Express` (server) + `React Router` (pages) + `useMidnight` hook (wallet and
-contract) shared across pages via a React context provider (`MidnightProvider`).
-The Vite dev server proxies `/api` to the Express server on `:4000`; in
-production the Express server serves the built `dist/` and the API together.
-Proofs are generated in the browser against the wallet's proving provider (or
-its proof server), so the server never sees the private witness `amount`.
+| Network  | Contract address                                                  | Used by |
+|----------|-------------------------------------------------------------------|---------|
+| Preprod  | `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` | Live demo (baked into `src/config.ts`) |
+| Preview  | `e86050af934fed3ed7d6e8dfab05a7198d4d91521b68279ecaccd26e68d4ffb6` | Level 1 deploy |
 
-## Privacy Model
+Anyone can query the contract's public state straight from the Preprod
+indexer and see the running `total` — but never the amounts behind it.
+
+## What an on-chain observer sees
+
+| Goes on chain (public)                    | Stays private (proved in ZK, then dropped) |
+|-------------------------------------------|--------------------------------------------|
+| `ledger.total` — running counter value    | `amount` — the witness of each circuit |
+| `ledger.lastDisclosed` — amounts a caller deliberately published via `incrementAndReveal` (left at `0` in the private path) | the connection between a case and its evidence amounts |
+| receipt `txId` / `blockHeight` (off-chain metadata pointing at the public tx) | case description/owner (off-chain metadata only) |
+
+## Privacy model
 
 - **What is PUBLIC (on-chain, visible to anyone):**
   - `ledger total` — the running counter value. Every call produces a publicly
     visible new value.
   - `ledger lastDisclosed` — the most recent step amount that a caller
-    deliberately published via `incrementAndReveal` (left at `0` in the
-    private path used here).
+    deliberately published via `incrementAndReveal`.
 - **What is PRIVATE (private witness, never on-chain):**
   - The `amount` argument of each circuit. It exists only in the caller's ZK
     witness and is fed into the circuit; unless a circuit explicitly
-    `disclose()`s it, the amount never appears in the ledger.
+    `disclose()`s it, the amount never appears in the ledger. The Compact
+    compiler rejects any implicit disclosure.
 - **What the user PROVES without revealing:**
   - That the new `total` honestly equals the previous `total` plus the hidden
     `amount` — without the network or anyone else learning the `amount`.
 
-## Privacy Claim
+### Privacy claim
 
 To an on-chain observer, MidnightTrace shows: a transaction was submitted that
 moved the public `total` counter by exactly the hidden amount, and the proof
-was cryptographically valid.
+was cryptographically valid. The `amount` itself is not a ledger field, is not
+part of the public transcript, and is never rendered in the UI. A
+fork-and-diff comparison against `incrementAndReveal` proves the difference:
+the reveal path writes the amount to `lastDisclosed`; the private path leaves
+it nowhere on-chain.
 
-What an on-chain observer **cannot** see: the `amount` itself. It is not a
-ledger field, is not part of the public transcript, and is never rendered in
-the UI. A fork-and-diff comparison against `incrementAndReveal` proves the
-difference: the reveal path writes the amount to `lastDisclosed`; the private
-path leaves it nowhere on-chain.
+### Threat model
 
-## Tech Stack
+| Threat | Mitigation in MidnightTrace |
+|--------|-----------------------------|
+| Compromised API server | The server never sees the private witness — proofs are generated for a connected wallet (1AM sponsors proving + fees) or delegated to a proof server. A compromised API leaks case metadata and public totals only. |
+| Malicious indexer / RPC | A hostile indexer sees only public ledger state — the `total` and any `lastDisclosed`. It cannot see the `amount`; the ZK proof proves the claims without revealing witnesses. |
+| Fake claims | Circuits are fail-closed: a proof asserting `total' = total + amount` for a false amount fails. A non-deliberate witness amount never lands in public ledger state (enforced by the 8-test suite, including privacy tests). |
+
+## Key features
+
+- **Three levels of tooling**: Compact contract sources + compiled
+  artifacts (`contracts/managed/`), a CLI script set (`scripts/`: setup,
+  deploy, cli, counter-demo, check-balance, network, e2e-check), and the
+  full-stack web app.
+- **Zero-knowledge selective disclosure** — public `total` plus an optional
+  deliberate `lastDisclosed`; the `amount` never crosses the proof boundary.
+- **On-chain proof receipts per case** — each circuit call is recorded against a
+  forensic case via the Express API (`/api/cases`, `/api/cases/:id/receipts`,
+  `/api/stats`).
+- **DApp Connector wallet integration** — `useMidnight` connects a 1AM or Lace
+  wallet, validates the network, and drives the circuit from the shared
+  `MidnightContext`.
+- **In-browser proving** — ZK config is fetched from the bundled assets
+  (`/contract/compiled/`), and proofs are generated by the wallet's proving
+  provider (or its proof-server fallback).
+- **Privacy-labelled prove flow** — every ZK action states the private step
+  never reaches the chain or the screen.
+
+## Tech stack
 
 - Midnight Network
 - Compact smart contract language (`counter.compact`, compiled artifacts + ZK
@@ -103,49 +152,33 @@ path leaves it nowhere on-chain.
 - React Router 7 (multi-page navigation)
 - Express 5 (backend API: cases, receipts, stats; serves the built frontend)
 - 1AM or Lace wallet (browser extension)
-- GitHub Actions (CI)
+- Vitest (contract tests), GitHub Actions (CI)
 
-## Prerequisites
-
-- **1AM** or **Lace wallet** extension installed in your browser and switched
-  to **Preprod** (1AM also sponsors proving + fees, so no DUST setup needed)
-- **Node.js v22** (the Midnight toolchain requires ≥ 22)
-- **Compact compiler** (only needed if you recompile the contract locally):
-  `curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh` then `compact update 0.31.1`
-- Docker (only needed if you redeploy the contract locally)
-
-## Setup & Run Locally
+## Local development
 
 ```bash
-# Install dependencies (root package.json covers contracts, scripts, frontend)
+# 1. Install dependencies (root package.json covers contracts, scripts, frontend)
 npm install
 
-# Configure the Preprod contract address (set VITE_CONTRACT_ADDRESS to the
-# Preprod address below). Default in src/config.ts already points there.
+# 2. Configure the Preprod contract address (set VITE_CONTRACT_ADDRESS if yours
+#    differs). Default in src/config.ts already points to the Preprod address.
 cp .env.example .env   # edit .env and paste your address if needed
 
-# Run the whole stack (API on :4000 + web on :5173)
+# 3. Run the whole stack (API on :4000 + web on :5173)
 npm run dev
 # open the printed URL, connect your wallet (1AM or Lace) on Preprod,
 # browse Cases, and run the circuit
 
-# Contract app (Level 1) — compile + tests
+# 4. Contract app (Level 1) — compile + tests
 npm run compile
 npm run test:contract
 
-# Or build for production and let the Express server serve dist/ + API
+# 5. Production build — the Express server serves dist/ + API together
 npm run build
 npm start   # http://localhost:4000
 ```
 
-## Contract App (Level 1) — Local Proof Server & Deploy
-
-The contract side (`contracts/`, `scripts/`) is the standalone Midnight
-"counter" app: anyone can call `increment(amount)` to advance the public
-counter `total` by a hidden amount, and `incrementAndReveal(amount)` to
-*deliberately* publish it into `lastDisclosed` via `disclose()`. This is the
-core Midnight pattern — *selective disclosure* — applied to the smallest
-meaningful contract.
+### Contract app (Level 1) — local proof server & deploy
 
 ```bash
 # 1. Start the proof server (pins the SDK-compatible proof-server image)
@@ -166,26 +199,7 @@ Notes:
   lives in `.midnight-wallet-state/` (gitignored).
 - Use `npm run clean` to remove generated artifacts and reset local state.
 
-## Deploy to Vercel
-
-The repo ships a [`vercel.json`](./vercel.json) config that deploys
-the full-stack app: the Vite frontend as static output (`dist/`) plus the Express
-API as a serverless function (`api/index.mjs`), with `/api/*` rewired to
-the function and all other routes falling back to the SPA.
-
-1. Push this repo to GitHub (it is already public) and import it into Vercel.
-2. Leave the root directory at the repo root and set the framework preset to **Vite**.
-3. Add env vars: `VITE_NETWORK_ID=preprod` and `VITE_CONTRACT_ADDRESS`
-   (secret) set to the Preprod address above.
-4. Deploy. Vercel builds `npm install && npm run build` and serves both the
-   static site and the `/api/*` endpoints.
-
-> The default data store is a JSON file in the function's writable dir; Vercel
-> serverless storage is ephemeral, so case data reseeds on each cold start. For
-> persistence, set `MIDNIGHTTRACE_DATA_FILE` to an external store or a Vercel
-> Blob/MySQL connection.
-
-## Run Tests (npm test)
+### Tests
 
 ```bash
 # Contract unit tests (circuit logic, state transitions, privacy) — 8 tests
@@ -214,13 +228,43 @@ Output (frontend tests):
 ✓ API healthy (7 endpoint checks)  (tests/api-smoke.mjs)
 ```
 
-## Screenshots
-
-Contract unit tests (8 passing — circuit logic, state transitions, privacy):
+Screenshot of the contract test output:
 
 <img src="screenshots/contract-tests.svg" alt="Contract unit test output — 8 tests passing" width="640" />
 
-Frontend build + tests are verified in CI (`.github/workflows/ci.yml`) on every push and pull request.
+## Deploy to Vercel
+
+The repo ships a [`vercel.json`](./vercel.json) config that deploys
+the full-stack app: the Vite frontend as static output (`dist/`) plus the Express
+API as a serverless function (`api/index.mjs`), with `/api/*` rewired to
+the function and all other routes falling back to the SPA.
+
+1. Push this repo to GitHub (it is already public) and import it into Vercel.
+2. Leave the root directory at the repo root and set the framework preset to **Vite**.
+3. Add env vars: `VITE_NETWORK_ID=preprod` and `VITE_CONTRACT_ADDRESS`
+   (secret) set to the Preprod address above.
+4. Deploy. Vercel builds `npm install && npm run build` and serves both the
+   static site and the `/api/*` endpoints.
+
+> The default data store is a JSON file in the function's writable dir; Vercel
+> serverless storage is ephemeral, so case data reseeds on each cold start. For
+> persistence, set `MIDNIGHTTRACE_DATA_FILE` to an external store or a Vercel
+> Blob/MySQL connection.
+
+## Mainnet path
+
+The dApp needs, on mainnet: the same `counter.compact` deployed at a higher
+security threshold (`npm run deploy` is already automated), the mainnet indexer
+endpoints in `src/config.ts`, wallet-delegated proving (already the flow), a
+persistent host for the Express API, and 1AM / Lace on mainnet via the
+network-agnostic DApp Connector flow. Full detail in **PROPOSAL.md**.
+
+## Future scope
+
+- Encrypted evidence hashes and auditor access keys on the case store.
+- Retention/expiry timestamps and multi-signature handoff records.
+- A deliberate `incrementAndReveal`-based disclosure flow in the UI for
+  regulation-driven reporting.
 
 ## CI/CD
 
@@ -234,27 +278,20 @@ request. The workflow lives at `.github/workflows/ci.yml` and runs two jobs:
 
 Status badge: ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
 
-## Product Proposal
-
-See **[PROPOSAL.md](./PROPOSAL.md)** — the full product pitch, data model,
-Midnight rationale, and mainnet feasibility plan.
-
----
-
-## Repository layout
+## Project structure
 
 ```
 NewMoonToFullMoon/
 ├── .github/workflows/ci.yml     # CI/CD pipeline (push main + PR)
-├── PROPOSAL.md                  # product proposal
+├── PROPOSAL.md                  # product proposal (idea, users, data model, mainnet feasibility)
 ├── README.md
 ├── contracts/                   # Compact sources + compiled artifacts
-│   ├── counter.compact
+│   ├── counter.compact          #   Level 1 contract (increment / incrementAndReveal)
 │   ├── hello-world.compact
-│   └── managed/                 # compiled contract artifacts + ZK keys
+│   └── managed/                 #   compiled contract artifacts + ZK keys
 ├── api/index.mjs                # Express API entry (serverless for Vercel)
 ├── server/index.mjs             # Express API (cases, receipts, stats) + prod static hosting
-├── scripts/                     # Level 1 CLI: setup, deploy, network, wallet, demo
+├── scripts/                     # Level 1 CLI: setup, deploy, network, wallet, demo, e2e-check
 ├── src/
 │   ├── components/              # Layout (nav + wallet pill), CircuitCall
 │   ├── context/                 # MidnightProvider (shared wallet/contract state)
@@ -265,6 +302,16 @@ NewMoonToFullMoon/
 │   ├── main.tsx
 │   └── config.ts                # Preprod contract address
 ├── tests/                       # counter.test.ts (8 unit tests), simulator, ZK + API smoke
+├── screenshots/                 # test-output screenshot for the submission
 ├── vercel.json                  # Vercel full-stack deploy config
+├── docker-compose.yml           # local proof server for Level 1
 └── package.json
 ```
+
+## Companion docs
+
+| Doc | Use when |
+|-----|----------|
+| `PROPOSAL.md` | Product proposal — idea, users, Midnight rationale, data model, mainnet feasibility |
+| `screenshots/contract-tests.svg` | Test-output screenshot (8 tests passing) |
+| `.github/workflows/ci.yml` | CI/CD pipeline with passing runs |

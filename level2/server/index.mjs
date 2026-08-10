@@ -6,7 +6,7 @@ import express from 'express';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-const DATA_FILE = join(__dirname, 'data', 'cases.json');
+const DATA_FILE = process.env.MIDNIGHTTRACE_DATA_FILE ?? join(__dirname, 'data', 'cases.json');
 const DIST_DIR = join(__dirname, '..', 'dist');
 const API_PORT = Number(process.env.PORT ?? 4000);
 

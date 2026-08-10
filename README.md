@@ -6,12 +6,13 @@
 
 ## Live Demo
 
-**https://midnighttrace.vercel.app**
+**Frontend (static, Vercel):** https://midnighttrace.vercel.app
 
-> The live URL is the static frontend build on Vercel (wallet + on-chain calls
-> work there). The full-stack version — Express API for cases/receipts/stats —
-> runs via `npm run dev` or `npm start` locally, since a Node server is needed
-> for the API endpoints.
+**Full-stack (Express API + frontend, Render):** `https://<service-name>.onrender.com` — deploy via the included [`render.yaml`](./render.yaml) blueprint (see **Deploy to Render** below).
+
+> The static Vercel URL runs the wallet + on-chain calls only. The full-stack
+> version — Express API for cases/receipts/stats — runs on any Node host via
+> `npm run dev` or `npm start`, or on Render via the blueprint.
 
 ## Contract Address
 
@@ -127,6 +128,23 @@ npm run dev
 npm run build
 npm start   # http://localhost:4000
 ```
+
+## Deploy to Render
+
+The repo ships a [`render.yaml`](./render.yaml) blueprint that deploys the
+full-stack app (Express API + built frontend on one port):
+
+1. Push this repo to GitHub (it is already public).
+2. On Render: **New → Blueprint**, choose the `NewMoonToFullMoon` repo.
+3. Render reads `render.yaml`, builds `level2` (`npm install && npm run build`)
+   and starts `node server/index.mjs` with a `/api/health` health check.
+4. Set the `VITE_CONTRACT_ADDRESS` env var (secret) to the Preprod address;
+   `VITE_NETWORK_ID=preprod` is already configured.
+5. Deploy. The service URL is `https://<service-name>.onrender.com`.
+
+> The default data store is a JSON file in `server/data/`; on Render's
+> ephemeral filesystem it reseeds on each deploy. For persistence, mount a disk
+> and set `MIDNIGHTTRACE_DATA_FILE` to a path on it.
 
 ## Run Tests (npm test)
 

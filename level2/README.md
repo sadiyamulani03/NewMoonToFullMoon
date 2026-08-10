@@ -128,10 +128,14 @@ The app is a full-stack package: an Express server that serves the static
 Vite build (`dist/`) **and** the REST API on the same port — so any Node
 host works (`npm install && npm run build && npm start`).
 
+**Render (recommended):** the repo-root [`render.yaml`](../render.yaml)
+blueprint builds `level2` and serves the full stack with a `/api/health` check.
+Deploy via **New → Blueprint** on Render; set the `VITE_CONTRACT_ADDRESS` env var.
+
 For static-only hosts, the built `dist/` can still be uploaded standalone
 (the API endpoints will 404 on such hosts). Both `vercel.json` and
-`netlify.toml` are included for the frontend; the live URL below connects to
-the Preprod contract address baked into `src/config.ts`.
+`netlify.toml` are included for the frontend; the static live URL below
+connects to the Preprod contract address baked into `src/config.ts`.
 
 ## Demo Video
 
@@ -179,3 +183,5 @@ level2/
 ├── vercel.json / netlify.toml
 └── package.json
 ```
+
+The full-stack deploy blueprint lives at `<repo-root>/render.yaml`.

@@ -1,0 +1,24 @@
+# Render blueprint — one-click deploy of the MidnightTrace full-stack dApp.
+# Point Render at this repo: New Blueprint -> "NewMoonToFullMoon".
+# The web service builds the Vite frontend and serves dist/ + Express API on one port.
+services:
+  - type: web
+    name: midnighttrace
+    runtime: node
+    rootDir: level2
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.mjs
+    healthCheckPath: /api/health
+    autoDeploy: true
+    plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "10000"
+      - key: VITE_NETWORK_ID
+        value: preprod
+      - key: VITE_CONTRACT_ADDRESS
+        sync: false
+      - key: MIDNIGHTTRACE_DATA_FILE
+        sync: false

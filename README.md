@@ -6,13 +6,12 @@
 
 ## Live Demo
 
-**Frontend (static, Vercel):** https://midnighttrace.vercel.app
+**Full-stack (Express API + frontend, Vercel):** https://midnighttrace.vercel.app
 
-**Full-stack (Express API + frontend, Render):** `https://<service-name>.onrender.com` — deploy via the included [`render.yaml`](./render.yaml) blueprint (see **Deploy to Render** below).
-
-> The static Vercel URL runs the wallet + on-chain calls only. The full-stack
-> version — Express API for cases/receipts/stats — runs on any Node host via
-> `npm run dev` or `npm start`, or on Render via the blueprint.
+> Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,
+> and the Express API (`/api/health`, `/api/cases`, `/api/stats`, …). Deployed
+> from the `level2/` workspace via the included `vercel.json` (see
+> **Deploy to Vercel** below).
 
 ## Contract Address
 
@@ -129,22 +128,24 @@ npm run build
 npm start   # http://localhost:4000
 ```
 
-## Deploy to Render
+## Deploy to Vercel
 
-The repo ships a [`render.yaml`](./render.yaml) blueprint that deploys the
-full-stack app (Express API + built frontend on one port):
+The repo ships a [`level2/vercel.json`](./level2/vercel.json) config that deploys
+the full-stack app: the Vite frontend as static output (`dist/`) plus the Express
+API as a serverless function (`level2/api/index.mjs`), with `/api/*` rewired to
+the function and all other routes falling back to the SPA.
 
-1. Push this repo to GitHub (it is already public).
-2. On Render: **New → Blueprint**, choose the `NewMoonToFullMoon` repo.
-3. Render reads `render.yaml`, builds `level2` (`npm install && npm run build`)
-   and starts `node server/index.mjs` with a `/api/health` health check.
-4. Set the `VITE_CONTRACT_ADDRESS` env var (secret) to the Preprod address;
-   `VITE_NETWORK_ID=preprod` is already configured.
-5. Deploy. The service URL is `https://<service-name>.onrender.com`.
+1. Push this repo to GitHub (it is already public) and import it into Vercel.
+2. Set the root directory to `level2` and the framework preset to **Vite**.
+3. Add env vars: `VITE_NETWORK_ID=preprod` and `VITE_CONTRACT_ADDRESS`
+   (secret) set to the Preprod address above.
+4. Deploy. Vercel builds `npm install && npm run build` and serves both the
+   static site and the `/api/*` endpoints.
 
-> The default data store is a JSON file in `server/data/`; on Render's
-> ephemeral filesystem it reseeds on each deploy. For persistence, mount a disk
-> and set `MIDNIGHTTRACE_DATA_FILE` to a path on it.
+> The default data store is a JSON file in the function's writable dir; Vercel
+> serverless storage is ephemeral, so case data reseeds on each cold start. For
+> persistence, set `MIDNIGHTTRACE_DATA_FILE` to an external store or a Vercel
+> Blob/MySQL connection.
 
 ## Run Tests (npm test)
 

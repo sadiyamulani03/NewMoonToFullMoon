@@ -128,9 +128,13 @@ The app is a full-stack package: an Express server that serves the static
 Vite build (`dist/`) **and** the REST API on the same port — so any Node
 host works (`npm install && npm run build && npm start`).
 
-**Render (recommended):** the repo-root [`render.yaml`](../render.yaml)
-blueprint builds `level2` and serves the full stack with a `/api/health` check.
-Deploy via **New → Blueprint** on Render; set the `VITE_CONTRACT_ADDRESS` env var.
+**Vercel (recommended):** [`vercel.json`](./vercel.json) deploys the full
+stack — the Vite frontend as static output (`dist/`) **and** the Express API as
+a serverless function ([`api/index.mjs`](./api/index.mjs)), with `/api/*`
+rewired to the function and all other routes SPA-fallback. Import the repo in
+Vercel (root dir `level2`, framework **Vite**), set `VITE_NETWORK_ID=preprod`
+and `VITE_CONTRACT_ADDRESS`, and deploy. Live at
+https://midnighttrace.vercel.app.
 
 For static-only hosts, the built `dist/` can still be uploaded standalone
 (the API endpoints will 404 on such hosts). Both `vercel.json` and
@@ -180,8 +184,10 @@ level2/
 │   ├── main.tsx
 │   └── config.ts         (Preprod contract address)
 ├── tests/                (smoke.mjs — ZK assets; api-smoke.mjs — Express API)
+├── api/index.mjs         (Vercel serverless entry for the Express API)
 ├── vercel.json / netlify.toml
 └── package.json
 ```
 
-The full-stack deploy blueprint lives at `<repo-root>/render.yaml`.
+The full-stack Vercel config lives at [`vercel.json`](./vercel.json) with the
+API function in [`api/index.mjs`](./api/index.mjs).

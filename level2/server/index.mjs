@@ -38,9 +38,6 @@ function seedCases() {
 }
 
 function writeJson(file, value) {
-  if (!existsSync(join(__dirname, 'data'))) {
-    mkdirSync(join(__dirname, 'data'), { recursive: true });
-  }
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, JSON.stringify(value, null, 2), 'utf-8');
 }

@@ -13,6 +13,10 @@
 > from the repo root via the included `vercel.json` (see
 > **Deploy to Vercel** below).
 
+## Demo Video
+
+https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=sharing
+
 ## Contract Address
 
 | Network  | Address                          |
@@ -49,6 +53,15 @@ private path, showing how an auditor can prove work without leaking evidence.
 - **Case detail** (`/cases/:id`) — run the circuit for the case and view its proof history.
 - **New case** (`/new`) — create a case (stored via the API).
 - **About** (`/about`) — the privacy model and architecture explained.
+
+## Architecture
+
+`Express` (server) + `React Router` (pages) + `useMidnight` hook (wallet and
+contract) shared across pages via a React context provider (`MidnightProvider`).
+The Vite dev server proxies `/api` to the Express server on `:4000`; in
+production the Express server serves the built `dist/` and the API together.
+Proofs are generated in the browser against the wallet's proving provider (or
+its proof server), so the server never sees the private witness `amount`.
 
 ## Privacy Model
 
@@ -124,6 +137,34 @@ npm run test:contract
 npm run build
 npm start   # http://localhost:4000
 ```
+
+## Contract App (Level 1) — Local Proof Server & Deploy
+
+The contract side (`contracts/`, `scripts/`) is the standalone Midnight
+"counter" app: anyone can call `increment(amount)` to advance the public
+counter `total` by a hidden amount, and `incrementAndReveal(amount)` to
+*deliberately* publish it into `lastDisclosed` via `disclose()`. This is the
+core Midnight pattern — *selective disclosure* — applied to the smallest
+meaningful contract.
+
+```bash
+# 1. Start the proof server (pins the SDK-compatible proof-server image)
+docker compose up -d --wait proof-server
+
+# 2. Compile both contracts into contracts/managed/
+npm run compile
+
+# 3. Deploy the counter contract to a network (prints your wallet address —
+#    fund it at the faucet first, then it continues)
+npm run deploy -- --network preprod --contract counter
+```
+
+Notes:
+
+- Deployment records are stored in `.midnight-state.json` (gitignored).
+- Wallet seeds per network are in `.midnight-state.json`; the wallet sync cache
+  lives in `.midnight-wallet-state/` (gitignored).
+- Use `npm run clean` to remove generated artifacts and reset local state.
 
 ## Deploy to Vercel
 

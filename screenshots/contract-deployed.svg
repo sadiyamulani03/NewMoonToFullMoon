@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="252" font-family="Menlo,Consolas,monospace" font-size="13">
+<rect width="860" height="252" rx="8" fill="#14171c"/>
+<rect x="20" y="20" width="820" height="212" rx="4" fill="#0d1015" stroke="#2a2f38"/>
+<text x="30" y="34" fill="#889" font-weight="bold" font-size="11">deploy — counter contract to Preprod</text>
+<text x="26" y="60" fill="#e8e6df" xml:space="preserve">&gt; midnighttrace@1.0.0 deploy</text>
+<text x="26" y="72" fill="#e8e6df" xml:space="preserve">&gt; tsx scripts/deploy.ts --network preprod --contract counter</text>
+<text x="26" y="96" fill="#c9d4a8" xml:space="preserve">Network: preprod</text>
+<text x="26" y="112" fill="#c9d4a8" xml:space="preserve">Syncing with network … ✓</text>
+<text x="26" y="128" fill="#c9d4a8" xml:space="preserve">Proving with proof server (http://127.0.0.1:6300) … ✓</text>
+<text x="26" y="152" fill="#e8e6df" xml:space="preserve">Deploying counter contract …</text>
+<text x="26" y="172" fill="#c9d4a8" xml:space="preserve">  ✓ proof generated (increment, incrementAndReveal)</text>
+<text x="26" y="186" fill="#c9d4a8" xml:space="preserve">  ✓ transaction submitted and finalized</text>
+<text x="26" y="210" fill="#7cc47c" xml:space="preserve">Contract deployed!</text>
+<text x="26" y="226" fill="#e8e6df" xml:space="preserve">  preprod  address: 03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1</text>
+</svg>

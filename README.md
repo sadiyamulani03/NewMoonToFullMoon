@@ -232,6 +232,14 @@ Screenshot of the contract test output:
 
 <img src="screenshots/contract-tests.svg" alt="Contract unit test output — 8 tests passing" width="640" />
 
+Screenshot of the Compact compile output (circuits + artifacts listed):
+
+<img src="screenshots/compact-compile.svg" alt="Compact compile output — increment and incrementAndReveal circuits" width="640" />
+
+Screenshot of the Preprod deployment (contract address shown):
+
+<img src="screenshots/contract-deployed.svg" alt="Counter contract deployed to Preprod with address" width="640" />
+
 ## Deploy to Vercel
 
 The repo ships a [`vercel.json`](./vercel.json) config that deploys

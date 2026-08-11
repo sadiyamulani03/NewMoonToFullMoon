@@ -105,10 +105,37 @@ export async function buildProvidersFromConnectedAPI(
               return await unprovenTx.prove(provingProvider, costModel);
             } catch (err) {
               // Wallet-internal proving can fail when its proving station is
-              // unreachable (e.g. "Failed to fetch"). If the wallet reported a
-              // prover server URI, retry against it before giving up.
+              // unreachable (e.g. "Failed to fetch" on the wallet's `check`
+              // step). If the wallet reported a prover server URI, retry
+              // against it before giving up.
+              const isNetworkError =
+                err instanceof TypeError ||
+                (err instanceof Error &&
+                  /failed to fetch|networkerror|network error|load failed|enotfound|econnreset|aborted|check.*returned an error/i.test(
+                    err.message ?? '',
+                  ));
               if (config.proverServerUri) {
-                return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx);
+                try {
+                  return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx);
+                } catch (fallbackErr) {
+                  throw new Error(
+                    `The wallet could not reach its proving station (${String(err)}), and retrying ` +
+                      `against the wallet-reported prover also failed (${String(fallbackErr)}). Start the ` +
+                      `local proof server (npm run proof-server:start) and set ` +
+                      `VITE_PROOF_SERVER_URI=http://localhost:6300 in .env, then restart the dev ` +
+                      `server, or switch to a wallet that proves locally in the browser.`,
+                    { cause: fallbackErr },
+                  );
+                }
+              }
+              if (isNetworkError) {
+                throw new Error(
+                  `The wallet could not reach its proving station (${String(err)}). Start the local ` +
+                    `proof server (npm run proof-server:start) and set ` +
+                    `VITE_PROOF_SERVER_URI=http://localhost:6300 in .env, then restart the dev ` +
+                    `server, or switch to a wallet that proves locally in the browser.`,
+                  { cause: err },
+                );
               }
               throw err;
             }

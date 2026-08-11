@@ -10,8 +10,8 @@
 
 ## Live Demo
 
-- **Full-stack (Express API + frontend, Vercel):** https://midnighttrace.vercel.app
-- **Demo video (1 min):** https://drive.google.com/file/d/1U-yyNHPf1lOPNUK99Ix6JgZanA0ziv-i/view?usp=sharing
+- **Live Link:** https://midnighttrace.vercel.app
+- **Demo video :** https://drive.google.com/file/d/1JJAdLMOgTcaPM4rzJhvJraAfWfsvKE0i/view?usp=sharing
 
 > Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,
 > and the Express API (`/api/health`, `/api/cases`, `/api/stats`, …). Deployed
@@ -31,7 +31,7 @@ Midnight is the core of this because its Compact smart contracts run
 `total`, while the witness that backs it (the `amount`) is proved in
 zero-knowledge and then dropped. The DApp is delivered in three levels:
 
-### Level 1 — the counter contract
+### Level 1 
 
 A Compact smart contract (`contracts/counter.compact`) with two circuits:
 
@@ -45,7 +45,7 @@ Both share the same arithmetic; the only difference is whether the caller
 chooses to keep the amount private or reveal it. This is the core Midnight
 pattern — selective disclosure — applied to the smallest meaningful contract.
 
-### Level 2 — the full-stack dApp
+### Level 2 
 
 A multi-page React app + Express API that puts the contract to work:
 
@@ -62,7 +62,7 @@ A multi-page React app + Express API that puts the contract to work:
 Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`),
 **New case** (`/new`), **About** (`/about`).
 
-### Level 3 — this submission
+### Level 3
 
 The unified, deployed product: the repo is a single package (contracts, CLI
 scripts, API, and frontend together), live on Vercel, gated by a two-job CI/CD

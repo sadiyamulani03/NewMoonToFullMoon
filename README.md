@@ -442,6 +442,7 @@ wallet-free public audit, and export a chain-of-custody receipt.
 
 - **Profile:** https://x.com/Midnight__Trace
 - **Launch post:** https://x.com/Midnight__Trace/status/2087846984195752357
+- **Privacy post:** https://x.com/Midnight__Trace/status/2087847565182341337
 
 The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md).
 

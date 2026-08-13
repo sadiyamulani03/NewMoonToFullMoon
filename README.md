@@ -423,9 +423,13 @@ Screenshot of the Compact compile output (circuits + artifacts listed):
 
 <img src="screenshots/compact-compile.svg" alt="Compact compile output — counter and midnighttrace circuits" width="640" />
 
-Screenshot of the Preprod deployment (contract address shown):
+Screenshot of the Preprod deployment (counter, Levels 1–3):
 
 <img src="screenshots/contract-deployed.svg" alt="Counter contract deployed to Preprod with address" width="640" />
+
+Screenshot of the Level 4 MidnightTrace deployment (address + owner bootstrap):
+
+<img src="screenshots/midnighttrace-deployed.svg" alt="MidnightTrace contract deployed to Preprod with owner secret and commitment" width="640" />
 
 ## Usage Guide
 
@@ -526,4 +530,5 @@ NewMoonToFullMoon/
 | `docs/USAGE.md` | Step-by-step user guide for the Level 4 investigation desk |
 | `docs/posts.md` | The three X/Twitter promo posts for the Level 4 submission |
 | `screenshots/contract-tests.svg` | Test-output screenshot (21 tests passing) |
+| `screenshots/midnighttrace-deployed.svg` | Level 4 MidnightTrace deploy (address + owner bootstrap) |
 | `.github/workflows/ci.yml` | CI/CD pipeline with passing runs |

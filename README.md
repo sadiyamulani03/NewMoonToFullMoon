@@ -145,7 +145,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | MVP live on Preprod | ✅ | `midnighttrace.compact` deployed at `c69ac004…` (see **Contract Address**); live dApp at `https://midnighttrace.vercel.app` |
 | Documentation | ✅ | This README, `docs/USAGE.md` (non-technical walkthrough), `docs/posts.md`, `PROPOSAL.md` |
 | CI/CD in place | ✅ | GitHub Actions badge below (contract + frontend jobs, both passing) |
-| Public product (X) profile | 🚧 | Placeholder section below; ready-to-post launch tweets in `docs/posts.md` |
+| Public product (X) profile | ✅ | [x.com/Midnight__Trace](https://x.com/Midnight__Trace) — live profile with launch threads (see below) |
 
 `contracts/midnighttrace.compact` replaces the single counter with a whole
 investigation desk, still private by default. Its five circuits:
@@ -440,8 +440,10 @@ wallet-free public audit, and export a chain-of-custody receipt.
 
 ## Product X Profile
 
-*Placeholder — this account is created after the Level 4 submission goes live.
-The three ready-to-post launch tweets for it are in [`docs/posts.md`](./docs/posts.md).*
+- **Profile:** https://x.com/Midnight__Trace
+- **Launch post:** https://x.com/Midnight__Trace/status/2087846984195752357
+
+The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md).
 
 ## Deploy to Vercel
 

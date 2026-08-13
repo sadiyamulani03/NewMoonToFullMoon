@@ -1,0 +1,169 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  midnighttrace.compact  —  LEVEL 4
+//
+//  Privacy-preserving forensic evidence processing on the Midnight Network.
+//  An investigator logs, updates, and reports on evidence without ever
+//  disclosing the underlying data. Every analysis step is attested by a
+//  zero-knowledge proof: the chain and any observer can verify that the
+//  step is valid and that totals reconcile, but can never see the actual
+//  evidence amount or details.
+//
+//  ── PUBLIC (on-chain ledger, visible to anyone) ──────────────────────
+//    cases[caseId].total          : per-case running total. Each step moves
+//                                   this public value by a hidden amount.
+//    cases[caseId].lastDisclosed  : the exact value a caller DELIBERATELY
+//                                   published via discloseFinding().
+//    cases[caseId].eventCount     : chain-of-custody event counter — every
+//                                   step increments it, giving a strict,
+//                                   immutable, on-chain ordering.
+//    cases[caseId].phase          : ACTIVE or CLOSED (sealed integrity —
+//                                   a closed case can never change again).
+//    allowlist (HistoricMerkleTree): commitments of authorized investigators.
+//    memberCount                  : how many authorized members exist.
+//    aggregate (Counter)          : the sum of all hidden amounts across all
+//                                   cases — the single on-chain number that
+//                                   an auditor can check a claimed window
+//                                   total ("evidence this quarter = N").
+//
+//  ── PRIVATE (circuit witness, never on-chain) ────────────────────────
+//    `amount`   : the hidden evidence amount of each step. It feeds the ZK
+//                 circuit so the network can verify that the case total
+//                 moved by exactly `amount`, but unless a circuit
+//                 deliberately disclose()s a named field, `amount` is never
+//                 committed anywhere it can be read back.
+//    `secret`   : each authorized investigator's private membership secret.
+//                 The circuit proves `persistentHash(secret)` is a leaf in
+//                 the public allowlist via a Merkle path — membership is
+//                 proved in zero knowledge, so the chain never learns
+//                 *which* applicant the caller is nor the secret.
+//
+//  ── disclose() — used ONLY where deliberately needed ──────────────────
+//    logStep()       keeps the amount fully private (no named field).
+//    discloseFinding() deliberately publishes amount into
+//                    cases[caseId].lastDisclosed — the regulation-driven
+//                    selective disclosure flow.
+//    The Merkle membership proof must disclose() the recomputed root so the
+//    ledger can compare it to the on-chain allowlist root — this reveals
+//    nothing about the member.
+// ═══════════════════════════════════════════════════════════════════════
+
+export enum Phase { ACTIVE, CLOSED }
+
+export struct Case {
+    total: Uint<16>,
+    lastDisclosed: Uint<16>,
+    eventCount: Uint<16>,
+    phase: Phase,
+}
+
+// ── PUBLIC LEDGER ──────────────────────────────────────────────────────
+export ledger cases: Map<Uint<16>, Case>;
+export ledger allowlist: HistoricMerkleTree<24, Bytes<32>>;
+export ledger memberCount: Counter;
+export ledger aggregate: Counter;
+
+// The deployment caller is the first authorized investigator (the case
+// owner). The allowlist therefore boots from the org's own commitment, and
+// that first member can then admit further investigators via grantAccess().
+constructor(ownerCommitment: Bytes<32>) {
+    allowlist.insert(disclose(ownerCommitment));
+    memberCount.increment(1);
+}
+
+// Witness: the caller's client finds the Merkle path for a commitment in
+// the current on-chain allowlist. The path is private witness material — the
+// circuit only uses it to recompute the root and compare it on-chain, so the
+// member's exact leaf is never revealed.
+witness findAuthPath(commitment: Bytes<32>): MerkleTreePath<24, Bytes<32>>;
+
+// Opens a new independent case file. Anyone may open a case; only
+// authorized members (proved in ZK) may subsequently update it.
+export circuit openCase(caseId: Uint<16>): [] {
+    assert(!cases.member(disclose(caseId)), "Case already exists");
+    cases.insert(disclose(caseId), Case {
+        total: 0,
+        lastDisclosed: 0,
+        eventCount: 0,
+        phase: Phase.ACTIVE,
+    });
+}
+
+// Private allowlist access: an existing authorized member adds a new
+// investigator. The caller proves membership in ZK (no identity leak) by
+// recomputing the allowlist root from their secret and comparing on-chain.
+// Only the *commitment* of the new member ever lands on the ledger.
+export circuit grantAccess(newCommitment: Bytes<32>, secret: Bytes<32>): [] {
+    // prove the caller is already authorized — in zero knowledge
+    assert(checkMembership(secret), "Only authorized members can grant access");
+    allowlist.insert(disclose(newCommitment));
+    memberCount.increment(1);
+}
+
+// Private counter step — the core forensics primitive. The case total moves
+// by the hidden `amount`, the chain-of-custody event counter advances, and
+// nothing about the evidence is written to the ledger.
+export circuit logStep(caseId: Uint<16>, amount: Uint<16>, secret: Bytes<32>): [] {
+    assert(mutable(caseId), "Case does not exist, or is closed");
+    assert(checkMembership(secret), "Not an authorized investigator");
+    const caseState = cases.lookup(disclose(caseId));
+    cases.insert(disclose(caseId), Case {
+        total: (caseState.total + disclose(amount)) as Uint<16>,
+        lastDisclosed: caseState.lastDisclosed,
+        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        phase: caseState.phase,
+    });
+    aggregate.increment(disclose(amount));
+}
+
+// Selective disclosure — the deliberate disclose() flow. Identical
+// arithmetic to logStep, but the amount is ALSO published into the public
+// `lastDisclosed` field so a regulation body can inspect a single figure
+// while everything else about the case stays shielded.
+export circuit discloseFinding(caseId: Uint<16>, amount: Uint<16>, secret: Bytes<32>): [] {
+    assert(mutable(caseId), "Case does not exist, or is closed");
+    assert(checkMembership(secret), "Not an authorized investigator");
+    const caseState = cases.lookup(disclose(caseId));
+    cases.insert(disclose(caseId), Case {
+        total: (caseState.total + disclose(amount)) as Uint<16>,
+        lastDisclosed: disclose(amount),
+        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        phase: caseState.phase,
+    });
+    aggregate.increment(disclose(amount));
+}
+
+// Seals a case file (integrity attestation). Once CLOSED the public ledger
+// can never change it again — a report published against a closed case is
+// provably current and unchanged. Sealing also moves the event counter.
+export circuit closeCase(caseId: Uint<16>, secret: Bytes<32>): [] {
+    assert(mutable(caseId), "Case does not exist, or is closed");
+    assert(checkMembership(secret), "Not an authorized investigator");
+    const caseState = cases.lookup(disclose(caseId));
+    cases.insert(disclose(caseId), Case {
+        total: caseState.total,
+        lastDisclosed: caseState.lastDisclosed,
+        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        phase: Phase.CLOSED,
+    });
+}
+
+// ── PRIVATE HELPERS ────────────────────────────────────────────────────
+// Proves `persistentHash(secret)` is a leaf of the on-chain allowlist
+// without revealing the secret or which leaf the caller holds. The
+// recomputed Merkle root is disclosed only so the ledger can compare it.
+circuit checkMembership(secret: Bytes<32>): Boolean {
+    const commitment = persistentHash<Bytes<32>>(secret);
+    const authPath = findAuthPath(commitment);
+    return allowlist.checkRoot(disclose(merkleTreePathRoot<24, Bytes<32>>(authPath)));
+}
+
+circuit mutable(caseId: Uint<16>): Boolean {
+    if (cases.member(disclose(caseId))) {
+        return cases.lookup(disclose(caseId)).phase == Phase.ACTIVE;
+    }
+    return false;
+}

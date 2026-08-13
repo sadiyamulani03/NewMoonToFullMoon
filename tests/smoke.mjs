@@ -16,6 +16,19 @@ const requiredFiles = [
   'contract/compiled/counter/keys/incrementAndReveal.prover',
   'contract/compiled/counter/keys/incrementAndReveal.verifier',
   'contract/compiled/counter/zkir/incrementAndReveal.bzkir',
+  // Level 4 — midnighttrace contract assets (shipped for in-browser proving)
+  'contract/compiled/midnighttrace/keys/openCase.prover',
+  'contract/compiled/midnighttrace/keys/openCase.verifier',
+  'contract/compiled/midnighttrace/keys/grantAccess.prover',
+  'contract/compiled/midnighttrace/keys/grantAccess.verifier',
+  'contract/compiled/midnighttrace/keys/logStep.prover',
+  'contract/compiled/midnighttrace/keys/logStep.verifier',
+  'contract/compiled/midnighttrace/keys/discloseFinding.prover',
+  'contract/compiled/midnighttrace/keys/discloseFinding.verifier',
+  'contract/compiled/midnighttrace/keys/closeCase.prover',
+  'contract/compiled/midnighttrace/keys/closeCase.verifier',
+  'contract/compiled/midnighttrace/zkir/logStep.bzkir',
+  'contract/compiled/midnighttrace/zkir/discloseFinding.bzkir',
 ];
 
 let failures = 0;

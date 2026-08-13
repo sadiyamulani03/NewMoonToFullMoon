@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Cases from './pages/Cases';
 import CaseDetail from './pages/CaseDetail';
 import CreateCase from './pages/CreateCase';
+import Auditor from './pages/Auditor';
 import About from './pages/About';
 import './styles.css';
 
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/cases" element={<Cases />} />
             <Route path="/cases/:id" element={<CaseDetail />} />
             <Route path="/new" element={<CreateCase />} />
+            <Route path="/audit" element={<Auditor />} />
             <Route path="/about" element={<About />} />
           </Route>
         </Routes>

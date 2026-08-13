@@ -31,3 +31,32 @@ export async function findDeployedCounter(providers: CounterProviders, contractA
     initialPrivateState: {},
   });
 }
+
+// ---------------------------------------------------------------------------
+// MidnightTrace — Level 4 contract
+// ---------------------------------------------------------------------------
+import * as MidnightTraceOutput from '../contract/midnighttrace';
+import { midnighttraceBrowserWitnesses } from './membership';
+
+export type MidnightTraceContract = MidnightTraceOutput.Contract<any, MidnightTraceOutput.Witnesses<any>>;
+
+export type MidnightTraceCircuits = ProvableCircuitId<MidnightTraceContract>;
+
+export type MidnightTraceProviders = MidnightProviders<MidnightTraceCircuits>;
+
+export const CompiledMidnightTraceContract = CompiledContract.make<MidnightTraceContract>(
+  'midnighttrace',
+  MidnightTraceOutput.Contract,
+).pipe(
+  CompiledContract.withWitnesses(midnighttraceBrowserWitnesses),
+  CompiledContract.withCompiledFileAssets('./contract/compiled/midnighttrace'),
+);
+
+export async function findDeployedMidnightTrace(providers: MidnightTraceProviders, contractAddress: string) {
+  return findDeployedContract(providers, {
+    compiledContract: CompiledMidnightTraceContract,
+    contractAddress,
+    privateStateId: 'midnighttracePrivateState',
+    initialPrivateState: {},
+  });
+}

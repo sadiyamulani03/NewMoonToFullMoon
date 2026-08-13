@@ -24,8 +24,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Compile the counter contract
-        run: npm run compile:counter
+      - name: Compile the Compact contracts (counter + midnighttrace)
+        run: npm run compile
 
       - name: Contract unit tests
         run: npm test

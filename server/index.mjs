@@ -112,7 +112,7 @@ export function createApp(options = {}) {
       res.status(404).json({ error: 'case not found' });
       return;
     }
-    const { txId, blockHeight, total, network } = req.body ?? {};
+    const { txId, blockHeight, total, network, stepType, caseIndex } = req.body ?? {};
     if (!txId || !total) {
       res.status(400).json({ error: 'txId and total are required' });
       return;
@@ -122,11 +122,30 @@ export function createApp(options = {}) {
       blockHeight: Number(blockHeight ?? 0),
       total: String(total),
       network: network ?? 'preprod',
+      stepType: stepType ?? 'logStep',
+      caseIndex: Number(caseIndex ?? 0),
       createdAt: new Date().toISOString(),
     };
     found.receipts.push(receipt);
     persist(cases);
     res.status(201).json(receipt);
+  });
+
+  app.patch('/api/cases/:id/status', (req, res) => {
+    const cases = loadCases();
+    const found = cases.find((c) => c.id === req.params.id);
+    if (!found) {
+      res.status(404).json({ error: 'case not found' });
+      return;
+    }
+    const { status } = req.body ?? {};
+    if (status !== 'open' && status !== 'closed') {
+      res.status(400).json({ error: 'status must be "open" or "closed"' });
+      return;
+    }
+    found.status = status;
+    persist(cases);
+    res.json(found);
   });
 
   app.get('/api/stats', (_req, res) => {

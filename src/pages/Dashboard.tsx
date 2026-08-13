@@ -4,14 +4,11 @@ import { Link } from 'react-router-dom';
 import { getStats, type Stats } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
 
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
-
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { walletState, isConnected, ledgerTotal, connect } = useMidnightContext();
+  const { walletState, isConnected, connect, midLedger, membershipStatus, midContractAddress } =
+    useMidnightContext();
 
   useEffect(() => {
     getStats().then(setStats).catch((e: unknown) => setError(String(e)));
@@ -31,9 +28,10 @@ export default function Dashboard() {
             {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
           </button>
         )}
-        {isConnected && (
+        {isConnected && midLedger && (
           <p className="ok-text">
-            Wallet connected on Preprod · on-chain counter total: <code>{ledgerTotal?.toString() ?? '…'}</code>
+            Wallet connected on Preprod · on-chain aggregate: <code>{midLedger.aggregate.toString()}</code> ·
+            membership token: {membershipStatus === 'member' ? 'member' : 'not authorized'}
           </p>
         )}
       </section>
@@ -52,18 +50,27 @@ export default function Dashboard() {
               <span className="muted-text">{stats.openCases} open</span>
             </div>
             <div className="stat-box">
+              <span className="info-label">On-chain cases</span>
+              <strong className="stat-value">{midLedger ? midLedger.cases.length : '…'}</strong>
+              <span className="muted-text">in the midnighttrace ledger</span>
+            </div>
+            <div className="stat-box">
               <span className="info-label">Proofs run</span>
               <strong className="stat-value">{stats.totalProofs}</strong>
               <span className="muted-text">on-chain receipts</span>
             </div>
             <div className="stat-box">
-              <span className="info-label">Last proof</span>
-              <strong className="stat-value">
-                {stats.lastReceipt ? `${stats.lastReceipt.total} total` : '—'}
-              </strong>
-              <span className="muted-text">{stats.lastReceipt ? fmtTime(stats.lastReceipt.createdAt) : 'no proofs yet'}</span>
+              <span className="info-label">Allowlist members</span>
+              <strong className="stat-value">{midLedger ? midLedger.memberCount.toString() : '…'}</strong>
+              <span className="muted-text">commitments on-chain</span>
             </div>
           </div>
+        )}
+        {!midContractAddress && (
+          <p className="muted-text">
+            MidnightTrace contract not configured yet — set <code>VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS</code> to see
+            on-chain case stats.
+          </p>
         )}
       </section>
 
@@ -73,6 +80,9 @@ export default function Dashboard() {
         </Link>
         <Link className="btn btn-secondary" to="/new">
           Open a new case
+        </Link>
+        <Link className="btn btn-secondary" to="/audit">
+          Audit window
         </Link>
       </div>
     </>

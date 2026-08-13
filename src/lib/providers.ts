@@ -4,11 +4,10 @@ import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-conf
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import type { ConnectedAPI, ProvingProvider } from '@midnight-ntwrk/dapp-connector-api';
 import { CostModel } from '@midnight-ntwrk/midnight-js-protocol/ledger';
-import type { ProofProvider } from '@midnight-ntwrk/midnight-js-types';
+import type { ProofProvider, AnyProvableCircuitId, MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 
 import { createWalletProvidersFromConnectedAPI } from './walletAdapter';
 import type { ShieldedAddress } from './walletAdapter';
-import type { CounterCircuits, CounterProviders } from './types';
 
 const PRIVATE_STATE_PASSWORD = 'MidnightTrace-demo-storage-password!';
 
@@ -37,6 +36,25 @@ const PUBLIC_INDEXER_URIS: Record<string, { http: string; ws: string }> = {
   },
 };
 
+/**
+ * Read-only public data provider for a network — no wallet, no private state.
+ * Used by the Auditor page so any third party can pin the on-chain truths
+ * (aggregate, per-case totals, allowlist root) of a deployed MidnightTrace
+ * contract without holding a membership secret.
+ */
+export async function buildPublicDataProvider(networkId: string) {
+  const uris = PUBLIC_INDEXER_URIS[networkId] ?? PUBLIC_INDEXER_URIS.preprod;
+  return indexerPublicDataProvider(
+    uris.http,
+    uris.ws,
+    // The browser's native WebSocket (see buildProvidersFromConnectedAPI).
+    // @ts-expect-error ws's WebSocket constructor and the DOM WebSocket are
+    // structurally different only in their static members, and the browser's
+    // WebSocket is what we want here.
+    WebSocket,
+  );
+}
+
 function resolveIndexerUris(config: { networkId: string; indexerUri: string; indexerWsUri: string }) {
   const publicUris = PUBLIC_INDEXER_URIS[config.networkId];
   if (!publicUris) {
@@ -59,12 +77,12 @@ function resolveIndexerUris(config: { networkId: string; indexerUri: string; ind
  * wallet does not expose a proving provider, we fall back to the wallet's
  * configured proof server URI.
  */
-export async function buildProvidersFromConnectedAPI(
+export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvableCircuitId>(
   connectedAPI: ConnectedAPI,
   contractName: string,
-): Promise<CounterProviders> {
+): Promise<MidnightProviders<Circuits>> {
   const zkConfigBase = window.location.origin + '/contract/compiled/' + contractName;
-  const zkConfigProvider = new FetchZkConfigProvider<CounterCircuits>(zkConfigBase, fetch.bind(window));
+  const zkConfigProvider = new FetchZkConfigProvider<Extract<Circuits, string>>(zkConfigBase, fetch.bind(window));
 
   const config = await connectedAPI.getConfiguration();
 
@@ -171,5 +189,5 @@ export async function buildProvidersFromConnectedAPI(
     proofProvider,
     walletProvider,
     midnightProvider,
-  } as unknown as CounterProviders;
+  } as unknown as MidnightProviders<Circuits>;
 }

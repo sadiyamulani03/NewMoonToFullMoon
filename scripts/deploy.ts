@@ -6,11 +6,13 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import { resolveNetwork, getOrCreateSeed, recordDeployment } from './network';
 import { createWallet, persistWalletState, unshieldedToken, type WalletContext } from './wallet';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { WebSocket } from 'ws';
 import * as Rx from 'rxjs';
+import { persistentHash, Bytes32Descriptor } from '@midnight-ntwrk/compact-runtime';
 
 // Midnight SDK imports
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
@@ -26,7 +28,7 @@ globalThis.WebSocket = WebSocket;
 // Identifier under which this contract's private state is stored. The
 // hello-world/counter contracts have no witnesses, so their private state
 // is empty ({}). Per-contract so multiple deployments stay isolated.
-const SUPPORTED_CONTRACTS = ['counter', 'hello-world'] as const;
+const SUPPORTED_CONTRACTS = ['counter', 'hello-world', 'midnighttrace'] as const;
 type ContractName = (typeof SUPPORTED_CONTRACTS)[number];
 
 function parseContractFlag(argv: string[]): ContractName {
@@ -46,7 +48,12 @@ function parseContractFlag(argv: string[]): ContractName {
 }
 
 const CONTRACT = parseContractFlag(process.argv);
-const PRIVATE_STATE_ID = CONTRACT === 'hello-world' ? 'helloWorldPrivateState' : 'counterPrivateState';
+const PRIVATE_STATE_ID =
+  CONTRACT === 'hello-world'
+    ? 'helloWorldPrivateState'
+    : CONTRACT === 'midnighttrace'
+      ? 'midnighttracePrivateState'
+      : 'counterPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -97,8 +104,28 @@ if (!fs.existsSync(contractPath)) {
 
 const ContractModule = await import(pathToFileURL(contractPath).href);
 
+// The counter/hello-world contracts have no witnesses, but midnighttrace's
+// circuits require findAuthPath: a browser/CLI helper that locates the
+// caller's commitment in the current on-chain allowlist tree and hands the
+// ZK circuit the private path. Without it the compiled contract cannot run
+// (deploy itself doesn't exercise circuits, so a vacant witness would also
+// get the constructor deployed — but any subsequent callTx would break).
+const midnighttraceDeployWitness = CONTRACT === 'midnighttrace'
+  ? {
+      findAuthPath: (context: { ledger: { allowlist: { findPathForLeaf(leaf: Uint8Array): unknown } }; privateState: unknown }, commitment: Uint8Array) => {
+        const path = context.ledger.allowlist.findPathForLeaf(commitment);
+        if (!path) {
+          throw new Error('commitment is not on the on-chain allowlist');
+        }
+        return [context.privateState, path];
+      },
+    }
+  : null;
+
 const compiledContract = CompiledContract.make(CONTRACT, ContractModule.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
+  midnighttraceDeployWitness
+    ? CompiledContract.withWitnesses(midnighttraceDeployWitness as never)
+    : CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
 
@@ -143,6 +170,37 @@ async function createProviders(walletCtx: WalletContext) {
     walletProvider,
     midnightProvider: walletProvider,
   };
+}
+
+// ─── MidnightTrace owner bootstrap ──────────────────────────────────────────────
+// midnighttrace's constructor seeds the allowlist with the deploying owner's
+// commitment (a committed secret). The owner secret is printed so it can be
+// pasted into the dApp (Members panel → “use this secret”) to act as the owner.
+function parseOwnerSecret(argv: string[]): Uint8Array | undefined {
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    let value: string | undefined;
+    if (arg === '--owner-secret') value = argv[i + 1];
+    else if (arg.startsWith('--owner-secret=')) value = arg.slice('--owner-secret='.length);
+    if (value !== undefined) return Buffer.from(value.replace(/^0x/i, ''), 'hex');
+  }
+  return undefined;
+}
+
+function toHex(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString('hex');
+}
+
+async function resolveConstructorArgs(): Promise<unknown[]> {
+  if (CONTRACT !== 'midnighttrace') return [];
+  const ownerSecret = parseOwnerSecret(process.argv) ?? randomBytes(32);
+  const ownerCommitment = persistentHash(Bytes32Descriptor, ownerSecret);
+  console.log('\n─── MidnightTrace owner bootstrap ───────────────────────────────\n');
+  console.log(`  Owner secret:      ${toHex(ownerSecret)}`);
+  console.log(`  Owner commitment:  ${toHex(ownerCommitment)}`);
+  console.log('  Paste the owner secret into the dApp “Members” panel to act as the');
+  console.log('  case owner and grant access to your browser wallet.\n');
+  return [ownerCommitment];
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
@@ -304,15 +362,16 @@ async function main() {
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      // Midnight.js 4.1.x supplies private state via privateStateId +
-      // initialPrivateState (empty here — the hello-world contract has no
-      // witnesses). args is the contract constructor's arguments: empty for
-      // hello-world's no-arg constructor. (Statically-typed contracts can omit
-      // args entirely; this script loads the contract dynamically, so the
-      // conditional args type widens to any[] and an explicit [] is required.)
-      deployed = await deployContract(providers, {
+// Midnight.js 4.1.x supplies private state via privateStateId +
+  // initialPrivateState (empty here — the hello-world contract has no
+  // witnesses). args is the contract constructor's arguments: empty for
+  // hello-world's no-arg constructor. (Statically-typed contracts can omit
+  // args entirely; this script loads the contract dynamically, so the
+  // conditional args type widens to any[] and an explicit [] is required.)
+  const constructorArgs = await resolveConstructorArgs();
+  deployed = await deployContract(providers, {
         compiledContract: compiledContract as any,
-        args: [],
+        args: constructorArgs,
         privateStateId: PRIVATE_STATE_ID,
         initialPrivateState: {},
       });

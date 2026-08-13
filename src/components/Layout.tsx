@@ -35,20 +35,23 @@ export default function Layout() {
             A pocket case-file that watches a private counter. Track cases, connect a wallet, run the circuit, and get
             receipts you can keep.
           </p>
-          <nav className="nav">
-            <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
-              Dashboard
-            </NavLink>
-            <NavLink to="/cases" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
-              Cases
-            </NavLink>
-            <NavLink to="/new" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
-              New case
-            </NavLink>
-            <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
-              About
-            </NavLink>
-          </nav>
+<nav className="nav">
+              <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+                Dashboard
+              </NavLink>
+              <NavLink to="/cases" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+                Cases
+              </NavLink>
+              <NavLink to="/new" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+                New case
+              </NavLink>
+              <NavLink to="/audit" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+                Audit
+              </NavLink>
+              <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+                About
+              </NavLink>
+            </nav>
           <div className="header-wallet">
             <WalletPill />
           </div>

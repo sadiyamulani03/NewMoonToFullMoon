@@ -30,6 +30,10 @@ export default defineConfig({
           src: 'contracts/managed/counter',
           dest: 'contract/compiled',
         },
+        {
+          src: 'contracts/managed/midnighttrace',
+          dest: 'contract/compiled',
+        },
       ],
     }),
   ],

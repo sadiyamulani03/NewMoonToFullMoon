@@ -30,6 +30,13 @@
 > The Level 4 MidnightTrace address is added to this table **and** to
 > `src/config.ts` (`MIDNIGHTTRACE_CONTRACT_ADDRESS`) right after the deploy.
 
+## Level 5 — User Validation
+
+- Target: 50 Preprod users
+- Current: 0 / 50 (see [USERS.md](./USERS.md))
+- See [USERS.md](./USERS.md) for wallet addresses
+- See [docs/FEEDBACK.md](./docs/FEEDBACK.md) for the feedback log and changes
+
 ## What This Product Does
 
 MidnightTrace is a **private blockchain forensics desk**. Real forensic work
@@ -188,8 +195,8 @@ Additional pages: **Audit** (`/audit`).
 | Requirement | Status | Evidence |
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
-| Living feedback loop | 🚧 | Next milestone: collect in-app feedback + issue tracker, iterate on a posted roadmap |
-| 50 Preprod users | 🚧 | Next milestone: onboarding drive via the X profile and the Midnight builder community |
+| Living feedback loop | 🚧 | In progress — `docs/FEEDBACK.md` created (collection method, raw log, themes, changes); waiting on real user feedback |
+| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (0/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
 
 ### Level 6 — Supermoon · Mainnet Launch (roadmap)
 
@@ -501,12 +508,16 @@ Status badge: ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/
 NewMoonToFullMoon/
 ├── .github/workflows/ci.yml     # CI/CD pipeline (push main + PR)
 ├── PROPOSAL.md                  # product proposal (idea, users, data model, mainnet feasibility)
+├── USERS.md                     # Level 5 preprod user log (target 50 wallet addresses)
 ├── README.md
 ├── contracts/                   # Compact sources + compiled artifacts
 │   ├── counter.compact          #   Level 1 counter (increment / incrementAndReveal)
 │   ├── midnighttrace.compact    #   Level 4 investigation desk (5 circuits + private allowlist)
 │   ├── hello-world.compact
 │   └── managed/                 #   compiled contract artifacts + ZK keys
+├── docs/
+│   ├── USAGE.md                 # step-by-step user guide
+│   └── FEEDBACK.md              # Level 5 feedback log (method, raw log, themes, changes)
 ├── api/index.mjs                # Express API entry (serverless for Vercel)
 ├── server/index.mjs             # Express API (cases, receipts, stats) + prod static hosting
 ├── scripts/                     # CLI: setup, deploy, network, wallet, demo, e2e-check
@@ -531,7 +542,9 @@ NewMoonToFullMoon/
 | Doc | Use when |
 |-----|----------|
 | `PROPOSAL.md` | Product proposal — idea, users, Midnight rationale, data model, mainnet feasibility |
+| `USERS.md` | Level 5 preprod user log — verified wallet addresses (target 50) |
 | `docs/USAGE.md` | Step-by-step user guide for the Level 4 investigation desk |
+| `docs/FEEDBACK.md` | Level 5 feedback log — collection method, raw log, themes, changes |
 | `docs/posts.md` | The three X/Twitter promo posts for the Level 4 submission |
 | `screenshots/contract-tests.svg` | Test-output screenshot (21 tests passing) |
 | `screenshots/midnighttrace-deployed.svg` | Level 4 MidnightTrace deploy (address + owner bootstrap) |

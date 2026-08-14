@@ -7,7 +7,7 @@ import { useMidnightContext } from '../context/MidnightContext';
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { walletState, isConnected, connect, midLedger, membershipStatus, midContractAddress } =
+  const { walletState, isConnected, connect, isMobile, midLedger, membershipStatus, midContractAddress } =
     useMidnightContext();
 
   useEffect(() => {
@@ -20,7 +20,14 @@ export default function Dashboard() {
         <p className="section-head">
           <span className="section-no">01</span> Wallet
         </p>
-        {!isConnected && walletState.status === 'wallet-not-installed' && (
+        {!isConnected && walletState.status === 'wallet-not-installed' && isMobile && (
+          <p className="error-text">
+            Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) connect through a
+            desktop browser extension. Open this site on a laptop, or explore the wallet-free{' '}
+            <Link to="/audit">Audit window</Link> right here on your phone.
+          </p>
+        )}
+        {!isConnected && walletState.status === 'wallet-not-installed' && !isMobile && (
           <p className="error-text">No Midnight wallet found in this browser. Install 1AM or Lace and switch to Preprod.</p>
         )}
         {!isConnected && (

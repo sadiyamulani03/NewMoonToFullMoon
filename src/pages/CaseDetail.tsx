@@ -38,6 +38,7 @@ export default function CaseDetail() {
     isConnected,
     connect,
     walletState,
+    isMobile,
     midLedger,
     memberCommitmentHex,
     membershipStatus,
@@ -221,7 +222,13 @@ export default function CaseDetail() {
           <p className="section-head">
             <span className="section-no">01</span> Wallet
           </p>
-          {walletState.status === 'wallet-not-installed' && (
+          {walletState.status === 'wallet-not-installed' && isMobile && (
+            <p className="error-text">
+              Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) need a desktop browser
+              extension. Use the Audit window or open this on a laptop to run circuits.
+            </p>
+          )}
+          {walletState.status === 'wallet-not-installed' && !isMobile && (
             <p className="error-text">
               No Midnight wallet found. Install 1AM or Lace and switch to Preprod before running circuits.
             </p>

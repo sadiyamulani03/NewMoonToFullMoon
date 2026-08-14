@@ -13,6 +13,7 @@ import { readCounterLedger, readMidnightTraceLedger } from '../lib/ledger';
 import { commitmentForSecret, defaultMemberSecret, fromHex, toHex } from '../lib/membership';
 import { ledger as midnightTraceLedger } from '../contract/midnighttrace';
 import { CONTRACT_ADDRESS, MIDNIGHTTRACE_CONTRACT_ADDRESS, MIDNIGHTTRACE_OWNER_SECRET, NETWORK_ID } from '../config';
+import { isMobileDevice } from '../lib/device';
 
 export type WalletState =
   | { status: 'idle' }
@@ -375,6 +376,7 @@ export function useMidnight() {
     ledgerTotal,
     lastDisclosed,
     isConnected,
+    isMobile: isMobileDevice(),
     connect,
     disconnect,
     refreshLedger,

@@ -2,6 +2,13 @@
 
 ![CI](https://github.com/sadiyamulani03/NewMoonToFullMoon/actions/workflows/ci.yml/badge.svg)
 
+## 📄 Docs (Level 5 — User Validation)
+
+| Doc | What it is |
+|-----|-----------|
+| [**FEEDBACK.md**](./FEEDBACK.md) | Level 5 feedback log — form, raw feedback, themes, changes |
+| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (0 / 50) |
+
 > A privacy-first forensics dApp on the Midnight Network: an on-chain counter
 > that proves each forensic step (a hidden amount) without ever revealing the
 > amount itself, grown into a full case-management and private-audit system.

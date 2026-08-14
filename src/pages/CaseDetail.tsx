@@ -223,19 +223,28 @@ export default function CaseDetail() {
             <span className="section-no">01</span> Wallet
           </p>
           {walletState.status === 'wallet-not-installed' && isMobile && (
-            <p className="error-text">
-              Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) need a desktop browser
-              extension. Use the Audit window or open this on a laptop to run circuits.
-            </p>
+            <div>
+              <p className="error-text">
+                Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) need a desktop
+                browser extension. Browse the live ledger from the Audit window instead.
+              </p>
+              <p className="wallet-actions">
+                <Link className="btn btn-secondary" to="/audit">
+                  Open the Audit window
+                </Link>
+              </p>
+            </div>
           )}
           {walletState.status === 'wallet-not-installed' && !isMobile && (
             <p className="error-text">
               No Midnight wallet found. Install 1AM or Lace and switch to Preprod before running circuits.
             </p>
           )}
-          <button className="btn btn-primary" onClick={() => void connect()}>
-            {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
-          </button>
+          {!(isMobile && walletState.status === 'wallet-not-installed') && (
+            <button className="btn btn-primary" onClick={() => void connect()}>
+              {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
+            </button>
+          )}
         </section>
       )}
 

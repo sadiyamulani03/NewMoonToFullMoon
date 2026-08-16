@@ -7,7 +7,7 @@
 | Doc | What it is |
 |-----|-----------|
 | [**FEEDBACK.md**](./FEEDBACK.md) | Level 5 feedback log — form, raw feedback, themes, changes |
-| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (0 / 50) |
+| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (3 / 50) |
 
 > A privacy-first forensics dApp on the Midnight Network: an on-chain counter
 > that proves each forensic step (a hidden amount) without ever revealing the
@@ -40,7 +40,7 @@
 ## Level 5 — User Validation
 
 - Target: 50 Preprod users
-- Current: 0 / 50 (see [USERS.md](./USERS.md))
+- Current: 3 / 50 (see [USERS.md](./USERS.md))
 - See [USERS.md](./USERS.md) for wallet addresses
 - See [FEEDBACK.md](./FEEDBACK.md) for the feedback log and changes
 
@@ -203,7 +203,7 @@ Additional pages: **Audit** (`/audit`).
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
 | Living feedback loop | 🚧 | In progress — `FEEDBACK.md` created (collection method, raw log, themes, changes); waiting on real user feedback |
-| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (0/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
+| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (3/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
 
 ### Level 6 — Supermoon · Mainnet Launch (roadmap)
 

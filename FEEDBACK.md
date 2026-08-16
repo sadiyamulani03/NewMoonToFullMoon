@@ -18,10 +18,17 @@ Form fields (all optional, ~1 min):
 ## Raw Feedback Log
 | # | User | Feedback Summary | Date |
 |---|------|-----------------|------|
-[I WILL FILL THIS IN as feedback comes in]
+| 1 | `mn_addr_preview10ehmmgf…` | 5/5, very easy to use, liked the Audit page, no bugs, nothing to change | 2026-08-15 |
+| 2 | `mn_addr_preprod1sjt4wn…` | 5/5, very easy, liked the Dashboard, no bugs | 2026-08-15 |
+| 3 | `mn_addr_preview1jqh0xan…` | 5/5, very easy, liked the Audit page, no bugs | 2026-08-15 |
+| 4 | `mn_addr_preprod1jqh0xan…` | 5/5, very easy, liked the Audit page, no bugs | 2026-08-15 |
+| 5 | `mn_addr_preprod14puds48…` | 5/5, easy, liked the privacy concept, no bugs — suggested more explanation of ZK proofs | 2026-08-16 |
 
 ## What We Heard (Themes)
-[I WILL FILL THIS IN after collecting feedback]
+- **Overall:** all 5 testers rated 5/5; the app was easy to use on first try.
+- **Favorite features:** the public **Audit window** (3 mentions) and the **Dashboard** (1 mention).
+- **Bugs:** none reported.
+- **Suggestion:** explain **zero-knowledge proofs** more (1 request).
 
 ## What We Changed
 | Change | Reason | Commit |

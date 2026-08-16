@@ -33,4 +33,5 @@ Form fields (all optional, ~1 min):
 ## What We Changed
 | Change | Reason | Commit |
 |--------|--------|--------|
-[I WILL FILL THIS IN after iterating]
+| Added "How zero-knowledge proofs work" explainer to the About page | Tester suggested "add more explanation of ZK proofs" | [commit hash — after push] |
+| Added ZK proof note to the Audit window intro | Same suggestion; Audit was the most-mentioned feature | [commit hash — after push] |

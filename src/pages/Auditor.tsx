@@ -178,6 +178,12 @@ export default function Auditor() {
           per-case running totals, the allowlist root, and that disclosed findings match the team's receipt book.
           Private step amounts never appear; the ZK proofs the circuit wrote are what make the totals trustworthy.
         </p>
+        <p className="muted-text">
+          How is a total you can&apos;t see still trustworthy? Each step was submitted with a{' '}
+          <strong>zero-knowledge proof</strong> — the wallet proved <em>&quot;this new total honestly follows from the
+          old total plus a hidden amount&quot;</em> without revealing the amount. So the ledger you audit here was
+          built from cryptographically-verified steps, not from anyone&apos;s word.
+        </p>
 
         <label className="form-label" htmlFor="audit-network">
           Network

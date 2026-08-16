@@ -39,7 +39,41 @@ export default function About() {
 
       <section className="card">
         <p className="section-head">
-          <span className="section-no">07</span> Level 4 feature set
+          <span className="section-no">07</span> How zero-knowledge proofs work
+        </p>
+        <p className="muted-text">
+          In plain terms, a zero-knowledge proof lets you say{' '}
+          <em>&quot;I know the answer — and I can prove it — without telling you the answer&quot;</em>. MidnightTrace
+          uses this everywhere. Here&apos;s what happens when you log a hidden step:
+        </p>
+        <ul className="privacy-list">
+          <li>
+            <strong>1. You pick a private amount.</strong> The step amount lives only in your wallet — it never leaves
+            your device.
+          </li>
+          <li>
+            <strong>2. Your wallet builds a proof.</strong> It proves the statement{' '}
+            <em>&quot;new total = old total + my amount&quot;</em> is true, in a way that leaks nothing about the
+            amount itself. This is the &quot;zero-knowledge&quot; part.
+          </li>
+          <li>
+            <strong>3. The proof goes on-chain.</strong> The network checks the math is correct and updates the public
+            total. It does <em>not</em> learn your amount — only that your claim is true.
+          </li>
+          <li>
+            <strong>4. Anyone can verify, no one can see.</strong> The public Audit window re-checks the ledger without
+            a wallet. The total is trustworthy because it was proven — not because anyone had to be trusted.
+          </li>
+        </ul>
+        <p className="privacy-note">
+          Analogy: a friend proves they can open a lock by opening it inside a screen — you see it open, you never see
+          the key.
+        </p>
+      </section>
+
+      <section className="card">
+        <p className="section-head">
+          <span className="section-no">08</span> Level 4 feature set
         </p>
         <ul className="privacy-list">
           <li>
@@ -67,7 +101,7 @@ export default function About() {
 
       <section className="card">
         <p className="section-head">
-          <span className="section-no">08</span> Full-stack architecture
+          <span className="section-no">09</span> Full-stack architecture
         </p>
         <p className="muted-text">
           The dApp is a multi-page React app served by an Express API. On-chain logic lives in the Compact counter and

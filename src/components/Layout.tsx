@@ -7,7 +7,7 @@ function shortAddress(address: string): string {
 }
 
 function WalletPill() {
-  const { walletState, walletInfo, isConnected, connect, disconnect } = useMidnightContext();
+  const { walletState, walletInfo, isConnected, connect, disconnect, isMobile } = useMidnightContext();
 
   if (isConnected && walletInfo) {
     return (
@@ -17,9 +17,24 @@ function WalletPill() {
       </button>
     );
   }
+
+  // On mobile the Midnight wallets can't inject a browser extension, so the
+  // header button would only ever fail. Hide it and keep the Audit-window CTA
+  // that the wallet card already offers — avoids the duplicate-button UX
+  // testers flagged.
+  if (isMobile && walletState.status === 'wallet-not-installed') {
+    return <span className="wallet-pill wallet-pill-muted">Mobile · use Audit</span>;
+  }
+
+  const label =
+    walletState.status === 'connecting'
+      ? 'Connecting…'
+      : walletState.status === 'error' || walletState.status === 'rejected' || walletState.status === 'network-mismatch'
+        ? 'Retry wallet'
+        : 'Connect wallet';
   return (
     <button className="btn btn-primary wallet-pill" onClick={() => void connect()}>
-      {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
+      {label}
     </button>
   );
 }

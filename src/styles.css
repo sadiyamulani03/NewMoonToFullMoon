@@ -486,6 +486,15 @@ a:hover {
   padding: 7px 14px;
 }
 
+.wallet-pill-muted {
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
 .pill-stamp {
   margin: 0;
   padding: 2px 8px;

@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 
 import { getStats, type Stats } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
+import WalletStatus from '../components/WalletStatus';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { walletState, isConnected, connect, isMobile, midLedger, membershipStatus, midContractAddress } =
+  const { walletState, isConnected, isMobile, midLedger, membershipStatus, midContractAddress } =
     useMidnightContext();
 
   useEffect(() => {
@@ -20,27 +21,7 @@ export default function Dashboard() {
         <p className="section-head">
           <span className="section-no">01</span> Wallet
         </p>
-        {!isConnected && walletState.status === 'wallet-not-installed' && isMobile && (
-          <div>
-            <p className="error-text">
-              Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) connect through a
-              desktop browser extension. Meanwhile, you can browse the live on-chain ledger right here.
-            </p>
-            <p className="wallet-actions">
-              <Link className="btn btn-primary" to="/audit">
-                Open the Audit window
-              </Link>
-            </p>
-          </div>
-        )}
-        {!isConnected && walletState.status === 'wallet-not-installed' && !isMobile && (
-          <p className="error-text">No Midnight wallet found in this browser. Install 1AM or Lace and switch to Preprod.</p>
-        )}
-        {!isConnected && !(isMobile && walletState.status === 'wallet-not-installed') && (
-          <button className="btn btn-primary" onClick={() => void connect()}>
-            {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
-          </button>
-        )}
+        <WalletStatus walletState={walletState} isMobile={isMobile} />
         {isConnected && midLedger && (
           <p className="ok-text">
             Wallet connected on Preprod · on-chain aggregate: <code>{midLedger.aggregate.toString()}</code> ·

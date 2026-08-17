@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { addReceipt, exportCaseReceipts, getCase, setCaseStatus, type ForensicCase } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
+import WalletStatus from '../components/WalletStatus';
 
 type Action = 'logStep' | 'discloseFinding' | 'closeCase';
 
@@ -36,7 +37,6 @@ export default function CaseDetail() {
 
   const {
     isConnected,
-    connect,
     walletState,
     isMobile,
     midLedger,
@@ -222,29 +222,7 @@ export default function CaseDetail() {
           <p className="section-head">
             <span className="section-no">01</span> Wallet
           </p>
-          {walletState.status === 'wallet-not-installed' && isMobile && (
-            <div>
-              <p className="error-text">
-                Wallet connection isn&apos;t supported on mobile yet — Midnight wallets (1AM/Lace) need a desktop
-                browser extension. Browse the live ledger from the Audit window instead.
-              </p>
-              <p className="wallet-actions">
-                <Link className="btn btn-secondary" to="/audit">
-                  Open the Audit window
-                </Link>
-              </p>
-            </div>
-          )}
-          {walletState.status === 'wallet-not-installed' && !isMobile && (
-            <p className="error-text">
-              No Midnight wallet found. Install 1AM or Lace and switch to Preprod before running circuits.
-            </p>
-          )}
-          {!(isMobile && walletState.status === 'wallet-not-installed') && (
-            <button className="btn btn-primary" onClick={() => void connect()}>
-              {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
-            </button>
-          )}
+          <WalletStatus walletState={walletState} isMobile={isMobile} />
         </section>
       )}
 

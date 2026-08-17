@@ -42,3 +42,5 @@ Form fields (all optional, ~1 min):
 |--------|--------|--------|
 | Added "How zero-knowledge proofs work" explainer to the About page | Tester suggested "add more explanation of ZK proofs" | `6d1bd32` |
 | Added ZK proof note to the Audit window intro | Same suggestion; Audit was the most-mentioned feature | `6d1bd32` |
+| Better wallet connection status messages | "Better wallet connection status" request + connection timeouts | `e489068` |
+| Removed duplicate "Connect wallet" buttons (header + card) | Testers flagged redundant stacked Connect buttons | `e489068` |

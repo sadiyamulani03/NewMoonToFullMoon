@@ -26,16 +26,22 @@ Form fields (all optional, ~1 min):
 | 6 | `mn_addr_preprod1vrfws32…` | 3/5, normal ease, liked the Dashboard, no bugs — suggested better wallet connection status | 2026-08-16 |
 | 7 | `mn_addr_preview14gydf7u…` | 4/5, normal, liked the noir/retro theme but couldn't test features (wallet connection timeout) — suggested localization, loading indicators, background contrast, icons, fewer duplicate buttons, error toasts | 2026-08-17 |
 | 8 | `mn_addr_preprod14gydf7u…` | 4/5, normal, liked the noir/retro theme — same detailed feedback as #7 (localization, loading states, contrast, icons, duplicate buttons, error boundaries) | 2026-08-17 |
+| 9 | `mn_addr_preprod1lgfpgdf…` | 5/5, very easy, liked case creation, no bugs | 2026-08-18 |
+| 10 | `mn_addr_preprod1qxfvktg…` | 5/5, very easy, liked the privacy feature, no bugs | 2026-08-18 |
+| 11 | `mn_addr_preprod128f7563…` | 5/5, very easy, liked the UI, no bugs | 2026-08-18 |
+| 12 | `mn_addr_preprod13tl9q45…` | 4/5, easy, liked the Audit page — proof generation took a while; suggested a transaction progress indicator | 2026-08-18 |
 
 ## What We Heard (Themes)
-- **Overall:** 6 of 8 testers rated 4–5/5; one rated 3/5. App was easy to use for most; two hit **wallet connection timeout** issues.
-- **Favorite features:** the public **Audit window** (3 mentions), the **Dashboard**, the **privacy concept**, and the **noir/retro theme** (2 mentions).
-- **Bugs:** two testers couldn't run the dApp on mobile due to **wallet connection timeouts** (Midnight wallets need a desktop extension — handled in the mobile UX update).
+- **Overall:** 9 of 12 testers rated 5/5; two rated 4/5; one rated 3/5.
+- **Favorite features:** the public **Audit window** (4 mentions), **case creation**, the **privacy concept**, the **Dashboard**, the **UI**, and the **noir/retro theme** (2 mentions).
+- **Bugs:** two testers couldn't run the dApp on mobile due to **wallet connection timeouts** (Midnight wallets need a desktop extension — handled in the mobile UX update); one noted **proof generation took some time**.
 - **Suggestion themes:**
   - Explain **zero-knowledge proofs** more (1 request) — ✅ done
-  - **Better wallet connection status** (1 request) — clearer connect/error messaging
+  - **Better wallet connection status** (1 request) — ✅ done (status messages + retry label)
+  - **Duplicate Connect buttons** (1 request) — ✅ done
+  - **Transaction progress indicator** (1 request) — proof generation feedback
   - **Localization** — UI appeared mixed English/Turkish for one tester (browser auto-translation)
-  - **Visual ergonomics** — dense stripe background causes eye strain / contrast issues; text-heavy, could use icons; duplicate "Connect wallet" buttons in header + wallet card
+  - **Visual ergonomics** — dense stripe background causes eye strain / contrast issues; text-heavy, could use icons
 
 ## What We Changed
 | Change | Reason | Commit |

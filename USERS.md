@@ -8,11 +8,15 @@ Target: 50 verified wallet addresses
 | 3 | `mn_addr_preprod14puds48sg6f82q4s9fkp2czdcs0vkuslmpapfxc3e3qfreah4nus3p4ft0` | 2026-08-16 |
 | 4 | `mn_addr_preprod1vrfws32cya506maxwa9e4yf9h5qlsv5759memzlc7gssz9tyu2ss2r83nz` | 2026-08-16 |
 | 5 | `mn_addr_preprod14gydf7unmwygtpm8pj49ugwqa6j8yt55fuy8u6qh4hh88mw8n4pskg9t6m` | 2026-08-17 |
+| 6 | `mn_addr_preprod1lgfpgdf4ms06jm7cgsqqusf08dyrpu5arqre3v9lexrktsuejy2qgw7yvd` | 2026-08-18 |
+| 7 | `mn_addr_preprod1qxfvktg5zgcq7mu4z9jg0pzame4eyxzh9527zqyfzqjzxej3fw3sh6298d` | 2026-08-18 |
+| 8 | `mn_addr_preprod128f7563q5ug9n7t49flzf8nrk7pm0l6y2yk8l9y6mmcqgun7y2sq5lly6v` | 2026-08-18 |
+| 9 | `mn_addr_preprod13tl9q45ja4pkgssp572srcqngyky20ln2hylptt6wc7w6fv77m4s9dqla9` | 2026-08-18 |
 
-> Note: 3 more form respondents used Preview-network addresses
+> Note: 3 form respondents used Preview-network addresses
 > (`mn_addr_preview10ehmmgf0fdmku873ev8dvrd9lemgr8299z9udfqqdcuavdypxpuqdmf9ey`,
 > `mn_addr_preview1jqh0xanw5ajyjvu8a3v3emq8t36f92aqyjs3a9l0mfd2ksu20nfqc8un0g`,
 > `mn_addr_preview14gydf7unmwygtpm8pj49ugwqa6j8yt55fuy8u6qh4hh88mw8n4pskfmmfx`).
 > They are logged in `FEEDBACK.md` but not counted toward the Preprod target.
 
-Current count: 5 / 50
+Current count: 9 / 50

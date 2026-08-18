@@ -5,6 +5,7 @@ import { addReceipt, exportCaseReceipts, getCase, setCaseStatus, type ForensicCa
 import { useMidnightContext } from '../context/MidnightContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
 import WalletStatus from '../components/WalletStatus';
+import TxProgress from '../components/TxProgress';
 
 type Action = 'logStep' | 'discloseFinding' | 'closeCase';
 
@@ -30,6 +31,7 @@ export default function CaseDetail() {
   const [caseIndex, setCaseIndex] = useState('');
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
+  const [txStage, setTxStage] = useState<'proof' | 'submit'>('proof');
   const [runMessage, setRunMessage] = useState<string | null>(null);
   const [memberSecretInput, setMemberSecretInput] = useState('');
   const [memberMessage, setMemberMessage] = useState<string | null>(null);
@@ -104,6 +106,7 @@ export default function CaseDetail() {
       return;
     }
     setBusy(true);
+    setTxStage('proof');
     setRunMessage(null);
     try {
       const caseId = resolveCaseId();
@@ -143,6 +146,7 @@ export default function CaseDetail() {
       return;
     }
     setBusy(true);
+    setTxStage('proof');
     setRunMessage(null);
     try {
       const caseId = resolveCaseId();
@@ -329,6 +333,7 @@ export default function CaseDetail() {
                   : 'Seal case'}
           </button>
         )}
+        {busy && <TxProgress stage={txStage} />}
         {runMessage && <p className={runMessage.startsWith('Transaction') || runMessage.startsWith('Case') ? 'ok-text' : 'error-text'}>{runMessage}</p>}
       </section>
 

@@ -3,12 +3,12 @@ import type { FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
 
 import type { CounterContract } from '../lib/types';
 import { useMidnightContext } from '../context/MidnightContext';
+import TxProgress from './TxProgress';
 
 export interface CircuitCallProps {
   contract: FoundContract<CounterContract> | null;
   callCircuit: () => Promise<{ txId: string; blockHeight: number | bigint }>;
   onLanded?: (result: { txId: string; blockHeight: number | bigint }) => void | Promise<void>;
-  proofMode: 'wallet' | 'proof-server';
 }
 
 type CallStatus =
@@ -18,7 +18,7 @@ type CallStatus =
   | { status: 'success'; txId: string; blockHeight: number | bigint }
   | { status: 'error'; message: string };
 
-export function CircuitCall({ contract, callCircuit, onLanded, proofMode }: CircuitCallProps) {
+export function CircuitCall({ contract, callCircuit, onLanded }: CircuitCallProps) {
   const [callStatus, setCallStatus] = useState<CallStatus>({ status: 'idle' });
   const { ledgerTotal, lastDisclosed } = useMidnightContext();
 
@@ -72,13 +72,11 @@ export function CircuitCall({ contract, callCircuit, onLanded, proofMode }: Circ
           </button>
 
           {callStatus.status === 'generating-proof' && (
-            <div className="loading-row">
-              <span className="spinner" />
-              <p className="muted-text">
-                Building the zero-knowledge proof{proofMode === 'wallet' ? ' with your wallet' : ' on the proof server'}.
-                It shows the counter moved the right way while keeping your step hidden.
-              </p>
-            </div>
+            <TxProgress stage="proof" />
+          )}
+
+          {callStatus.status === 'submitting' && (
+            <TxProgress stage="submit" />
           )}
 
           {callStatus.status === 'success' && (

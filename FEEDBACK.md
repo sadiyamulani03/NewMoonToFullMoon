@@ -50,3 +50,4 @@ Form fields (all optional, ~1 min):
 | Added ZK proof note to the Audit window intro | Same suggestion; Audit was the most-mentioned feature | `6d1bd32` |
 | Better wallet connection status messages | "Better wallet connection status" request + connection timeouts | `e489068` |
 | Removed duplicate "Connect wallet" buttons (header + card) | Testers flagged redundant stacked Connect buttons | `e489068` |
+| Added transaction progress indicator (stage + elapsed time + bar) | "Proof generation took some time" — wanted a progress indicator | `9ccb2c9` |

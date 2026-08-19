@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { getStats, type Stats } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
 import WalletStatus from '../components/WalletStatus';
+import FirstTimeGuide from '../components/FirstTimeGuide';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -17,6 +18,8 @@ export default function Dashboard() {
 
   return (
     <>
+      <FirstTimeGuide />
+
       <section className="card">
         <p className="section-head">
           <span className="section-no">01</span> Wallet

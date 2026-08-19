@@ -57,3 +57,4 @@ Form fields (all optional, ~1 min):
 | Better wallet connection status messages | "Better wallet connection status" request + connection timeouts | `e489068` |
 | Removed duplicate "Connect wallet" buttons (header + card) | Testers flagged redundant stacked Connect buttons | `e489068` |
 | Added transaction progress indicator (stage + elapsed time + bar) | "Proof generation took some time" — wanted a progress indicator | `9ccb2c9` |
+| Added first-time user guide on the Dashboard (dismissible) | "Add clearer instructions for first-time users" | `1698bb9` |

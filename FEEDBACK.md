@@ -30,16 +30,22 @@ Form fields (all optional, ~1 min):
 | 10 | `mn_addr_preprod1qxfvktg…` | 5/5, very easy, liked the privacy feature, no bugs | 2026-08-18 |
 | 11 | `mn_addr_preprod128f7563…` | 5/5, very easy, liked the UI, no bugs | 2026-08-18 |
 | 12 | `mn_addr_preprod13tl9q45…` | 4/5, easy, liked the Audit page — proof generation took a while; suggested a transaction progress indicator | 2026-08-18 |
+| 13 | `mn_addr_preprod1gmdyfxe…` | 4/5, easy, liked the privacy concept + simple interface — wallet connection took a few seconds; asked for clearer first-time instructions and a status indicator during proofs | 2026-08-19 |
+| 14 | `mn_addr_preprod143zsqtz…` | 5/5, easy, overall good experience, no bugs | 2026-08-19 |
+| 15 | `mn_addr_preprod12a4wlq6…` | 5/5, very easy, liked the proof workflow, no bugs | 2026-08-19 |
+| 16 | `mn_addr_preprod1guapunl…` | 5/5, easy, liked the clean design — transaction took a while; wants transactions to work faster | 2026-08-19 |
 
 ## What We Heard (Themes)
-- **Overall:** 9 of 12 testers rated 5/5; two rated 4/5; one rated 3/5.
-- **Favorite features:** the public **Audit window** (4 mentions), **case creation**, the **privacy concept**, the **Dashboard**, the **UI**, and the **noir/retro theme** (2 mentions).
-- **Bugs:** two testers couldn't run the dApp on mobile due to **wallet connection timeouts** (Midnight wallets need a desktop extension — handled in the mobile UX update); one noted **proof generation took some time**.
+- **Overall:** 12 of 16 testers rated 5/5; three rated 4/5; one rated 3/5.
+- **Favorite features:** the public **Audit window** (4 mentions), the **privacy concept** (2), **case creation**, the **Dashboard**, the **UI/clean design** (2), the **proof workflow**, and the **noir/retro theme** (2).
+- **Bugs / friction:** mobile **wallet connection timeouts** (2 — Midnight wallets need a desktop extension; handled in the mobile UX update); **proof generation and transactions take a while** (3 mentions — progress indicator now added).
 - **Suggestion themes:**
   - Explain **zero-knowledge proofs** more (1 request) — ✅ done
-  - **Better wallet connection status** (1 request) — ✅ done (status messages + retry label)
+  - **Better wallet connection status** (2 requests) — ✅ done (status messages + retry label)
   - **Duplicate Connect buttons** (1 request) — ✅ done
-  - **Transaction progress indicator** (1 request) — proof generation feedback
+  - **Transaction progress indicator** (2 requests) — ✅ done
+  - **Clearer first-time instructions** (1 request) — onboarding guidance
+  - **Faster transactions** (1 request) — infra/chain-side, not UI
   - **Localization** — UI appeared mixed English/Turkish for one tester (browser auto-translation)
   - **Visual ergonomics** — dense stripe background causes eye strain / contrast issues; text-heavy, could use icons
 

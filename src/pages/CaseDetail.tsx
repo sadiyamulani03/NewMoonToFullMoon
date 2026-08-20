@@ -6,6 +6,7 @@ import { useMidnightContext } from '../context/MidnightContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
 import WalletStatus from '../components/WalletStatus';
 import TxProgress from '../components/TxProgress';
+import Loading from '../components/Loading';
 
 type Action = 'logStep' | 'discloseFinding' | 'closeCase';
 
@@ -235,7 +236,7 @@ export default function CaseDetail() {
           <span className="section-no">02</span> Case file
         </p>
         {error && <p className="error-text">{error}</p>}
-        {!caseItem && !error && <p className="muted-text">Loading case…</p>}
+        {!caseItem && !error && <Loading label="Loading case…" />}
         {caseItem && (
           <>
             <strong className="case-title">{caseItem.title}</strong>
@@ -346,7 +347,7 @@ export default function CaseDetail() {
           references the block where the contract accepted it, and the disclosed column shows exactly when a running
           total was made public.
         </p>
-        {!caseItem && <p className="muted-text">Loading…</p>}
+        {!caseItem && <Loading label="Loading…" />}
         {caseItem && caseItem.receipts.length === 0 && (
           <p className="muted-text">No proofs recorded for this case yet — run the circuits above.</p>
         )}

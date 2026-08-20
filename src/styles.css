@@ -475,6 +475,20 @@ a:hover {
   flex-wrap: wrap;
 }
 
+@media (max-width: 640px) {
+  .nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .nav-link {
+    white-space: nowrap;
+  }
+}
+
 .nav-link {
   display: inline-flex;
   align-items: center;

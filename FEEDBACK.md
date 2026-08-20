@@ -61,3 +61,7 @@ Form fields (all optional, ~1 min):
 | Styled the Audit result badge/checks, ledger table, case timeline, and sealed status tags | Testers liked the Audit page; these rendered unstyled | `6153fc6` |
 | Softened the dense header stripe and raised text contrast | "Dense stripe background causes eye strain / contrast issues" | `6153fc6` |
 | Added icons to the main navigation | "Text-heavy, could use icons" | `6153fc6` |
+| Added a global error boundary (recovery card instead of blank screen) | Tester suggested "error boundaries" in detailed feedback | *(pending commit)* |
+| Added spinners to data-loading states | Tester suggested "loading indicators" | *(pending commit)* |
+| Mobile nav scrolls horizontally instead of wrapping | Mobile UX polish for smaller screens | *(pending commit)* |
+| Marked the app root `translate="no"` | "UI appeared mixed English/Turkish (browser auto-translation)" | *(pending commit)* |

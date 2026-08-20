@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { listCases, type ForensicCase } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
+import Loading from '../components/Loading';
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -38,7 +39,7 @@ export default function Cases() {
           <span className="section-no">03</span> Cases
         </p>
         {error && <p className="error-text">{error}</p>}
-        {!cases && !error && <p className="muted-text">Loading cases…</p>}
+        {!cases && !error && <Loading label="Loading cases…" />}
         {cases && cases.length === 0 && <p className="muted-text">No cases yet — open the first one.</p>}
         {cases && cases.length > 0 && (
           <ul className="case-list">

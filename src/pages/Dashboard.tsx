@@ -5,6 +5,7 @@ import { getStats, type Stats } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
 import WalletStatus from '../components/WalletStatus';
 import FirstTimeGuide from '../components/FirstTimeGuide';
+import Loading from '../components/Loading';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -38,7 +39,7 @@ export default function Dashboard() {
           <span className="section-no">02</span> Overview
         </p>
         {error && <p className="error-text">{error}</p>}
-        {!stats && !error && <p className="muted-text">Loading case stats…</p>}
+        {!stats && !error && <Loading label="Loading case stats…" />}
         {stats && (
           <div className="stats-grid">
             <div className="stat-box">

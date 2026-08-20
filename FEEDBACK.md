@@ -58,3 +58,6 @@ Form fields (all optional, ~1 min):
 | Removed duplicate "Connect wallet" buttons (header + card) | Testers flagged redundant stacked Connect buttons | `e489068` |
 | Added transaction progress indicator (stage + elapsed time + bar) | "Proof generation took some time" — wanted a progress indicator | `9ccb2c9` |
 | Added first-time user guide on the Dashboard (dismissible) | "Add clearer instructions for first-time users" | `1698bb9` |
+| Styled the Audit result badge/checks, ledger table, case timeline, and sealed status tags | Testers liked the Audit page; these rendered unstyled | *(this commit)* |
+| Softened the dense header stripe and raised text contrast | "Dense stripe background causes eye strain / contrast issues" | *(this commit)* |
+| Added icons to the main navigation | "Text-heavy, could use icons" | *(this commit)* |

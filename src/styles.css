@@ -3,8 +3,8 @@
   --paper-deep: #ece4d4;
   --card: #fbf8f1;
   --ink: #1d1b16;
-  --ink-soft: #4a463c;
-  --faint: #8a8371;
+  --ink-soft: #45413a;
+  --faint: #6f695b;
   --line: #cfc5ae;
   --amber: #c98a2d;
   --amber-soft: #f3d9a4;
@@ -54,7 +54,7 @@ body::after {
 .header {
   border-bottom: 2px solid var(--ink);
   background:
-    linear-gradient(#000 1px, transparent 1px) 0 0 / 100% 7px,
+    linear-gradient(rgba(51, 64, 92, 0.14) 1px, transparent 1px) 0 0 / 100% 18px,
     var(--paper-deep);
 }
 
@@ -469,12 +469,16 @@ a:hover {
 
 .nav {
   display: flex;
+  align-items: center;
   gap: 4px;
   margin-top: 20px;
   flex-wrap: wrap;
 }
 
 .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.06em;
@@ -495,6 +499,17 @@ a:hover {
   color: #241a05;
   background: var(--amber);
   border-color: var(--amber);
+}
+
+.nav-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
 }
 
 .header-wallet {
@@ -662,4 +677,168 @@ a:hover {
   .header-wallet .btn {
     width: 100%;
   }
+}
+
+/* --- closed / sealed status --- */
+.status-closed {
+  color: var(--faint);
+  background: var(--paper-deep);
+}
+
+/* --- chain-of-custody timeline --- */
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline .timeline-item {
+  position: relative;
+  border: none;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 2px 0 20px 0;
+}
+
+.timeline .timeline-item:last-child {
+  padding-bottom: 2px;
+}
+
+.timeline-dot {
+  position: absolute;
+  top: 8px;
+  left: -25px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 3px var(--card);
+}
+
+.timeline .case-row {
+  padding: 0 0 0 6px;
+}
+
+.timeline .case-row:hover {
+  border-left: none;
+}
+
+/* --- public audit window --- */
+.audit-badge {
+  margin: 14px 0 16px;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+}
+
+.audit-pass {
+  color: var(--ok);
+  background: #f1f6ee;
+  border-left: 5px solid var(--ok);
+}
+
+.audit-fail {
+  color: var(--error);
+  background: #f8efec;
+  border-left: 5px solid var(--error);
+}
+
+.audit-checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audit-checks li {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffdf6;
+  padding: 10px 12px;
+}
+
+.audit-checks li p {
+  margin: 2px 0 0;
+}
+
+.check-dot {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  line-height: 18px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.check-dot.ok {
+  color: var(--ok);
+  background: #e6f0e8;
+}
+
+.check-dot.bad {
+  color: var(--error);
+  background: #f8e0db;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 0.88rem;
+}
+
+.audit-table th,
+.audit-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.audit-table th {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border-bottom: 2px solid var(--ink);
+}
+
+.audit-table td code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.stat-hex {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 400;
+  word-break: break-all;
+}
+
+/* --- first-time guide --- */
+.first-time-guide {
+  border-color: var(--amber);
+  border-style: dashed;
+}
+
+.first-time-guide .btn {
+  margin-top: 14px;
+}
+
+/* --- circuit card --- */
+.circuit-card {
+  border-left: 5px solid var(--amber);
 }

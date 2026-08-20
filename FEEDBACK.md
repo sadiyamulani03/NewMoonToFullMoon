@@ -34,17 +34,22 @@ Form fields (all optional, ~1 min):
 | 14 | `mn_addr_preprod143zsqtz…` | 5/5, easy, overall good experience, no bugs | 2026-08-19 |
 | 15 | `mn_addr_preprod12a4wlq6…` | 5/5, very easy, liked the proof workflow, no bugs | 2026-08-19 |
 | 16 | `mn_addr_preprod1guapunl…` | 5/5, easy, liked the clean design — transaction took a while; wants transactions to work faster | 2026-08-19 |
+| 17 | `mn_addr_preprod1lrh5s9l…` | 5/5, easy, liked the unique dApp idea, no issues | 2026-08-19 |
+| 18 | `mn_addr_preprod1g0v8ay4…` | 3/5, normal, liked the Dashboard — some terminology was unclear; suggested tooltips for technical terms | 2026-08-20 |
+| 19 | `mn_addr_preprod14k6g4l7…` | 5/5, very easy, overall good experience, no bugs | 2026-08-20 |
+| 20 | `mn_addr_preprod1hd2wmhz…` | 4/5, easy, liked the proof workflow — suggested showing proof-generation progress | 2026-08-20 |
 
 ## What We Heard (Themes)
-- **Overall:** 12 of 16 testers rated 5/5; three rated 4/5; one rated 3/5.
-- **Favorite features:** the public **Audit window** (4 mentions), the **privacy concept** (2), **case creation**, the **Dashboard**, the **UI/clean design** (2), the **proof workflow**, and the **noir/retro theme** (2).
+- **Overall:** 15 of 20 testers rated 5/5; three rated 4/5; one rated 3/5.
+- **Favorite features:** the public **Audit window** (4 mentions), the **privacy concept** (2), **case creation**, the **Dashboard** (2), the **UI/clean design** (2), the **proof workflow** (2), the **unique idea**, and the **noir/retro theme** (2).
 - **Bugs / friction:** mobile **wallet connection timeouts** (2 — Midnight wallets need a desktop extension; handled in the mobile UX update); **proof generation and transactions take a while** (3 mentions — progress indicator now added).
 - **Suggestion themes:**
   - Explain **zero-knowledge proofs** more (1 request) — ✅ done
   - **Better wallet connection status** (2 requests) — ✅ done (status messages + retry label)
   - **Duplicate Connect buttons** (1 request) — ✅ done
-  - **Transaction progress indicator** (2 requests) — ✅ done
-  - **Clearer first-time instructions** (1 request) — onboarding guidance
+  - **Transaction progress indicator** (3 requests) — ✅ done
+  - **Clearer first-time instructions** (1 request) — ✅ done (Dashboard guide)
+  - **Tooltips for technical terms** (1 request) — explain terminology in the UI
   - **Faster transactions** (1 request) — infra/chain-side, not UI
   - **Localization** — UI appeared mixed English/Turkish for one tester (browser auto-translation)
   - **Visual ergonomics** — dense stripe background causes eye strain / contrast issues; text-heavy, could use icons

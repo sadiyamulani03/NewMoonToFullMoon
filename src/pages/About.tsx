@@ -118,6 +118,35 @@ export default function About() {
           Public audit window
         </Link>
       </div>
+      <section className="card">
+        <p className="section-head">
+          <span className="section-no">10</span> Glossary
+        </p>
+        <dl className="glossary">
+          <dt>Aggregate</dt>
+          <dd>The total sum of all case totals on-chain, visible to anyone.</dd>
+          <dt>Allowlist</dt>
+          <dd>A Merkle tree of committed investigator secrets; membership is proved in zero knowledge.</dd>
+          <dt>Commitment</dt>
+          <dd>The persistent hash of an investigator's secret, stored on-chain; never the secret itself.</dd>
+          <dt>Zero-knowledge proof</dt>
+          <dd>A cryptographic proof that lets one party prove a statement is true without revealing any hidden data.</dd>
+          <dt>Persistent hash</dt>
+          <dd>A one-way hash of a secret that can be recomputed and compared on-chain without revealing the secret.</dd>
+          <dt>Event count</dt>
+          <dd>The per-case counter of how many forensic steps have been logged.</dd>
+          <dt>Phase</dt>
+          <dd>The current state of a case: ACTIVE (open) or CLOSED (sealed permanently).</dd>
+        </dl>
+      </section>
+      <div className="quick-links">
+        <Link className="btn btn-primary" to="/cases">
+          Go to cases
+        </Link>
+        <Link className="btn btn-secondary" to="/audit">
+          Public audit window
+        </Link>
+      </div>
     </>
   );
 }

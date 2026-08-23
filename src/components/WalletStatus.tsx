@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useMidnightContext } from '../context/MidnightContext';
 import type { WalletState } from '../hooks/useMidnight';
 
 interface Props {
@@ -7,9 +8,18 @@ interface Props {
 }
 
 export default function WalletStatus({ walletState, isMobile }: Props) {
+  const { connect } = useMidnightContext();
+
   switch (walletState.status) {
     case 'detected':
-      return <p className="ok-text">Midnight wallet found — click Connect to authorize.</p>;
+      return (
+        <div>
+          <p className="ok-text">Midnight wallet found — click Connect to authorize.</p>
+          <button className="btn btn-primary" onClick={() => void connect()}>
+            Connect
+          </button>
+        </div>
+      );
     case 'connecting':
       return <p className="ok-text">Connecting… check the wallet extension popup to approve.</p>;
     case 'network-mismatch':
@@ -21,10 +31,22 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
       );
     case 'rejected':
       return (
-        <p className="error-text">You declined the connection. Nothing was shared — click Connect to try again.</p>
+        <div>
+          <p className="error-text">You declined the connection. Nothing was shared — click Connect to try again.</p>
+          <button className="btn btn-primary" onClick={() => void connect()}>
+            Connect
+          </button>
+        </div>
       );
     case 'error':
-      return <p className="error-text">Wallet connection failed: {walletState.message}</p>;
+      return (
+        <div>
+          <p className="error-text">Wallet connection failed: {walletState.message}</p>
+          <button className="btn btn-primary" onClick={() => void connect()}>
+            Retry
+          </button>
+        </div>
+      );
     case 'wallet-not-installed':
       if (isMobile) {
         return (

@@ -19,6 +19,19 @@ export default function Dashboard() {
 
   return (
     <>
+      <section className="card wallet-section">
+        <p className="section-head">
+          <span className="section-no">01</span> Wallet
+        </p>
+        <WalletStatus walletState={walletState} isMobile={isMobile} />
+        {isConnected && midLedger && (
+          <p className="ok-text">
+            Wallet connected on Preprod · on-chain aggregate: <code>{midLedger.aggregate.toString()}</code> ·
+            membership token: {membershipStatus === 'member' ? 'member' : 'not authorized'}
+          </p>
+        )}
+      </section>
+
       <section className="dashboard-shell">
         <div className="dashboard-hero">
           <div className="hero-copy">
@@ -154,19 +167,6 @@ export default function Dashboard() {
             </li>
           </ul>
         </div>
-      </section>
-
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">01</span> Wallet
-        </p>
-        <WalletStatus walletState={walletState} isMobile={isMobile} />
-        {isConnected && midLedger && (
-          <p className="ok-text">
-            Wallet connected on Preprod · on-chain aggregate: <code>{midLedger.aggregate.toString()}</code> ·
-            membership token: {membershipStatus === 'member' ? 'member' : 'not authorized'}
-          </p>
-        )}
       </section>
 
       <section className="card">

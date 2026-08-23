@@ -90,7 +90,7 @@ body::after {
 
 .header-bar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
   width: 100%;
@@ -102,6 +102,18 @@ body::after {
 
 .header-actions {
   display: none;
+}
+
+@media (max-width: 1024px) {
+  .header-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-wallet {
+    order: 2;
+    margin-left: auto;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1063,7 +1075,7 @@ a:hover {
 }
 
 .header-wallet {
-  margin-top: 14px;
+  flex-shrink: 0;
 }
 
 .wallet-pill {

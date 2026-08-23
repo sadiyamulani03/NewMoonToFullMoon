@@ -74,6 +74,12 @@ body::after {
   position: sticky;
   top: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.header::-webkit-scrollbar {
+  display: none;
 }
 
 .header-content {

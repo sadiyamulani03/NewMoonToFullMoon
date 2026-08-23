@@ -19,6 +19,60 @@ export default function Dashboard() {
 
   return (
     <>
+      <section className="dashboard-shell">
+        <div className="dashboard-hero">
+          <div className="hero-copy">
+            <span className="eyebrow">Private evidence ledger</span>
+            <h2>Track forensic steps without exposing the truth.</h2>
+            <p>
+              MidnightTrace keeps every hidden amount private, proves the mathematics with zero-knowledge, and records
+              only the facts the chain can verify.
+            </p>
+            <div className="quick-links">
+              <Link className="btn btn-primary" to="/cases">
+                View all cases
+              </Link>
+              <Link className="btn btn-secondary" to="/new">
+                Open a new case
+              </Link>
+            </div>
+          </div>
+
+          <div className="hero-panel">
+            <div className="panel-topline">
+              <span className="status-pill status-live">Live</span>
+              <span className="panel-chip">Preprod</span>
+            </div>
+
+            <div className="mini-grid">
+              <div className="mini-stat">
+                <span className="info-label">Aggregate</span>
+                <strong>{midLedger ? midLedger.aggregate.toString() : '—'}</strong>
+              </div>
+              <div className="mini-stat">
+                <span className="info-label">Members</span>
+                <strong>{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
+              </div>
+            </div>
+
+            <ul className="mini-list">
+              <li>
+                <span className="dot dot-ok" />
+                <span>Proof-backed case integrity</span>
+              </li>
+              <li>
+                <span className="dot dot-gold" />
+                <span>Selective disclosure enabled</span>
+              </li>
+              <li>
+                <span className="dot dot-slate" />
+                <span>Audit window ready</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <FirstTimeGuide />
 
       <section className="card">

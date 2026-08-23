@@ -3,16 +3,23 @@ import { Link } from 'react-router-dom';
 export default function About() {
   return (
     <>
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">05</span> What this is
-        </p>
-        <p className="muted-text">
-          MidnightTrace is a privacy-first blockchain forensics dApp. In real forensic work you often need to{' '}
-          <em>prove that you performed an analysis step</em> — traced a hidden amount, counted evidence, verified a
-          batch — without disclosing the underlying data. This dApp demonstrates that pattern first with the Level 1
-          counter contract, then as a full case-management system on the midnighttrace contract.
-        </p>
+      <section className="card about-hero">
+        <div className="about-hero-copy">
+          <span className="eyebrow">Forensics, reimagined</span>
+          <h2>Private proof, public trust.</h2>
+          <p className="muted-text">
+            MidnightTrace is a privacy-first blockchain forensics dApp. In real forensic work you often need to{' '}
+            <em>prove that you performed an analysis step</em> — traced a hidden amount, counted evidence, verified a
+            batch — without disclosing the underlying data. This dApp demonstrates that pattern first with the Level 1
+            counter contract, then as a full case-management system on the midnighttrace contract.
+          </p>
+        </div>
+
+        <div className="feature-pills">
+          <span>Zero-knowledge</span>
+          <span>Selective disclosure</span>
+          <span>Permissioned audit</span>
+        </div>
       </section>
 
       <section className="card">
@@ -75,28 +82,33 @@ export default function About() {
         <p className="section-head">
           <span className="section-no">08</span> Level 4 feature set
         </p>
-        <ul className="privacy-list">
-          <li>
-            <strong>Multi-case management:</strong> number-addressed case files on one contract, plus an off-chain
-            receipt book.
-          </li>
-          <li>
-            <strong>Chain of custody:</strong> every proof is filed with its finalized block, in order, so custody is
-            independently verifiable.
-          </li>
-          <li>
-            <strong>Selective disclosure:</strong> log hidden steps whenever you want, then publish only the running
-            total you choose (discloseFinding).
-          </li>
-          <li>
-            <strong>Private allowlist:</strong> only commitments (hashes) are stored; membership is a ZK proof, and the
-            owner grants others in zero knowledge.
-          </li>
-          <li>
-            <strong>Freshness &amp; integrity:</strong> case sealing makes totals permanent; the public audit window
-            verifies aggregate, totals, root, and the receipt book against on-chain state.
-          </li>
-        </ul>
+        <div className="feature-grid">
+          <article className="feature-card">
+            <span className="feature-kicker">01</span>
+            <h3>Multi-case management</h3>
+            <p>Number-addressed case files on one contract, plus an off-chain receipt book.</p>
+          </article>
+          <article className="feature-card">
+            <span className="feature-kicker">02</span>
+            <h3>Chain of custody</h3>
+            <p>Every proof is filed with its finalized block, in order, so custody stays independently verifiable.</p>
+          </article>
+          <article className="feature-card">
+            <span className="feature-kicker">03</span>
+            <h3>Selective disclosure</h3>
+            <p>Log hidden steps whenever you want, then publish only the running total you choose.</p>
+          </article>
+          <article className="feature-card">
+            <span className="feature-kicker">04</span>
+            <h3>Private allowlist</h3>
+            <p>Only commitments are stored; membership is proved in zero knowledge and owner-granted privately.</p>
+          </article>
+          <article className="feature-card">
+            <span className="feature-kicker">05</span>
+            <h3>Freshness & integrity</h3>
+            <p>Case sealing makes totals permanent and the audit window verifies aggregate and receipt truth.</p>
+          </article>
+        </div>
       </section>
 
       <section className="card">
@@ -123,20 +135,34 @@ export default function About() {
           <span className="section-no">10</span> Glossary
         </p>
         <dl className="glossary">
-          <dt>Aggregate</dt>
-          <dd>The total sum of all case totals on-chain, visible to anyone.</dd>
-          <dt>Allowlist</dt>
-          <dd>A Merkle tree of committed investigator secrets; membership is proved in zero knowledge.</dd>
-          <dt>Commitment</dt>
-          <dd>The persistent hash of an investigator's secret, stored on-chain; never the secret itself.</dd>
-          <dt>Zero-knowledge proof</dt>
-          <dd>A cryptographic proof that lets one party prove a statement is true without revealing any hidden data.</dd>
-          <dt>Persistent hash</dt>
-          <dd>A one-way hash of a secret that can be recomputed and compared on-chain without revealing the secret.</dd>
-          <dt>Event count</dt>
-          <dd>The per-case counter of how many forensic steps have been logged.</dd>
-          <dt>Phase</dt>
-          <dd>The current state of a case: ACTIVE (open) or CLOSED (sealed permanently).</dd>
+          <div className="glossary-item">
+            <dt>Aggregate</dt>
+            <dd>The total sum of all case totals on-chain, visible to anyone.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Allowlist</dt>
+            <dd>A Merkle tree of committed investigator secrets; membership is proved in zero knowledge.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Commitment</dt>
+            <dd>The persistent hash of an investigator's secret, stored on-chain; never the secret itself.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Zero-knowledge proof</dt>
+            <dd>A cryptographic proof that lets one party prove a statement is true without revealing any hidden data.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Persistent hash</dt>
+            <dd>A one-way hash of a secret that can be recomputed and compared on-chain without revealing the secret.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Event count</dt>
+            <dd>The per-case counter of how many forensic steps have been logged.</dd>
+          </div>
+          <div className="glossary-item">
+            <dt>Phase</dt>
+            <dd>The current state of a case: ACTIVE (open) or CLOSED (sealed permanently).</dd>
+          </div>
         </dl>
       </section>
       <div className="quick-links">

@@ -96,33 +96,6 @@ body::after {
   width: 100%;
 }
 
-.header-wallet {
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.header-actions {
-  display: none;
-}
-
-@media (max-width: 760px) {
-  .header-wallet {
-    display: none;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .header-actions .header-wallet {
-    display: inline-flex;
-  }
-}
-
 .brand-wrap {
   display: flex;
   align-items: center;

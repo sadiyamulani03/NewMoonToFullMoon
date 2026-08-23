@@ -2,44 +2,6 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 
-function shortAddress(address: string): string {
-  if (address.length <= 22) return address;
-  return `${address.slice(0, 14)}…${address.slice(-8)}`;
-}
-
-function WalletPill() {
-  const { walletState, walletInfo, isConnected, connect, disconnect, isMobile } = useMidnightContext();
-
-  if (isConnected && walletInfo) {
-    return (
-      <button className="btn btn-secondary wallet-pill" onClick={disconnect}>
-        <span className="stamp stamp-live pill-stamp">● Live</span>
-        <code className="address">{shortAddress(walletInfo.address)}</code>
-      </button>
-    );
-  }
-
-  // On mobile the Midnight wallets can't inject a browser extension, so the
-  // header button would only ever fail. Hide it and keep the Audit-window CTA
-  // that the wallet card already offers — avoids the duplicate-button UX
-  // testers flagged.
-  if (isMobile && walletState.status === 'wallet-not-installed') {
-    return <span className="wallet-pill wallet-pill-muted">Mobile · use Audit</span>;
-  }
-
-  const label =
-    walletState.status === 'connecting'
-      ? 'Connecting…'
-      : walletState.status === 'error' || walletState.status === 'rejected' || walletState.status === 'network-mismatch'
-        ? 'Retry wallet'
-        : 'Connect wallet';
-  return (
-    <button className="btn btn-primary wallet-pill" onClick={() => void connect()}>
-      {label}
-    </button>
-  );
-}
-
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
@@ -48,32 +10,15 @@ export default function Layout() {
     <div className="app-shell">
       <header className="header">
         <div className="header-content">
-<div className="header-bar">
-        <div className="brand-wrap">
-          <div className="brand-mark">M</div>
-          <div className="brand-block">
-            <p className="kicker">Midnight Network · preprod</p>
-            <h1>MidnightTrace</h1>
+          <div className="header-bar">
+            <div className="brand-wrap">
+              <div className="brand-mark">M</div>
+              <div className="brand-block">
+                <p className="kicker">Midnight Network · preprod</p>
+                <h1>MidnightTrace</h1>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="header-wallet">
-          <WalletPill />
-        </div>
-      </div>
-
-      <div className="header-actions">
-        <button
-          type="button"
-          className="menu-toggle"
-          aria-label="Toggle navigation"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((value) => !value)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-      </div>
 
           <p className="subtitle">
             A pocket case-file that watches a private counter. Track cases, connect a wallet, run the circuit, and get

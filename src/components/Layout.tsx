@@ -48,32 +48,32 @@ export default function Layout() {
     <div className="app-shell">
       <header className="header">
         <div className="header-content">
-          <div className="header-bar">
-            <div className="brand-wrap">
-              <div className="brand-mark">M</div>
-              <div className="brand-block">
-                <p className="kicker">Midnight Network · preprod</p>
-                <h1>MidnightTrace</h1>
-              </div>
-            </div>
-            <div className="header-actions">
-              <div className="header-wallet">
-                <WalletPill />
-              </div>
-
-              <button
-                type="button"
-                className="menu-toggle"
-                aria-label="Toggle navigation"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((value) => !value)}
-              >
-                <span />
-                <span />
-                <span />
-              </button>
-            </div>
+<div className="header-bar">
+        <div className="brand-wrap">
+          <div className="brand-mark">M</div>
+          <div className="brand-block">
+            <p className="kicker">Midnight Network · preprod</p>
+            <h1>MidnightTrace</h1>
           </div>
+        </div>
+        <div className="header-wallet">
+          <WalletPill />
+        </div>
+      </div>
+
+      <div className="header-actions">
+        <button
+          type="button"
+          className="menu-toggle"
+          aria-label="Toggle navigation"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </div>
 
           <p className="subtitle">
             A pocket case-file that watches a private counter. Track cases, connect a wallet, run the circuit, and get

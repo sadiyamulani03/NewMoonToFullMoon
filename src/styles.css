@@ -73,6 +73,7 @@ body::after {
   height: 100vh;
   position: sticky;
   top: 0;
+  overflow-y: auto;
 }
 
 .header-content {
@@ -95,8 +96,30 @@ body::after {
   width: 100%;
 }
 
+.header-wallet {
+  flex-shrink: 0;
+}
+
 .header-actions {
   display: none;
+}
+
+@media (max-width: 760px) {
+  .header-wallet {
+    display: none;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .header-actions .header-wallet {
+    display: inline-flex;
+  }
 }
 
 .brand-wrap {
@@ -1047,7 +1070,19 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 14px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.wallet-pill .pill-stamp {
+  margin: 0;
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .wallet-pill-muted {

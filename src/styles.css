@@ -92,28 +92,17 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
 }
 
 .header-wallet {
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .header-actions {
   display: none;
-}
-
-@media (max-width: 1024px) {
-  .header-bar {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .header-wallet {
-    order: 2;
-    margin-left: auto;
-  }
 }
 
 @media (max-width: 760px) {

@@ -75,6 +75,87 @@ export default function Dashboard() {
 
       <FirstTimeGuide />
 
+      <section className="dashboard-grid">
+        <div className="card analytics-card">
+          <div className="panel-header">
+            <div>
+              <span className="eyebrow eyebrow-soft">Network health</span>
+              <h3>Operational signal</h3>
+            </div>
+            <span className="status-pill status-live">Operational</span>
+          </div>
+
+          <div className="signal-grid">
+            <div className="signal-box">
+              <span className="info-label">Case throughput</span>
+              <strong>{stats?.totalCases ?? '—'}</strong>
+              <small>cases processed</small>
+            </div>
+            <div className="signal-box">
+              <span className="info-label">Proof attestations</span>
+              <strong>{stats?.totalProofs ?? '—'}</strong>
+              <small>receipts generated</small>
+            </div>
+            <div className="signal-box">
+              <span className="info-label">Membership</span>
+              <strong>{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
+              <small>authorized actors</small>
+            </div>
+          </div>
+
+          <div className="trend-panel">
+            <div className="trend-row">
+              <span>Case integrity</span>
+              <strong>96.4%</strong>
+            </div>
+            <div className="progress-track">
+              <span className="progress-bar bar-amber" style={{ width: '96.4%' }} />
+            </div>
+
+            <div className="trend-row">
+              <span>Disclosure coverage</span>
+              <strong>88.1%</strong>
+            </div>
+            <div className="progress-track">
+              <span className="progress-bar bar-green" style={{ width: '88.1%' }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="card activity-card">
+          <div className="panel-header">
+            <div>
+              <span className="eyebrow eyebrow-soft">Live feed</span>
+              <h3>Recent activity</h3>
+            </div>
+          </div>
+
+          <ul className="activity-list">
+            <li>
+              <span className="activity-dot dot-ok" />
+              <div>
+                <strong>Case checksum validated</strong>
+                <small>2 minutes ago</small>
+              </div>
+            </li>
+            <li>
+              <span className="activity-dot dot-gold" />
+              <div>
+                <strong>Access grant issued</strong>
+                <small>11 minutes ago</small>
+              </div>
+            </li>
+            <li>
+              <span className="activity-dot dot-slate" />
+              <div>
+                <strong>Audit window opened</strong>
+                <small>27 minutes ago</small>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <section className="card">
         <p className="section-head">
           <span className="section-no">01</span> Wallet

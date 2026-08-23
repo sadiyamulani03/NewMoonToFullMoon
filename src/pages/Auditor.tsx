@@ -224,17 +224,23 @@ export default function Auditor() {
             <p className="section-head">
               <span className="section-no">06</span> Audit result
             </p>
-            <p>
-              <span className="info-label">Audited</span> <code>{new Date(result.auditedAt).toLocaleString()}</code>
-              <span className="info-label">Network</span> <code>{result.network}</code>
-            </p>
-            <p>
-              <span className="info-label">Contract</span> <code className="tx-id">{result.contractAddress}</code>
-            </p>
+            <div className="audit-meta">
+              <span className="info-label">Audited</span>
+              <code>{new Date(result.auditedAt).toLocaleString()}</code>
+            </div>
+            <div className="audit-meta">
+              <span className="info-label">Network</span>
+              <code>{result.network}</code>
+            </div>
+            <div className="audit-meta">
+              <span className="info-label">Contract</span>
+              <code className="tx-id">{result.contractAddress}</code>
+            </div>
             {result.fingerprint && (
-              <p>
-                <span className="info-label">Fingerprint</span> <code className="tx-id">{result.fingerprint}</code>
-              </p>
+              <div className="audit-meta">
+                <span className="info-label">Fingerprint</span>
+                <code className="tx-id">{result.fingerprint}</code>
+              </div>
             )}
 
             <div className={`audit-badge ${allPass ? 'audit-pass' : 'audit-fail'}`}>

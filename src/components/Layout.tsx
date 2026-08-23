@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 
@@ -40,17 +41,37 @@ function WalletPill() {
 }
 
 export default function Layout() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <div className="app">
+    <div className="app-shell">
       <header className="header">
         <div className="header-content">
           <div className="header-bar">
-            <div className="brand-block">
-              <p className="kicker">Midnight Network · preprod</p>
-              <h1>MidnightTrace</h1>
+            <div className="brand-wrap">
+              <div className="brand-mark">M</div>
+              <div className="brand-block">
+                <p className="kicker">Midnight Network · preprod</p>
+                <h1>MidnightTrace</h1>
+              </div>
             </div>
-            <div className="header-wallet">
-              <WalletPill />
+            <div className="header-actions">
+              <div className="header-wallet">
+                <WalletPill />
+              </div>
+
+              <button
+                type="button"
+                className="menu-toggle"
+                aria-label="Toggle navigation"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((value) => !value)}
+              >
+                <span />
+                <span />
+                <span />
+              </button>
             </div>
           </div>
 
@@ -59,33 +80,33 @@ export default function Layout() {
             receipts you can keep.
           </p>
 
-          <nav className="nav" aria-label="Main navigation">
-            <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+          <nav className={`nav${menuOpen ? ' nav-open' : ''}`} aria-label="Main navigation">
+            <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M2 7.5 8 2.5 14 7.5V14H9.5v-3.5h-3V14H2z" />
               </svg>
               Dashboard
             </NavLink>
-            <NavLink to="/cases" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+            <NavLink to="/cases" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M1.5 3h4l1.5 1.5h7.5V13a1 1 0 0 1-1 1H1.5a1 1 0 0 1-1-1z" />
               </svg>
               Cases
             </NavLink>
-            <NavLink to="/new" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+            <NavLink to="/new" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M8 2.5v11M2.5 8h11" />
               </svg>
               New case
             </NavLink>
-            <NavLink to="/audit" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+            <NavLink to="/audit" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M3 2.5h10V8a5 5 0 0 1-5 5 5 5 0 0 1-5-5z" />
                 <path d="M5.5 8.5 7 10l3.5-3.5" />
               </svg>
               Audit
             </NavLink>
-            <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>
+            <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <circle cx="8" cy="8" r="6" />
                 <path d="M8 7.5v4" />

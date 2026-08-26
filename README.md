@@ -203,7 +203,7 @@ Additional pages: **Audit** (`/audit`).
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
 | Living feedback loop | 🚧 | In progress — `FEEDBACK.md` created (collection method, raw log, themes, changes); waiting on real user feedback |
-| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (17/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
+| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (19/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
 
 ### Level 6 — Supermoon · Mainnet Launch (roadmap)
 

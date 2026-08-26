@@ -20,6 +20,8 @@ Target: 50 verified wallet addresses
 | 15 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20 |
 | 16 | `mn_addr_preprod14k6g4l7eq2yspf7k3nvwuv35x5ke7mlrwkkp07kvlnpp2eux2arsnu33r5` | 2026-08-20 |
 | 17 | `mn_addr_preprod1hd2wmhzhdu8vm7pfllud027tu6rsasa9hey9w5rwn9tgu3hk0tvqkfff9e` | 2026-08-20 |
+| 18 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20
+| 19 | `mn_addr_preprod14k6g4l7eq2yspf7k3nvwuv35x5ke7mlrwkkp07kvlnpp2eux2arsnu33r5` | 2026-08-20
 
 > Note: 3 form respondents used Preview-network addresses
 > (`mn_addr_preview10ehmmgf0fdmku873ev8dvrd9lemgr8299z9udfqqdcuavdypxpuqdmf9ey`,
@@ -27,4 +29,4 @@ Target: 50 verified wallet addresses
 > `mn_addr_preview14gydf7unmwygtpm8pj49ugwqa6j8yt55fuy8u6qh4hh88mw8n4pskfmmfx`).
 > They are logged in `FEEDBACK.md` but not counted toward the Preprod target.
 
-Current count: 17 / 50
+Current count: 19 / 50

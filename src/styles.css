@@ -970,7 +970,7 @@ a:hover {
   }
 
   .header-wallet {
-    display: none;
+    display: block;
   }
 
   .header-actions {
@@ -1044,6 +1044,39 @@ a:hover {
 
 .header-wallet {
   flex-shrink: 0;
+  max-width: 100%;
+}
+
+.header-wallet-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(244, 199, 112, 0.28);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wallet-addr {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #f4dba2;
+  background: rgba(12, 18, 27, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.network-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(244, 199, 112, 0.12);
+  border: 1px solid rgba(244, 199, 112, 0.22);
+  color: #f0c777;
+  border-radius: 999px;
+  padding: 3px 8px;
 }
 
 .wallet-pill {
@@ -1594,4 +1627,47 @@ a:hover {
 /* --- circuit card --- */
 .circuit-card {
   border-left: 5px solid var(--amber);
+}
+
+/* --- onboarding overlay (Mark Guevarra — reuses existing copy) --- */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.onboarding-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.onboarding-modal {
+  position: relative;
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-color: rgba(244, 199, 112, 0.32);
+  box-shadow: 0 24px 60px rgba(2, 6, 13, 0.5);
+}
+
+.onboarding-modal h2 {
+  color: #fff9ef;
+}
+
+/* header wallet visible on mobile too */
+@media (max-width: 760px) {
+  .header-wallet {
+    margin-top: 12px;
+    width: 100%;
+  }
+  .header-wallet-pill {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

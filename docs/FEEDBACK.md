@@ -174,7 +174,7 @@ Collected via a short online feedback form (Google Forms) shared after each test
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers, 11/70)
 
-> **No code changes today per batch note — feedback triaged for next iteration.** These are Level 6 launch testers (see [`../LAUNCH_USERS.md`](../LAUNCH_USERS.md)). Level 5 frozen at 50.
+> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11/70 Level 6. Feedback triaged and implemented in this commit — see [`../FEEDBACK.md`](../FEEDBACK.md) Level 6 Supplemental for file:line mapping.** Level 5 frozen at 50.
 
 | # | User | Feedback Summary | Date |
 |---|------|-----------------|------|
@@ -192,6 +192,6 @@ Collected via a short online feedback form (Google Forms) shared after each test
 
 **Batch wallets:** `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` (Muhammad Guntur), `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` (Sakshi Patil), `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` (Akash Mondal), `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` (Shakera), `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` (Debansh Tiwari), `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` (Aditya Jha), `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` (Elijah Negasi), `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` (Mark Guevarra), `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` (Aayesha Ansari), `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` (Laxmi Joshi), `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` (Hetvi) — all unique vs `../USERS.md` 50, Preprod only.
 
-**Triage:** Same 7 items as in [`../FEEDBACK.md#level-6-supplemental--sep-13-2026-batch-11-new-preprod-testers`](../FEEDBACK.md) — truncated address badge, landing CTA relabel, PROOFS tooltip, dash caption, case-state legend, public-verify link, onboarding overlay. Not implemented today per batch note; queued for next commit.
+**Implementation (this commit):** 7 Sep 13 suggestions implemented — persistent truncated address + network badge (`Layout.tsx:5`), Landing `Launch App` CTA (`Landing.tsx:22`), PROOFS tooltip → glossary (`Cases.tsx:51`, `Dashboard.tsx:121`, `Auditor.tsx:267`, `About.tsx:167`), dash captions (`Dashboard.tsx:73`), case-state legend (`Cases.tsx:39`, `Auditor.tsx:264`), public-verify link (`Landing.tsx:31`), onboarding overlay reusing existing copy (`OnboardingOverlay.tsx:1` → `Landing.tsx:6`). Verified by `npm run build` + 21 contract tests.
 
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

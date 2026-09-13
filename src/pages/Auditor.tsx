@@ -264,6 +264,19 @@ export default function Auditor() {
               <p className="section-head">
                 <span className="section-no">07</span> On-chain ledger
               </p>
+              <div className="case-legend" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' }}>
+                <span className="muted-text" style={{ fontSize: '0.8rem' }}>Legend:</span>
+                <span className="status-tag">OPEN</span>
+                <span className="muted-text">→</span>
+                <span className="status-tag status-closed">CLOSED / Sealed</span>
+                <span className="muted-text" style={{ fontSize: '0.8rem' }} title="Zero-knowledge proof — see About → Glossary">
+                  each row is a ZK{' '}
+                  <Link to="/about" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                    proof
+                  </Link>
+                  -backed total
+                </span>
+              </div>
               <div className="stats-grid">
                 <div className="stat-box">
                   <span className="info-label">Aggregate</span>

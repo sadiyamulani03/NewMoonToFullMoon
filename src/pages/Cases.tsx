@@ -38,6 +38,13 @@ export default function Cases() {
         <p className="section-head">
           <span className="section-no">03</span> Cases
         </p>
+        <div className="case-legend" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' }}>
+          <span className="muted-text" style={{ fontSize: '0.8rem' }}>Case states:</span>
+          <span className="status-tag">OPEN</span>
+          <span className="muted-text">→</span>
+          <span className="status-tag status-closed">CLOSED / Sealed</span>
+          <span className="muted-text" style={{ fontSize: '0.8rem' }}>(Open → Closed/Sealed — sealed totals are permanent)</span>
+        </div>
         {error && <p className="error-text">{error}</p>}
         {!cases && !error && <Loading label="Loading cases…" />}
         {cases && cases.length === 0 && <p className="muted-text">No cases yet — open the first one.</p>}
@@ -48,9 +55,13 @@ export default function Cases() {
                 <Link className="case-row" to={`/cases/${c.id}`}>
                   <div>
                     <strong className="case-title">{c.title}</strong>
-                    <span className="info-label">
+                    <span className="info-label" title="Zero-knowledge proofs — each receipt is a ZK proof that total' = total + hidden amount. See About → Glossary.">
                       {' '}
-                      · {c.receipts.length} proof{c.receipts.length === 1 ? '' : 's'} · opened {fmtDate(c.createdAt)}
+                      · {c.receipts.length}{' '}
+                      <Link to="/about" onClick={(e) => e.stopPropagation()} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                        proof{c.receipts.length === 1 ? '' : 's'}
+                      </Link>{' '}
+                      · opened {fmtDate(c.createdAt)}
                     </span>
                     <p className="muted-text">{c.description}</p>
                   </div>

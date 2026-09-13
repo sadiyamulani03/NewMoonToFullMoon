@@ -2,9 +2,15 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 
+function truncateAddr(addr: string): string {
+  if (addr.length <= 20) return addr;
+  return `${addr.slice(0, 14)}…${addr.slice(-6)}`;
+}
+
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
+  const { isConnected, walletInfo } = useMidnightContext();
 
   return (
     <div className="app-shell">
@@ -18,6 +24,21 @@ export default function Layout() {
                 <h1>MidnightTrace</h1>
               </div>
             </div>
+            {isConnected && walletInfo && (
+              <div className="header-wallet" aria-label="Wallet connection status">
+                <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
+                  <span className="wallet-addr" aria-label="Connected wallet address">
+                    {truncateAddr(walletInfo.address)}
+                  </span>
+                  <span className="network-badge" aria-label="Network">
+                    {walletInfo.networkId}
+                  </span>
+                  <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>
+                    ● Connected
+                  </span>
+                </span>
+              </div>
+            )}
           </div>
 
           <p className="subtitle">

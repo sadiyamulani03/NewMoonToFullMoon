@@ -73,10 +73,12 @@ export default function Dashboard() {
               <div className="mini-stat">
                 <span className="info-label">Aggregate</span>
                 <strong>{midLedger ? midLedger.aggregate.toString() : '—'}</strong>
+                {!midLedger && <small className="muted-text" style={{ display: 'block', marginTop: '4px' }}>No cases opened yet</small>}
               </div>
               <div className="mini-stat">
                 <span className="info-label">Members</span>
                 <strong>{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
+                {!midLedger && <small className="muted-text" style={{ display: 'block', marginTop: '4px' }}>Connect wallet to see</small>}
               </div>
             </div>
 
@@ -114,12 +116,19 @@ export default function Dashboard() {
             <div className="signal-box">
               <span className="info-label">Case throughput</span>
               <strong>{stats?.totalCases ?? '—'}</strong>
-              <small>cases processed</small>
+              {!stats && <small className="muted-text">No cases opened yet</small>}
+              {stats && <small>cases processed</small>}
             </div>
             <div className="signal-box">
-              <span className="info-label">Proof attestations</span>
+              <span className="info-label" title="Zero-knowledge proofs — see About → Glossary">
+                Proof attestations
+                <Link to="/about" style={{ marginLeft: '4px', fontSize: '0.7rem' }} title="Glossary: Zero-knowledge proof">
+                  ⓘ
+                </Link>
+              </span>
               <strong>{stats?.totalProofs ?? '—'}</strong>
-              <small>receipts generated</small>
+              {!stats && <small className="muted-text">No proofs yet</small>}
+              {stats && <small>receipts generated</small>}
             </div>
             <div className="signal-box">
               <span className="info-label">Membership</span>
@@ -196,18 +205,23 @@ export default function Dashboard() {
             </div>
             <div className="stat-box">
               <span className="info-label">On-chain cases</span>
-              <strong className="stat-value">{midLedger ? midLedger.cases.length : '…'}</strong>
-              <span className="muted-text">in the midnighttrace ledger</span>
+              <strong className="stat-value">{midLedger ? midLedger.cases.length : '—'}</strong>
+              <span className="muted-text">{midLedger ? 'in the midnighttrace ledger' : 'No cases opened yet'}</span>
             </div>
             <div className="stat-box">
-              <span className="info-label">Proofs run</span>
+              <span className="info-label" title="Zero-knowledge proofs — see About → Glossary">
+                Proofs run{' '}
+                <Link to="/about" style={{ fontSize: '0.7rem' }} title="Glossary: Zero-knowledge proof">
+                  ⓘ
+                </Link>
+              </span>
               <strong className="stat-value">{stats.totalProofs}</strong>
               <span className="muted-text">on-chain receipts</span>
             </div>
             <div className="stat-box">
               <span className="info-label">Allowlist members</span>
-              <strong className="stat-value">{midLedger ? midLedger.memberCount.toString() : '…'}</strong>
-              <span className="muted-text">commitments on-chain</span>
+              <strong className="stat-value">{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
+              <span className="muted-text">{midLedger ? 'commitments on-chain' : 'No members yet — connect wallet'}</span>
             </div>
           </div>
         )}

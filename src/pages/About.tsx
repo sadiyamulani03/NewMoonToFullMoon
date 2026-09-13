@@ -164,7 +164,7 @@ export default function About() {
           Public audit window
         </Link>
       </div>
-      <section className="card">
+      <section className="card" id="glossary">
         <p className="section-head">
           <span className="section-no">11</span> Glossary
         </p>

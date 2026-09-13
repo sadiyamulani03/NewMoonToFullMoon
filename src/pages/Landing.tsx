@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import OnboardingOverlay from '../components/OnboardingOverlay';
 
 export default function Landing() {
   return (
     <>
+      <OnboardingOverlay />
       <section className="card about-hero">
         <div className="about-hero-copy">
           <span className="eyebrow">MidnightTrace — Preprod live</span>
@@ -20,7 +22,7 @@ export default function Landing() {
         </div>
         <div className="quick-links">
           <Link className="btn btn-primary" to="/dashboard">
-            Open investigation desk
+            Launch App
           </Link>
           <Link className="btn btn-secondary" to="/audit">
             Verify in Audit window
@@ -29,6 +31,13 @@ export default function Landing() {
             How ZK works
           </Link>
         </div>
+        <p className="muted-text" style={{ marginTop: '14px' }}>
+          Don&apos;t want to connect a wallet?{' '}
+          <Link to="/audit" style={{ fontWeight: 700 }}>
+            Verify publicly
+          </Link>{' '}
+          — audit any case without a wallet or secrets.
+        </p>
       </section>
 
       <section className="card">

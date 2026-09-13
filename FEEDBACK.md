@@ -172,14 +172,6 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side) | Not UI-fixable; progress indicators mitigate perceived wait |
 
-## Methodology Notes
-
-* **Blank ratings are excluded, not zero.** The average 4.63 is over 46 rated responses only.
-* **No invented feedback.** All rows above are the 50 responses received Aug 15 – Sep 13, 2026, including the September 13 Samara response. Names and ratings are not altered.
-* **No single suggestion is presented as a major recurring issue.** Counts are shown per theme; only multi-user themes are listed as "repeated."
-* **Mustafa duplication handled:** Two detailed responses from the same user on the same date are treated as one perspective for counting, to avoid artificially inflating that user's 11 sub-suggestions into 11 independent votes.
-* **Verification:** 50 = 32 (5/5) + 11 (4/5) + 3 (3/5) + 4 (blank). See `USERS.md` for the per-user date-binned list. Full sheet remains at the responses-sheet link above.
-
 ## Links
 
 * **User list:** [USERS.md](./USERS.md)

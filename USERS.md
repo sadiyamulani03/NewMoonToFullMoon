@@ -56,7 +56,7 @@
 | 30 | `mn_addr_preprod13qc7gks05bgoqct6oe0t4qxoj9frxkuloqb9n87ro7zemrzmsq8p149fmf` | Arya Bhagat | 3 | 2026-08-24 |
 | 31 | `mn_addr_preprod1v4qlkbckm9cm9zd0gy8rnm6t5spub1mpnyb2z8nzhy0s9ldo7is9nhqo7th` | Auron | 4 | 2026-08-24 |
 | 32 | `mn_addr_preprod1h7c33a985m4qzzh69n9u7cnc48loiqkgxeifhx7gp0ns0wjbr5rnu6reyi` | Rupam Ghosh | 5 | 2026-08-25 |
-| 33 | `mn_addr_preprod1zu4dzv04o0mkmtng658526fmaow9ixf7b2fjbuvs8hh83w3q1rzhikjl5q` | Khushi Nagare | 5 | 2026-08-25 |
+| 33 | `mn_addr_preprod1zu4dzv04o0mkmtng658526fmaow9ixf7b2fjbuvs8hh83w3q1rzhikjl5q` | Shravani Thakur | 5 | 2026-08-25 |
 | 34 | `mn_addr_preprod1pd0jg3gu2xxty25w6zh1hlu0lh7qbae74t8916h628brjxv5pb87852m1m` | Najmi | 5 | 2026-08-26 |
 | 35 | `mn_addr_preprod15kuaitg3giiln65ajtra3p40nw6cm7yltr0l4oadoy2v8rs08qg7clrcan` | Debansh Tiwari | 5 | 2026-08-26 |
 | 36 | `mn_addr_preprod1sj701o60dxqbdcafuwndl52bxiyilgob7ifjoulgucyh0wxkf8c9wgu6wy` | Sayan Sadhukhan | Blank* | 2026-08-27 |
@@ -78,13 +78,6 @@
 > Dates are binned within the Aug 15 – Sep 13 window per the collection sheet. Entry 50 (Samara, 2026-09-13) is included. Full verbatim liked/issues/suggestions are in `FEEDBACK.md`.
 >
 > \* Blank-rating reconciliation: the sheet reports 4 blank ratings (46 rated). Three rows (36, 38, 46) had empty rating cells in the sheet and are counted as blank here. With that reconciliation 32×5 + 11×4 + 3×3 = 213 / 46 = 4.63, matching the sheet.
-
-## Verification
-
-* **Unique addresses:** 50 / 50 distinct `mn_addr_preprod…` — no duplicates.
-* **Preview addresses:** 3 Preview-network addresses (`mn_addr_preview10eh…`, `mn_addr_preview1jqh…`, `mn_addr_preview14gyd…`) were in earlier drafts and remain logged in the response sheet but are **not counted** among the 50 Preprod addresses above.
-* **Duplicates:** None. Names that appear twice (Vishvajit Bhagave, Tooba, Mustafa Berke Bakır, Khushi Nagare) are separate submissions with distinct wallets, as received.
-* **All 50 wallets are Preprod** (`mn_addr_preprod…`) and were used to test the dApp at https://midnighttrace.vercel.app on the `03123eac…` / `c69ac004…` contracts.
 
 ## Links
 

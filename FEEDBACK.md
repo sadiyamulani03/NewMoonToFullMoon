@@ -170,7 +170,7 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | Simplified documentation | Khushi Nagare (1 request) | `db40d5d` ✅ (docs/USAGE.md rewritten — concise quick start) |
 | "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | `9ccb2c9` ✅ + `db40d5d` polish (progress indicator + status polish) |
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
-| Faster transactions | Tanishq Sonawane (infra/chain-side) | Not UI-fixable; progress indicators mitigate perceived wait |
+| Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
 ## Links
 

@@ -134,6 +134,6 @@ Collected via a short online feedback form (Google Forms) shared after each test
 | Simplified documentation | Khushi Nagare (1) | `db40d5d` ✅ (docs/USAGE.md simplified) |
 | "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | `9ccb2c9` ✅ + `db40d5d` polish (progress indicator + status polish) |
 | Example forensic scenario | Sajid Shaikh (1) | `db40d5d` ✅ (About.tsx + Landing example) |
-| Faster transactions | Tanishq Sonawane (infra/chain-side) | Not UI-fixable; progress indicators mitigate wait |
+| Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

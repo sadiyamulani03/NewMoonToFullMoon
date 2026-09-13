@@ -144,7 +144,7 @@ These are legitimate UX items and were addressed (see What We Changed), but they
 * **Terminology unclear** — Sakshi Manikari (one mention).
 * **No 2/5 or 1/5 ratings; no fabricated bugs.** All other respondents reported "No" / "No bugs" / "Nothing" / "Nopes" or left the field blank.
 
-## What We Changed (response to feedback)
+## What We Changed — Level 5 (response to feedback, 50 responses)
 
 Earlier feedback (first 20 responses) had already driven many changes. The full 50-response set confirms the same themes; remaining items are tracked below.
 
@@ -171,13 +171,20 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | `9ccb2c9` ✅ + `db40d5d` polish (progress indicator + status polish) |
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
-| Persistent truncated address + network badge once connected | Muhammad Guntur (5/5) — "Show truncated address + network badge persistently once connected" | `NEXT` ✅ `src/components/Layout.tsx:5` truncate `mn_addr…` + `Preprod` badge via `walletInfo`, visible in header persistently + mobile |
-| Landing CTA relabel to Launch App (Dashboard behind it) | Sakshi Patil (4/5) — "Add a true landing page (hero + 'Launch App' CTA) as actual entry route, move Dashboard behind it" | `NEXT` ✅ `src/pages/Landing.tsx:22` CTA now `Launch App` → `/dashboard`; landing at `/`, dashboard at `/dashboard` (`src/App.tsx:22`) |
-| Hover tooltip on PROOFS → glossary | Akash Mondal (5/5) — "Add a hover tooltip on PROOFS linking to glossary" | `NEXT` ✅ `src/pages/Cases.tsx:51` + `src/pages/Dashboard.tsx:121` + `src/pages/Auditor.tsx:267` tooltip `title` + link to `/about#glossary` (`src/pages/About.tsx:167`) |
-| Caption under lone dash (No cases opened yet) | Shakera (5/5) — "Add short caption under each: e.g. No cases opened yet instead of lone dash" | `NEXT` ✅ `src/pages/Dashboard.tsx:73` + `125` + `198` dash now shows `No cases opened yet` caption |
-| Visual legend Open → Closed/Sealed | Debansh Tiwari (4/5) — "Show visual example or legend of case states (Open → Closed/Sealed)" | `NEXT` ✅ `src/pages/Cases.tsx:39` + `src/pages/Auditor.tsx:264` legend `OPEN → CLOSED / Sealed` |
-| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface a link to this page from landing page itself, Don't want to connect a wallet? Verify publicly" | `NEXT` ✅ `src/pages/Landing.tsx:31` explicit link `Don't want to connect a wallet? Verify publicly → /audit` |
-| First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind short onboarding overlay pulling from existing copy — don't write new copy" | `NEXT` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + steps copy, gated by `localStorage:midnighttrace-onboarding-seen`, integrated in `Landing.tsx:6` |
+
+## What We Changed — Level 6 (response to feedback, Sep 13 batch — 11 users, 11/70)
+
+Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 UTC). All 7 actionable suggestions from 11 new Preprod testers are implemented in this commit; Level 5 remains frozen at 50.
+
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| Persistent truncated address + network badge once connected | Muhammad Guntur (5/5) — "Show truncated address + network badge persistently once connected, not just before." | `0996a4e` ✅ `src/components/Layout.tsx:5` truncate `mn_addr…` + `Preprod` badge via `walletInfo` (`src/components/Layout.tsx:14`), visible in header persistently + mobile (`src/styles.css:1045`, `src/styles.css:972`) |
+| Landing CTA relabel to Launch App (Dashboard behind it) | Sakshi Patil (4/5) — "Add a true landing page (hero + 'Launch App' CTA) as the actual entry route, move Dashboard behind it" | `0996a4e` ✅ `src/pages/Landing.tsx:22` CTA now `Launch App` → `/dashboard`; landing at `/`, dashboard at `/dashboard` (`src/App.tsx:22`) |
+| Hover tooltip on PROOFS → glossary | Akash Mondal (5/5) — "Add a hover tooltip on PROOFS linking to the glossary definition" | `0996a4e` ✅ `src/pages/Cases.tsx:51` + `src/pages/Dashboard.tsx:121` + `src/pages/Auditor.tsx:267` tooltip `title` + `ⓘ` link to `/about#glossary` (`src/pages/About.tsx:167`) |
+| Caption under lone dash (No cases opened yet) | Shakera (5/5) — "Add a short caption under each: e.g. No cases opened yet instead of a lone dash" | `0996a4e` ✅ `src/pages/Dashboard.tsx:73` + `125` + `198` dash now shows `No cases opened yet` / `No proofs yet` caption |
+| Visual legend Open → Closed/Sealed | Debansh Tiwari (4/5) — "Show a visual example or legend of case states (Open → Closed/Sealed)" | `0996a4e` ✅ `src/pages/Cases.tsx:39` + `src/pages/Auditor.tsx:264` legend `OPEN → CLOSED / Sealed` |
+| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface a link to this page from the landing page itself, Don't want to connect a wallet? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link `Don't want to connect a wallet? Verify publicly → /audit` |
+| First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind a short onboarding overlay pulling from this existing copy — don't write new copy, just resurface what's already good" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + 4 steps + privacy line, gated by `localStorage:midnighttrace-onboarding-seen`, mounted in `Landing.tsx:6` |
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
 

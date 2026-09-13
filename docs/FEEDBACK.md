@@ -110,31 +110,45 @@ Collected via a short online feedback form (Google Forms) shared after each test
 
 *Full thematic analysis with commit mapping is in [`../FEEDBACK.md`](../FEEDBACK.md).*
 
-## What We Changed
+## What We Changed — Level 5 (50 responses)
 
-| Change | Reason | Commit |
-|--------|--------|--------|
-| Added "How zero-knowledge proofs work" explainer to About page | Add more explanation of ZK proofs (Sheetal Goud) | `6d1bd32` |
-| Added ZK proof note to Audit window intro | Same — Audit was most-liked feature | `6d1bd32` |
-| Better wallet connection status messages + retry label | Better wallet connection status (Anjali) + delays (Purva, Mustafa) | `e489068` |
-| Removed duplicate "Connect wallet" buttons (header + card) | Duplicate buttons (Mustafa) | `e489068` |
-| Added transaction progress indicator (stage + elapsed time + bar) | Proof generation took some time (Sanskruti, Arya, Sofiya, Amitabh, Jorge) | `9ccb2c9` |
-| Added first-time user guide on Dashboard (dismissible) | Clearer instructions for first-time users (Purva) | `1698bb9` |
-| Added Glossary section to About page defining technical terms | Add tooltips for technical terms (Sakshi) | `eafc482` |
-| Styled Audit result badge/checks, ledger table, case timeline, sealed status tags | Polish for most-liked Audit page | `6153fc6` |
-| Softened dense header stripe and raised text contrast | Dense stripe background causes eye strain (Mustafa) | `6153fc6` |
-| Added icons to main navigation | Text-heavy, could use icons (Mustafa) | `6153fc6` |
-| Added global error boundary (recovery card instead of blank screen) | Error boundaries (Mustafa) | `367dd95` |
-| Added spinners to data-loading states | Loading indicators (Mustafa) | `367dd95` |
-| Mobile nav scrolls horizontally instead of wrapping | Mobile UX polish | `367dd95` |
-| Marked app root `translate="no"` | Mixed English/Turkish auto-translation (Mustafa) | `367dd95` |
-| Disclosure / receipt book matching in Audit window | Verification clarity (Debansh) | `db40d5d` ✅ (Existing, verified with Audit filter polish) |
-| Audit filtering / search by case ID | Zeel Chauhan, Samara (2) | `db40d5d` ✅ (Auditor.tsx filter by case ID) |
-| Landing page + privacy explanation on first screen | Anam Pathan, Rashi Achaliya (1 each) | `db40d5d` ✅ (Landing.tsx + Dashboard privacy banner) |
-| Simplified documentation | Khushi Nagare (1) | `db40d5d` ✅ (docs/USAGE.md simplified) |
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| Added "How zero-knowledge proofs work" explainer to About page | "Add more explanation of ZK proofs" (Sheetal Goud) | `6d1bd32` ✅ |
+| Added ZK proof note to Audit window intro | Same + Audit was the most-liked feature | `6d1bd32` ✅ |
+| Better wallet connection status messages + retry label | "Better wallet connection status" (Anjali), connection delays (Purva, Mustafa) | `e489068` ✅ |
+| Removed duplicate "Connect wallet" buttons (header + card) | Duplicate buttons (Mustafa) | `e489068` ✅ |
+| Added transaction progress indicator (stage + elapsed time + bar) | Progress indicator requests (Sanskruti, Arya, Sofiya, Amitabh, Jorge) | `9ccb2c9` ✅ |
+| Added first-time user guide on Dashboard (dismissible) | "Clearer instructions for first-time users" (Purva) | `1698bb9` ✅ |
+| Added Glossary section to About page defining technical terms | "Add tooltips for technical terms" (Sakshi) | `eafc482` ✅ |
+| Styled Audit result badge/checks, ledger table, case timeline, sealed status tags | Polish for the most-liked Audit page | `6153fc6` ✅ |
+| Softened dense header stripe and raised text contrast | "Dense stripe background causes eye strain / contrast issues" (Mustafa) | `6153fc6` ✅ |
+| Added icons to main navigation | "Text-heavy, could use icons" (Mustafa) | `6153fc6` ✅ |
+| Added global error boundary (recovery card instead of blank screen) | Error toasts / boundaries (Mustafa) | `367dd95` ✅ |
+| Added spinners to data-loading states | Loading indicators (Mustafa) | `367dd95` ✅ |
+| Mobile nav scrolls horizontally instead of wrapping | Mobile UX polish | `367dd95` ✅ |
+| Marked app root `translate="no"` | Mixed English/Turkish auto-translation (Mustafa) | `367dd95` ✅ |
+| Disclosure / receipt book matching in Audit window | Verification clarity (Debansh) — disclosed totals matching on-chain | `db40d5d` ✅ (Existing, verified with Audit filter polish) |
+| Audit filtering / search by case ID | Zeel Chauhan, Samara (2 requests) | `db40d5d` ✅ (Auditor.tsx filter by case ID) |
+| Landing page + privacy explanation on first screen | Anam Pathan, Rashi Achaliya (1 each) | `db40d5d` ✅ (Landing.tsx + Dashboard privacy banner `/` and `/dashboard`) |
+| Simplified documentation | Khushi Nagare (1 request) | `db40d5d` ✅ (docs/USAGE.md rewritten — concise quick start) |
 | "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | `9ccb2c9` ✅ + `db40d5d` polish (progress indicator + status polish) |
-| Example forensic scenario | Sajid Shaikh (1) | `db40d5d` ✅ (About.tsx + Landing example) |
+| Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
+
+## What We Changed — Level 6 (response to Sep 13 batch — 11 users, 11/70)
+
+Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC). All 7 actionable suggestions are implemented in `0996a4e`.
+
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| Persistent truncated address + network badge once connected | Muhammad Guntur (5/5) — "Show truncated address + network badge persistently once connected, not just before." | `0996a4e` ✅ `src/components/Layout.tsx:5` truncate `mn_addr…` + `Preprod` badge via `walletInfo` (`src/components/Layout.tsx:14`), visible persistently + mobile (`src/styles.css:1045`) |
+| Landing CTA relabel to Launch App (Dashboard behind it) | Sakshi Patil (4/5) — "Add a true landing page (hero + 'Launch App' CTA) as the actual entry route, move Dashboard behind it" | `0996a4e` ✅ `src/pages/Landing.tsx:22` CTA now `Launch App` → `/dashboard`; landing at `/`, dashboard at `/dashboard` (`src/App.tsx:22`) |
+| Hover tooltip on PROOFS → glossary | Akash Mondal (5/5) — "Add a hover tooltip on PROOFS linking to the glossary definition" | `0996a4e` ✅ `src/pages/Cases.tsx:51` + `src/pages/Dashboard.tsx:121` + `src/pages/Auditor.tsx:267` tooltip `title` + `ⓘ` link to `/about#glossary` (`src/pages/About.tsx:167`) |
+| Caption under lone dash (No cases opened yet) | Shakera (5/5) — "Add a short caption under each: e.g. No cases opened yet instead of a lone dash" | `0996a4e` ✅ `src/pages/Dashboard.tsx:73` + `125` + `198` dash now shows `No cases opened yet` caption |
+| Visual legend Open → Closed/Sealed | Debansh Tiwari (4/5) — "Show visual example or legend of case states (Open → Closed/Sealed)" | `0996a4e` ✅ `src/pages/Cases.tsx:39` + `src/pages/Auditor.tsx:264` legend `OPEN → CLOSED / Sealed` |
+| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface a link to this page from the landing page itself, Don't want to connect a wallet? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link `Don't want to connect a wallet? Verify publicly → /audit` |
+| First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind a short onboarding overlay pulling from this existing copy — don't write new copy, just resurface what's already good" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + 4 steps + privacy line, gated by `localStorage:midnighttrace-onboarding-seen`, mounted in `Landing.tsx:6` |
 
 ## Level 6 Improvements
 

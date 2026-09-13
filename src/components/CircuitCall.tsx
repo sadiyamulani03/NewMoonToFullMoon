@@ -70,6 +70,11 @@ export function CircuitCall({ contract, callCircuit, onLanded }: CircuitCallProp
                 ? 'Sending it on-chain…'
                 : 'Run the circuit'}
           </button>
+          {isBusy && (
+            <p className="muted-text" style={{ marginTop: '8px', fontSize: '0.82rem' }}>
+              Runs in background — you can browse <code>/cases</code> or <code>/audit</code> and return for the receipt.
+            </p>
+          )}
 
           {callStatus.status === 'generating-proof' && (
             <TxProgress stage="proof" />

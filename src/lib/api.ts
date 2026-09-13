@@ -39,8 +39,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+let statsCache: { data: Stats; ts: number } | null = null;
 export function getStats(): Promise<Stats> {
-  return request<Stats>('/api/stats');
+  if (statsCache && Date.now() - statsCache.ts < 5000) return Promise.resolve(statsCache.data);
+  return request<Stats>('/api/stats').then((d) => {
+    statsCache = { data: d, ts: Date.now() };
+    return d;
+  });
 }
 
 export function listCases(): Promise<ForensicCase[]> {

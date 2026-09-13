@@ -129,11 +129,11 @@ Collected via a short online feedback form (Google Forms) shared after each test
 | Mobile nav scrolls horizontally instead of wrapping | Mobile UX polish | `367dd95` |
 | Marked app root `translate="no"` | Mixed English/Turkish auto-translation (Mustafa) | `367dd95` |
 | Disclosure / receipt book matching in Audit window | Verification clarity (Debansh) | Existing |
-| Audit filtering / search by case ID | Zeel Chauhan, Samara (2) | Tracked — to be added |
-| Landing page + privacy explanation on first screen | Anam Pathan, Rashi Achaliya (1 each) | Tracked — to be added |
-| Simplified documentation | Khushi Nagare (1) | Tracked — docs pass |
+| Audit filtering / search by case ID | Zeel Chauhan, Samara (2) | `db40d5d` ✅ (Auditor.tsx filter by case ID) |
+| Landing page + privacy explanation on first screen | Anam Pathan, Rashi Achaliya (1 each) | `db40d5d` ✅ (Landing.tsx + Dashboard privacy banner) |
+| Simplified documentation | Khushi Nagare (1) | `db40d5d` ✅ (docs/USAGE.md simplified) |
 | "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | Covered by progress + status indicators |
-| Example forensic scenario | Sajid Shaikh (1) | Tracked — docs/About |
+| Example forensic scenario | Sajid Shaikh (1) | `db40d5d` ✅ (About.tsx + Landing example) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side) | Not UI-fixable; progress indicators mitigate wait |
 
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

@@ -202,7 +202,7 @@ Additional pages: **Audit** (`/audit`).
 | Requirement | Status | Evidence |
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
-| Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 14 implemented changes linked to commits |
+| Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 18 implemented changes linked to commits including `db40d5d` (audit filter, landing page, privacy banner, forensic example, simplified docs) |
 | 50 Preprod users | ✅ | Complete — `USERS.md` tracks 50 / 50 verified Preprod wallet addresses (unique, dated); see [docs/ACQUISITION.md](./docs/ACQUISITION.md) for outreach messages |
 
 ### Level 6 — Supermoon · Mainnet Launch (roadmap)

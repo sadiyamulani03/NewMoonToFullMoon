@@ -172,4 +172,26 @@ Collected via a short online feedback form (Google Forms) shared after each test
 | Simplified documentation | Khushi Nagare `Documentation can be simplified` | `db40d5d` ✅ (`docs/USAGE.md` rewritten) |
 | Example forensic scenario | Sajid Shaikh `Add an example forensic scenario` | `db40d5d` ✅ (`About.tsx:115`, `Landing.tsx:48`) |
 
+## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers, 11/70)
+
+> **No code changes today per batch note — feedback triaged for next iteration.** These are Level 6 launch testers (see [`../LAUNCH_USERS.md`](../LAUNCH_USERS.md)). Level 5 frozen at 50.
+
+| # | User | Feedback Summary | Date |
+|---|------|-----------------|------|
+| 51 | Muhammad Guntur | 5/5, Very Easy — Liked: Track forensic steps without exposing the truth — Issues: None — Change: Show truncated address + network badge persistently once connected, not just before. | 2026-09-13 |
+| 52 | Sakshi Patil | 4/5, Easy — Liked: Dashboard Wallet card — Issues: No visible state for what happens after connecting (address, network, balance) shown anywhere in the flow — Change: Add a true landing page (hero + 'Launch App' CTA) as the actual entry route, move Dashboard behind it | 2026-09-13 |
+| 53 | Akash Mondal | 5/5, Easy — Liked: OPEN badge is clear and simple — Issues: No way to tell from this screen what a closed/sealed case looks like, or how a case transitions — Change: Add a hover tooltip on PROOFS linking to the glossary definition | 2026-09-13 |
+| 54 | Shakera | 5/5, Very Easy — Liked: Clean visual treatment, good use of pill labels (LIVE, PREPROD) — Issues: — — Change: Add a short caption under each: e.g. No cases opened yet instead of a lone dash | 2026-09-13 |
+| 55 | Debansh Tiwari | 4/5, Easy — Liked: Public Audit page form — Issues: No way to tell from this screen what a closed/sealed case looks like, or how a case transitions — Change: Show a visual example or legend of case states (Open → Closed/Sealed) | 2026-09-13 |
+| 56 | Aditya Jha | 5/5, Very Easy — Liked: Audit page has a working breadcrumb:Dashboard / Public audit window — Issues: No — Change: — | 2026-09-13 |
+| 57 | Elijah Negasi | 4/5, Easy — Liked: Dashboard First time here box — Issues: Nothing — Change: Surface a link to this page from the landing page itself, Don't want to connect a wallet? Verify publicly | 2026-09-13 |
+| 58 | Mark Guevarra | 4/5, Normal — Liked: Public Audit page — Issues: None — Change: Gate first visit behind a short onboarding overlay pulling from this existing copy — don't write new copy, just resurface what's already good | 2026-09-13 |
+| 59 | Aayesha Ansari | 4/5, Easy — Liked: — — Issues: No — Change: None | 2026-09-13 |
+| 60 | Laxmi Joshi | 5/5, Very Easy — Liked: Cases page status badges — Issues: Not — Change: — | 2026-09-13 |
+| 61 | Hetvi | 4/5, Easy — Liked: Cross-cutting Onboarding discoverability — Issues: Nothing — Change: No Changes for today | 2026-09-13 |
+
+**Batch wallets:** `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` (Muhammad Guntur), `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` (Sakshi Patil), `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` (Akash Mondal), `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` (Shakera), `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` (Debansh Tiwari), `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` (Aditya Jha), `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` (Elijah Negasi), `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` (Mark Guevarra), `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` (Aayesha Ansari), `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` (Laxmi Joshi), `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` (Hetvi) — all unique vs `../USERS.md` 50, Preprod only.
+
+**Triage:** Same 7 items as in [`../FEEDBACK.md#level-6-supplemental--sep-13-2026-batch-11-new-preprod-testers`](../FEEDBACK.md) — truncated address badge, landing CTA relabel, PROOFS tooltip, dash caption, case-state legend, public-verify link, onboarding overlay. Not implemented today per batch note; queued for next commit.
+
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

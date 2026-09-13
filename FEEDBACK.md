@@ -172,8 +172,42 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
+## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
+
+> **No code changes today per batch note — feedback triaged for next iteration.** Level 5 remains frozen at 50. These 11 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 11/70). All 11 wallets are unique vs `USERS.md` 50. Times are UTC Sep 13, 2026.
+
+| # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
+|---|------|--------|--------|------|-------|--------|------------------|------------|
+| 51 | Muhammad Guntur | `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` | 5 | Very Easy | Track forensic steps without exposing the truth | None | Show truncated address + network badge persistently once connected, not just before. | 19:12:39 |
+| 52 | Sakshi Patil | `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` | 4 | Easy | Dashboard Wallet card | No visible state for what happens after connecting (address, network, balance) shown anywhere in the flow | Add a true landing page (hero + 'Launch App' CTA) as the actual entry route, move Dashboard behind it | 20:06:57 |
+| 53 | Akash Mondal | `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` | 5 | Easy | OPEN badge is clear and simple | No way to tell from this screen what a closed/sealed case looks like, or how a case transitions | Add a hover tooltip on PROOFS linking to the glossary definition | 20:23:01 |
+| 54 | Shakera | `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` | 5 | Very Easy | Clean visual treatment, good use of pill labels (LIVE, PREPROD) |  | Add a short caption under each: e.g. No cases opened yet instead of a lone dash | 20:23:02 |
+| 55 | Debansh Tiwari | `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` | 4 | Easy | Public Audit page form | No way to tell from this screen what a closed/sealed case looks like, or how a case transitions | Show a visual example or legend of case states (Open → Closed/Sealed) | 20:56:43 |
+| 56 | Aditya Jha | `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` | 5 | Very Easy | Audit page has a working breadcrumb:Dashboard / Public audit window | No |  | 21:05:26 |
+| 57 | Elijah Negasi | `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` | 4 | Easy | Dashboard First time here box | Nothing | Surface a link to this page from the landing page itself, Don't want to connect a wallet? Verify publicly | 22:03:33 |
+| 58 | Mark Guevarra | `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` | 4 | Normal | Public Audit page | None | Gate first visit behind a short onboarding overlay pulling from this existing copy — don't write new copy, just resurface what's already good | 22:29:05 |
+| 59 | Aayesha Ansari | `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` | 4 | Easy |  | No | None | 22:53:39 |
+| 60 | Laxmi Joshi | `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` | 5 | Very Easy | Cases page status badges | Not |  | 23:19:27 |
+| 61 | Hetvi | `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` | 4 | Easy | Cross-cutting Onboarding discoverability | Nothing | No Changes for today | 23:19:32 |
+
+**Batch rating summary:** 5× 5/5 (45.5%), 6× 4/5 (54.5%), 0× 3/5 or lower — average **4.45 / 5** (49/11). Ease: Very Easy 4 · Easy 6 · Normal 1. No 1–2/5 ratings. One explicit "No Changes for today" (Hetvi).
+
+**Triage (next iteration — not implemented today):**
+
+| Suggestion | From | Existing coverage | Next step |
+|------------|------|-------------------|-----------|
+| Persist truncated address + network badge once connected | Muhammad Guntur | Dashboard wallet section shows it transiently | Add persistent header pill (truncate `mn_addr…` + `Preprod` badge) via `Layout.tsx` + `useMidnightContext.walletInfo` |
+| True landing page hero + 'Launch App' CTA, Dashboard behind it | Sakshi Patil | Already have `Landing.tsx` at `/` with `Open investigation desk` CTA; needs relabel to `Launch App` + ensure `/dashboard` is dashboard-only | Relabel CTA in `Landing.tsx:22` to `Launch App` |
+| Hover tooltip on PROOFS → glossary | Akash Mondal | Glossary exists in `About.tsx:167` but no tooltip | Add `title` / hover tooltip linking to `#glossary` on proof badges |
+| Caption under lone dash (e.g. No cases opened yet) | Shakera | `Dashboard.tsx:75` / `Auditor.tsx:292` show `—` | Replace `—` with `No cases opened yet` caption + `muted-text` |
+| Visual legend Open → Closed/Sealed | Debansh Tiwari | `About.tsx:115` explains phase but no legend on Audit/Cases | Add legend component on `Auditor.tsx` + `Cases.tsx` |
+| Surface "Don't want to connect? Verify publicly" link on landing | Elijah Negasi | Landing has `Verify in Audit window` but copy is generic | Add explicit `Don't want to connect a wallet? Verify publicly → /audit` link on `Landing.tsx` |
+| First-visit onboarding overlay reusing existing copy | Mark Guevarra | `FirstTimeGuide` exists on Dashboard but not as overlay | Gate first visit with overlay pulling from `Landing.tsx` + `docs/USAGE.md` copy |
+
+> Level 5 `What We Changed` table above remains accurate for 50. These 7 triaged items will be implemented in the next commit after this batch is verified.
+
 ## Links
 
-* **User list:** [USERS.md](./USERS.md)
+* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (11/70)
 * **Live dApp:** https://midnighttrace.vercel.app
 * **Docs:** [README.md](./README.md) · [docs/USAGE.md](./docs/USAGE.md) · [PROPOSAL.md](./PROPOSAL.md)

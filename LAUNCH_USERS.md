@@ -7,19 +7,19 @@
 
 > This file tracks **Level 6 — Supermoon** onboarding (70 Preprod testers). Level 5’s 50 users remain in [`USERS.md`](./USERS.md) and [`docs/FEEDBACK.md`](./docs/FEEDBACK.md). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
 
-| # | Wallet Address | Date Onboarded |
-|---|----------------|----------------|
-| 1 | _pending — will be filled with real Preprod address_ | — |
-| 2 | _pending_ | — |
-| 3 | _pending_ | — |
-| 4 | _pending_ | — |
-| 5 | _pending_ | — |
-| 6 | _pending_ | — |
-| 7 | _pending_ | — |
-| 8 | _pending_ | — |
-| 9 | _pending_ | — |
-| 10 | _pending_ | — |
-| 11 | _pending_ | — |
+| # | Wallet Address | Name | Rating | Date Onboarded |
+|---|----------------|------|--------|----------------|
+| 1 | `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` | Muhammad Guntur | 5 | 2026-09-13 |
+| 2 | `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` | Sakshi Patil | 4 | 2026-09-13 |
+| 3 | `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` | Akash Mondal | 5 | 2026-09-13 |
+| 4 | `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` | Shakera | 5 | 2026-09-13 |
+| 5 | `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` | Debansh Tiwari | 4 | 2026-09-13 |
+| 6 | `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` | Aditya Jha | 5 | 2026-09-13 |
+| 7 | `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` | Elijah Negasi | 4 | 2026-09-13 |
+| 8 | `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` | Mark Guevarra | 4 | 2026-09-13 |
+| 9 | `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` | Aayesha Ansari | 4 | 2026-09-13 |
+| 10 | `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` | Laxmi Joshi | 5 | 2026-09-13 |
+| 11 | `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` | Hetvi | 4 | 2026-09-13 |
 | 12 | _pending_ | — |
 | 13 | _pending_ | — |
 | 14 | _pending_ | — |
@@ -80,7 +80,11 @@
 | 69 | _pending_ | — |
 | 70 | _pending_ | — |
 
-Current count: 0 / 70
+Current count: 11 / 70 (Sep 13, 2026 — first Level 6 batch; 59 slots remaining)
+
+> **Sep 13 batch note:** 11 verified Preprod addresses collected Sep 13, 2026 19:12–23:19 UTC. Average rating **4.45 / 5** (49 / 11: 5×5, 6×4). All addresses unique vs Level 5's 50 in `USERS.md` (verified — no duplicates). Full verbatim feedback for this batch is logged in `FEEDBACK.md` § Level 6 Supplemental (entries 51–61) and `docs/FEEDBACK.md` Raw Log #51–61. Suggestions triaged for next iteration (no code changes today per batch note).
+
+Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6: 11 / 70 here
 
 > **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
 >

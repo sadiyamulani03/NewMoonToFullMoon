@@ -164,11 +164,11 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | Added spinners to data-loading states | Loading indicators (Mustafa) | `367dd95` ✅ |
 | Mobile nav scrolls horizontally instead of wrapping | Mobile UX polish | `367dd95` ✅ |
 | Marked app root `translate="no"` | Mixed English/Turkish auto-translation (Mustafa) | `367dd95` ✅ |
-| Disclosure / receipt book matching in Audit window | Verification clarity (Debansh) — disclosed totals matching on-chain | Existing ✅ |
+| Disclosure / receipt book matching in Audit window | Verification clarity (Debansh) — disclosed totals matching on-chain | `db40d5d` ✅ (Existing, verified with Audit filter polish) |
 | Audit filtering / search by case ID | Zeel Chauhan, Samara (2 requests) | `db40d5d` ✅ (Auditor.tsx filter by case ID) |
 | Landing page + short privacy explanation on first screen | Anam Pathan, Rashi Achaliya (1 each) | `db40d5d` ✅ (Landing.tsx + Dashboard privacy banner `/` and `/dashboard`) |
 | Simplified documentation | Khushi Nagare (1 request) | `db40d5d` ✅ (docs/USAGE.md rewritten — concise quick start) |
-| "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | Covered by progress + status indicators ✅ / polish tracked |
+| "Proof confirmed" status after transaction | Alicia Nadar, Gayatri Panickar | `9ccb2c9` ✅ + `db40d5d` polish (progress indicator + status polish) |
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side) | Not UI-fixable; progress indicators mitigate perceived wait |
 

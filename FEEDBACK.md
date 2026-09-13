@@ -5,7 +5,7 @@
 Collected via a short online feedback form (e.g. Google Forms) shared after each
 tester tries the dApp, plus optional follow-up in DMs/Telegram for specifics.
 Form link: https://docs.google.com/forms/d/e/1FAIpQLSdMZQVcwBSz4oQIHFUWWDdkxkBbyNo-wBMB7BiINVrQ70r9tw/viewform
-Responses sheet:https://docs.google.com/forms/u/0/d/e/1FAIpQLSdMZQVcwBSz4oQIHFUWWDdkxkBbyNo-wBMB7BiINVrQ70r9tw/formResponse
+Responses sheet:https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754
 
 Form fields (all optional, ~1 min):
 

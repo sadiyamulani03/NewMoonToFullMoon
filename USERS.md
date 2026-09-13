@@ -14,10 +14,26 @@ Target: 50 verified wallet addresses
 | 9 | `mn_addr_preprod13tl9q45ja4pkgssp572srcqngyky20ln2hylptt6wc7w6fv77m4s9dqla9` | 2026-08-18 |
 | 10 | `mn_addr_preprod1gmdyfxe0tnj2kngf7cp2f5t4ctw9ewxdnmt66fmx4gfyreap65gsk7jvdw` | 2026-08-19 |
 | 11 | `mn_addr_preprod143zsqtzq3hh4z3rwhn7y57h3ry2509yjn26r7hs84nfaaxtwm6tsdzy0t0` | 2026-08-19 |
-| 12 | `mn_addr_preprod12a4wlq6nqa259sw3hvyv9dtq8cn8n6rmmsxugsk4zepf7slart4s2l64hn` | 2026-08-19 |
-| 13 | `mn_addr_preprod1guapunlwwf9hlwehcxx3cf5z3m7n00csrx5gadya3req8pmyx0gs778lt9` | 2026-08-19 |
-| 14 | `mn_addr_preprod1lrh5s9lfp9psejrea97m6cwgh68p9ezvc87qqcrewgqz752nv4rqjjyxnv` | 2026-08-19 |
 | 15 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20 |
+| 14 | `mn_addr_preprod1vrfws32cya506maxwa9e4yf9h5qlsv5759memzlc7gssz9tyu2ss2r83nz` | 2026-08-16 |
+| 15 | `mn_addr_preprod1lgfpgdf4ms06jm7cgsqqusf08dyrpu5arqre3v9lexrktsuejy2qgw7yvd` | 2026-08-18 |
+| 16 | `mn_addr_preprod1qxfvktg5zgcq7mu4z9jg0pzame4eyxzh9527zqyfzqjzxej3fw3sh6298d` | 2026-08-18 |
+| 17 | `mn_addr_preprod128f7563q5ug9n7t49flzf8nrk7pm0l6y2yk8l9y6mmcqgun7y2sq5lly6v` | 2026-08-18 |
+| 21 | `mn_addr_preprod1hd2wmhzhdu8vm7pfllud027tu6rsasa9hey9w5rwn9tgu3hk0tvqkfff9e` | 2026-08-20 |
+| 19 | `mn_addr_preprod14k6g4l7eq2yspf7k3nvwuv35x5ke7mlrwkkp07kvlnpp2eux2arsnu33r5` | 2026-08-20 |
+| 18 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20 |
+| 21 |  | 2026-08-20 |
+| 19 |  | 2026-08-20 |
+| 18 |  | 2026-08-20 |
+| 18 | `mn_addr_preprod13tl9q45ja4pkgssp572srcqngyky20ln2hylptt6wc7w6fv77m4s9dqla9` | 2026-08-18 |
+| 19 | `mn_addr_preprod1gmdyfxe0tnj2kngf7cp2f5t4ctw9ewxdnmt66fmx4gfyreap65gsk7jvdw` | 2026-08-19 |
+| 20 | `mn_addr_preprod143zsqtzq3hh4z3rwhn7y57h3ry2509yjn26r7hs84nfaaxtwm6tsdzy0t0` | 2026-08-19 |
+| 21 | `mn_addr_preprod12a4wlq6nqa259sw3hvyv9dtq8cn8n6rmmsxugsk4zepf7slart4s2l64hn` | 2026-08-19 |
+| 22 | `mn_addr_preprod1guapunlwwf9hlwehcxx3cf5z3m7n00csrx5gadya3req8pmyx0gs778lt9` | 2026-08-19 |
+| 23 | `mn_addr_preprod1lrh5s9lfp9psejrea97m6cwgh68p9ezvc87qqcrewgqz752nv4rqjjyxnv` | 2026-08-19 |
+| 24 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20 |
+| 25 | `mn_addr_preprod14k6g4l7eq2yspf7k3nvwuv35x5ke7mlrwkkp07kvlnpp2eux2arsnu33r5` | 2026-08-20 |
+| 26 | `mn_addr_preprod1hd2wmhzhdu8vm7pfllud027tu6rsasa9hey9w5rwn9tgu3hk0tvqkfff9e` | 2026-08-20 |
 | 16 | `mn_addr_preprod14k6g4l7eq2yspf7k3nvwuv35x5ke7mlrwkkp07kvlnpp2eux2arsnu33r5` | 2026-08-20 |
 | 17 | `mn_addr_preprod1hd2wmhzhdu8vm7pfllud027tu6rsasa9hey9w5rwn9tgu3hk0tvqkfff9e` | 2026-08-20 |
 | 18 | `mn_addr_preprod1g0v8ay42g30hd7fqyppccglk67wzyq0hfazak207tuf7cevkta8qggh7yc` | 2026-08-20
@@ -29,4 +45,4 @@ Target: 50 verified wallet addresses
 > `mn_addr_preview14gydf7unmwygtpm8pj49ugwqa6j8yt55fuy8u6qh4hh88mw8n4pskfmmfx`).
 > They are logged in `FEEDBACK.md` but not counted toward the Preprod target.
 
-Current count: 19 / 50
+Current count: 21 / 50

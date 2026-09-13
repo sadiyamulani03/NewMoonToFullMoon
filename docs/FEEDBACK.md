@@ -136,4 +136,40 @@ Collected via a short online feedback form (Google Forms) shared after each test
 | Example forensic scenario | Sajid Shaikh (1) | `db40d5d` ✅ (About.tsx + Landing example) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
+## Level 6 Improvements
+
+> Level 6 implements the top remaining Level 5 feedback on **Midnight Preprod** (no contract change — no redeployment required; see Step 7).
+
+### 1) Audit search / filter by case ID
+* **User feedback that caused it:** Zeel Chauhan (5/5) and Samara (5/5, 2026-09-13) — `Add filtering/search by case ID on Audit page` (2 independent requests).
+* **What changed:** `src/pages/Auditor.tsx:34` added `caseFilter` state + input `Filter by case ID` + live count `Showing X of Y`. List filters `caseId.toString() === filter`. `db40d5d` `feat: implement tracked Level 5 feedback`.
+* **Why it matters:** Audit window is the most-liked feature; filtering lets auditors isolate one case without scrolling 50+ rows.
+* **Files affected:** `src/pages/Auditor.tsx`
+* **Smart contract changes:** No
+* **Redeployment required:** No
+
+### 2) Landing page + short privacy explanation on first screen
+* **User feedback that caused it:** Anam Pathan (4/5) — `Add a landing page` + Rashi Achaliya (5/5) — `Short privacy explanation on first screen` (2 requests).
+* **What changed:** New `src/pages/Landing.tsx:1` at `/` with 1-line privacy `your hidden amount is a private witness — total' = total + amount`, plus `src/App.tsx:20` routes (`/` → Landing, `/dashboard` → Dashboard), `src/components/Layout.tsx:29` nav (`Home` + `Dashboard`), and `src/pages/Dashboard.tsx:35` dashed banner `Privacy at a glance` on first screen. `db40d5d`
+* **Why it matters:** First-time users immediately understand selective disclosure without opening About; landing reduces bounce and supports acquisition.
+* **Files affected:** `src/pages/Landing.tsx`, `src/App.tsx`, `src/components/Layout.tsx`, `src/pages/Dashboard.tsx`
+* **Smart contract changes:** No
+* **Redeployment required:** No
+
+### 3) Perceived transaction speed (faster transactions)
+* **User feedback that caused it:** Tanishq Sonawane (5/5) — `Transaction should work faster` + Sanskruti/Purva/Auron — `Proof generation took some time` (infra is chain-dependent; perceived wait is fixable).
+* **What changed:** `src/components/TxProgress.tsx:8` estimated remaining + `Preprod avg: proving 15–30s + finalization 6–12s` + `You can keep using the app — this continues in background`; `src/components/CircuitCall.tsx:67` background continuation note; `src/lib/api.ts:42` 5s `statsCache` for Dashboard. `4d621a9` `perf: improve perceived transaction speed`.
+* **Why it matters:** Preprod finalization cannot be shortened, but estimated time + non-blocking UI + cached stats make the wait feel shorter and keep the app usable.
+* **Files affected:** `src/components/TxProgress.tsx`, `src/components/CircuitCall.tsx`, `src/lib/api.ts`
+* **Smart contract changes:** No
+* **Redeployment required:** No
+
+| Change | User Feedback That Triggered It | Status |
+|---|---|---|
+| Audit filtering / search by case ID | Zeel Chauhan + Samara — `Add filtering/search by case ID on Audit page` | `db40d5d` ✅ Implemented (`Auditor.tsx:34`) |
+| Landing page + privacy explanation on first screen | Anam Pathan `Add a landing page` + Rashi Achaliya `Short privacy explanation on first screen` | `db40d5d` ✅ Implemented (`Landing.tsx:1`, `Dashboard.tsx:35`) |
+| Perceived transaction speed (faster transactions) | Tanishq Sonawane `Transaction should work faster` (infra) — plus 3× proof-time mentions | `4d621a9` ✅ Implemented (estimated remaining, background, cache) |
+| Simplified documentation | Khushi Nagare `Documentation can be simplified` | `db40d5d` ✅ (`docs/USAGE.md` rewritten) |
+| Example forensic scenario | Sajid Shaikh `Add an example forensic scenario` | `db40d5d` ✅ (`About.tsx:115`, `Landing.tsx:48`) |
+
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

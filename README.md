@@ -234,7 +234,9 @@ the amounts or the identities behind them.
 | MidnightTrace: the `cases` map (caseId → total, lastDisclosed, eventCount, phase), the single `aggregate`, the allowlist `memberCount`, and the allowlist Merkle root | the step amounts and every member secret — only their `persistentHash` commitments are ever stored |
 | receipt `txId` / `blockHeight` (off-chain metadata pointing at the public tx) | case description/owner (off-chain metadata only) |
 
-## Privacy model
+## Privacy Model
+
+### What is PUBLIC?
 
 - **What is PUBLIC (on-chain, visible to anyone):**
   - `ledger total` — the running counter value. Every call produces a publicly
@@ -243,6 +245,8 @@ the amounts or the identities behind them.
     deliberately published via `incrementAndReveal`.
   - MidnightTrace: per-case `total` / `lastDisclosed` / `eventCount` / `phase`,
     the global `aggregate`, the allowlist root, and `memberCount`.
+### What is PRIVATE?
+
 - **What is PRIVATE (private witness, never on-chain):**
   - The `amount` argument of each circuit. It exists only in the caller's ZK
     witness and is fed into the circuit; unless a circuit explicitly
@@ -250,6 +254,8 @@ the amounts or the identities behind them.
     compiler rejects any implicit disclosure.
   - Member secrets. Only their `persistentHash` commitments live in the
     allowlist tree.
+### What the User PROVES without revealing
+
 - **What the user PROVES without revealing:**
   - That the new `total` honestly equals the previous `total` plus the hidden
     `amount` — without the network or anyone else learning the `amount` — and,
@@ -302,7 +308,7 @@ it nowhere on-chain.
 - **Privacy-labelled prove flow** — every ZK action states the private step
   never reaches the chain or the screen.
 
-## Tech stack
+## Tech Stack
 
 - Midnight Network
 - Compact smart contract language (`counter.compact`, `midnighttrace.compact`,
@@ -447,10 +453,15 @@ Screenshot of the Level 4 MidnightTrace deployment (address + owner bootstrap):
 
 ## Usage Guide
 
-The full, non-technical walkthrough of the Level 4 investigation desk lives in
-[`docs/USAGE.md`](./docs/USAGE.md) — how to open case files, log hidden steps,
-disclose findings on your terms, manage the private allowlist, run the
-wallet-free public audit, and export a chain-of-custody receipt.
+See [`docs/USAGE.md`](./docs/USAGE.md) — the full, non-technical walkthrough of the Level 4 investigation desk: how to open case files, log hidden steps, disclose findings on your terms, manage the private allowlist, run the wallet-free public audit, and export a chain-of-custody receipt. For first-time testers, start at **Getting Started on Preprod** and **Your First Transaction** in that guide.
+
+## Feedback & Iterations
+
+See [`docs/FEEDBACK.md`](./docs/FEEDBACK.md) (and [`FEEDBACK.md`](./FEEDBACK.md)) — 50 Preprod responses Aug 15–Sep 13, themes, and 18 implemented changes linked to commits (`6d1bd32` → `4d621a9`, including `db40d5d` landing/filter and `4d621a9` perceived-performance). Level 6 improvements are documented in [`docs/FEEDBACK.md#level-6-improvements`](./docs/FEEDBACK.md#level-6-improvements).
+
+## Level 6 Users
+
+See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 verified Preprod wallet addresses** (`mn_addr_preprod…`) on **Midnight Preprod** (Mainnet NOT used). Current Level 5: 50/50 in [`USERS.md`](./USERS.md); Level 6 launch tracker: `0/70` pending real onboarding.
 
 ## Product X Profile
 
@@ -460,6 +471,10 @@ wallet-free public audit, and export a chain-of-custody receipt.
 - **Auditor post:** https://x.com/Midnight__Trace/status/2087848209230262538
 
 The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md).
+
+## Brand Assets
+
+See [`docs/BRAND_BRIEF.md`](./docs/BRAND_BRIEF.md) — tagline, 3 key messages, color palette (Primary `#0B1020` / Accent `#F4C770`), X bio (<160 chars), X banner concept, and logo concept. Visual assets are concepts; no final PNG/SVG is claimed beyond the existing screenshots.
 
 ## Deploy to Vercel
 

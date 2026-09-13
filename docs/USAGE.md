@@ -10,6 +10,27 @@ Full tech details are in [README](../README.md); the idea and mainnet plan are i
 2. **Connect your wallet:** Lace or 1AM, switched to **Preprod**, funded with tNIGHT (faucet: https://faucet.preprod.midnight.network).
 3. **Try it:** *Cases → New case → Case detail → Investigate → Log a hidden step*. Then check **Audit** — no wallet needed to verify.
 
+## Getting Started on Preprod
+
+Plain-English setup for first-time testers on **Midnight Preprod** (not Mainnet):
+
+1. **Install Lace wallet:** Add the Lace extension from the Chrome Web Store and create a wallet. (1AM also works.)
+2. **Select Midnight Preprod:** Open Lace → Network → choose **Midnight Preprod**. If you see `preprod` in the wallet header, you are on the right network.
+3. **Get Preprod funds (if needed):** Go to https://faucet.preprod.midnight.network, paste your wallet address, and request **tNIGHT** (test tokens). No real money needed.
+4. **Open the live dApp:** Go to **https://midnighttrace.vercel.app** — this is the Preprod deployment (contracts `03123eac…` and `c69ac004…`).
+5. **Connect wallet:** On the dApp, click **Connect wallet** → approve in Lace. You should see `Wallet connected on Preprod`.
+6. **Use the application:** Follow *Your First Transaction* below, or browse **Home** for the 1-line privacy explainer.
+
+## Your First Transaction
+
+Beginner-friendly flow — your first ZK proof on Preprod:
+
+1. **Connect wallet** (see above) — ensure the dApp shows `member` or `aggregate` on the Dashboard.
+2. **Perform the main action:** Go to **Cases → New case** (create a case), open that case, and in *Investigate* choose **Log a hidden step** → enter any number (e.g., `42`) → click **Log step**.
+3. **Approve the transaction:** Lace will pop up → review the fee in tNIGHT → click **Approve**. Your wallet builds the zero-knowledge proof locally.
+4. **Wait for confirmation:** You’ll see `Generating proof…` (15–30s) then `Sending it on-chain…` (6–12s). Elapsed time and progress bar are shown — you can keep browsing while it finishes in the background.
+5. **Verify the result:** When you see `Transaction landed on-chain` with a `txId` and `block`, check **Dashboard** (aggregate increased) and **Audit** (`/audit` → `Run audit` → filter by your case ID) — the total is public, the amount you entered stays private.
+
 ## 0. First-time setup (only for local deploy)
 
 ```bash

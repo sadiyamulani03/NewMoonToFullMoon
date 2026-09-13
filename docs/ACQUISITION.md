@@ -1,6 +1,6 @@
-# User Acquisition Messages — Level 5
+# User Acquisition Messages — Level 6 (70 Preprod Users)
 
-These messages were used to recruit 50 Preprod testers for MidnightTrace at https://midnighttrace.vercel.app. Each tester was asked to connect a Lace/1AM wallet on Preprod, try the core forensic flow, and submit their wallet address via the feedback form.
+These messages are used to recruit **70 Preprod testers** for MidnightTrace at https://midnighttrace.vercel.app on **Midnight Preprod** (Mainnet NOT used). Each tester is asked to connect a **Lace/1AM wallet on Preprod**, try the core forensic flow, and submit their `mn_addr_preprod…` via the feedback form for verification (see `LAUNCH_USERS.md`). Level 5’s 50 users are retained in `USERS.md`.
 
 ## A. Discord / Telegram Message (under 100 words — 78 words)
 

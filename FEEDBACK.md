@@ -206,19 +206,19 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 **Batch rating summary:** 5× 5/5 (45.5%), 6× 4/5 (54.5%), 0× 3/5 or lower — average **4.45 / 5** (49/11). Ease: Very Easy 4 · Easy 6 · Normal 1. No 1–2/5 ratings. One explicit "No Changes for today" (Hetvi).
 
-**Implementation (this commit — all 7 Sep 13 suggestions implemented):**
+**Implementation (this commit — all 7 Sep 13 suggestions implemented — `0996a4e`):**
 
-| Suggestion | From | Implementation |
-|------------|------|----------------|
-| Persist truncated address + network badge once connected | Muhammad Guntur | `Layout.tsx:5` persistent header pill (`src/components/Layout.tsx:14`) — truncate `mn_addr_preprod…` + `Preprod` badge + `● Connected`, visible on all routes + mobile |
-| True landing page hero + 'Launch App' CTA, Dashboard behind it | Sakshi Patil | `Landing.tsx:22` CTA is now `Launch App` → `/dashboard`; `App.tsx:22` routes `/` → Landing, `/dashboard` → Dashboard |
-| Hover tooltip on PROOFS → glossary | Akash Mondal | `Cases.tsx:51` + `Dashboard.tsx:121` + `Auditor.tsx:267` hover `title` + `ⓘ` link to `/about#glossary` (`About.tsx:167`) |
-| Caption under lone dash (No cases opened yet) | Shakera | `Dashboard.tsx:73,125,198` dash now shows caption `No cases opened yet` / `No proofs yet` / `No members yet` beneath `—` |
-| Visual legend Open → Closed/Sealed | Debansh Tiwari | `Cases.tsx:39` + `Auditor.tsx:264` legend `OPEN → CLOSED / Sealed — sealed totals are permanent` |
-| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi | `Landing.tsx:31` explicit `Don't want to connect a wallet? Verify publicly → /audit` |
-| First-visit onboarding overlay reusing existing copy | Mark Guevarra | `OnboardingOverlay.tsx:1` overlay reuses Landing hero + 4 steps + privacy line + public verify link, gated by localStorage, mounted in `Landing.tsx:6` |
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| Persistent truncated address + network badge once connected | Muhammad Guntur (5/5) — "Show truncated address + network badge persistently once connected" | `0996a4e` ✅ `src/components/Layout.tsx:5` truncate `mn_addr…` + `Preprod` badge via `walletInfo` (`src/components/Layout.tsx:14`), visible persistently + mobile |
+| Landing CTA relabel to Launch App (Dashboard behind it) | Sakshi Patil (4/5) — "Add a true landing page as actual entry route, move Dashboard behind it" | `0996a4e` ✅ `src/pages/Landing.tsx:22` CTA now `Launch App` → `/dashboard`; `src/App.tsx:22` routes `/` → Landing |
+| Hover tooltip on PROOFS → glossary | Akash Mondal (5/5) — "Add hover tooltip on PROOFS linking to glossary" | `0996a4e` ✅ `src/pages/Cases.tsx:51` + `Dashboard.tsx:121` + `Auditor.tsx:267` tooltip `title` + `ⓘ` → `/about#glossary` |
+| Caption under lone dash (No cases opened yet) | Shakera (5/5) — "Add short caption under each: e.g. No cases opened yet instead of lone dash" | `0996a4e` ✅ `src/pages/Dashboard.tsx:73,125,198` dash now shows caption beneath `—` |
+| Visual legend Open → Closed/Sealed | Debansh Tiwari (4/5) — "Show visual example or legend of case states" | `0996a4e` ✅ `src/pages/Cases.tsx:39` + `Auditor.tsx:264` legend `OPEN → CLOSED / Sealed` |
+| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface link from landing page: Don't want to connect? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link → `/audit` |
+| First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind short onboarding overlay pulling from existing copy" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + steps, gated by localStorage, mounted in `Landing.tsx:6` |
 
-> All 7 Sep 13 suggestions are now implemented and verified by `npm run build` + contract tests (21 tests). See `What We Changed` rows tagged `NEXT` above.
+> All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
 ## Links
 

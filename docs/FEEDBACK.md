@@ -206,6 +206,18 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 
 **Batch wallets:** `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` (Muhammad Guntur), `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` (Sakshi Patil), `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` (Akash Mondal), `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` (Shakera), `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` (Debansh Tiwari), `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` (Aditya Jha), `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` (Elijah Negasi), `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` (Mark Guevarra), `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` (Aayesha Ansari), `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` (Laxmi Joshi), `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` (Hetvi) — all unique vs `../USERS.md` 50, Preprod only.
 
-**Implementation (this commit):** 7 Sep 13 suggestions implemented — persistent truncated address + network badge (`Layout.tsx:5`), Landing `Launch App` CTA (`Landing.tsx:22`), PROOFS tooltip → glossary (`Cases.tsx:51`, `Dashboard.tsx:121`, `Auditor.tsx:267`, `About.tsx:167`), dash captions (`Dashboard.tsx:73`), case-state legend (`Cases.tsx:39`, `Auditor.tsx:264`), public-verify link (`Landing.tsx:31`), onboarding overlay reusing existing copy (`OnboardingOverlay.tsx:1` → `Landing.tsx:6`). Verified by `npm run build` + 21 contract tests.
+**Implementation (this commit — `0996a4e`):**
+
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| Persistent truncated address + network badge once connected | Muhammad Guntur (5/5) — "Show truncated address + network badge persistently once connected" | `0996a4e` ✅ `src/components/Layout.tsx:5` truncate `mn_addr…` + `Preprod` badge (`Layout.tsx:14`), mobile visible |
+| Landing CTA relabel to Launch App (Dashboard behind it) | Sakshi Patil (4/5) — "Add a true landing page as actual entry route" | `0996a4e` ✅ `src/pages/Landing.tsx:22` CTA now `Launch App` → `/dashboard`; `App.tsx:22` routes `/` → Landing |
+| Hover tooltip on PROOFS → glossary | Akash Mondal (5/5) — "Add hover tooltip on PROOFS linking to glossary" | `0996a4e` ✅ `src/pages/Cases.tsx:51` + `Dashboard.tsx:121` + `Auditor.tsx:267` tooltip `ⓘ` → `/about#glossary` |
+| Caption under lone dash (No cases opened yet) | Shakera (5/5) — "Add short caption under each: e.g. No cases opened yet" | `0996a4e` ✅ `src/pages/Dashboard.tsx:73,125,198` dash now shows caption beneath `—` |
+| Visual legend Open → Closed/Sealed | Debansh Tiwari (4/5) — "Show visual example or legend" | `0996a4e` ✅ `src/pages/Cases.tsx:39` + `Auditor.tsx:264` legend `OPEN → CLOSED / Sealed` |
+| Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface link from landing: Don't want to connect? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link → `/audit` |
+| First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind short onboarding overlay" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + steps, gated by localStorage, mounted in `Landing.tsx:6` |
+
+> All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

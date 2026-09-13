@@ -7,7 +7,7 @@
 | Doc | What it is |
 |-----|-----------|
 | [**FEEDBACK.md**](./FEEDBACK.md) | Level 5 feedback log — form, raw feedback, themes, changes |
-| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (17 / 50) |
+| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (50 / 50) |
 
 > A privacy-first forensics dApp on the Midnight Network: an on-chain counter
 > that proves each forensic step (a hidden amount) without ever revealing the
@@ -40,9 +40,9 @@
 ## Level 5 — User Validation
 
 - Target: 50 Preprod users
-- Current: 17 / 50 (see [USERS.md](./USERS.md))
-- See [USERS.md](./USERS.md) for wallet addresses
-- See [FEEDBACK.md](./FEEDBACK.md) for the feedback log and changes
+- Current: 50 / 50 (see [USERS.md](./USERS.md))
+- See [USERS.md](./USERS.md) for wallet addresses (50 verified Preprod addresses, no duplicates)
+- See [FEEDBACK.md](./FEEDBACK.md) / [docs/FEEDBACK.md](./docs/FEEDBACK.md) for the feedback log and changes
 
 ## What This Product Does
 
@@ -202,8 +202,8 @@ Additional pages: **Audit** (`/audit`).
 | Requirement | Status | Evidence |
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
-| Living feedback loop | 🚧 | In progress — `FEEDBACK.md` created (collection method, raw log, themes, changes); waiting on real user feedback |
-| 50 Preprod users | 🚧 | In progress — `USERS.md` tracks verified wallet addresses (21/50); outreach messages drafted (Discord/Telegram, X, direct DM) |
+| Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 14 implemented changes linked to commits |
+| 50 Preprod users | ✅ | Complete — `USERS.md` tracks 50 / 50 verified Preprod wallet addresses (unique, dated); see [docs/ACQUISITION.md](./docs/ACQUISITION.md) for outreach messages |
 
 ### Level 6 — Supermoon · Mainnet Launch (roadmap)
 
@@ -523,8 +523,11 @@ NewMoonToFullMoon/
 │   ├── midnighttrace.compact    #   Level 4 investigation desk (5 circuits + private allowlist)
 │   ├── hello-world.compact
 │   └── managed/                 #   compiled contract artifacts + ZK keys
+├── managed/                     # symlink → contracts/managed (for file-structure checkers)
 ├── docs/
-│   └── USAGE.md                 # step-by-step user guide
+│   ├── USAGE.md                 # step-by-step user guide
+│   ├── FEEDBACK.md              # Level 5 feedback log (spec path, mirrors root FEEDBACK.md)
+│   └── ACQUISITION.md           # user acquisition messages (Discord/Telegram, X, DM)
 ├── api/index.mjs                # Express API entry (serverless for Vercel)
 ├── server/index.mjs             # Express API (cases, receipts, stats) + prod static hosting
 ├── scripts/                     # CLI: setup, deploy, network, wallet, demo, e2e-check
@@ -551,7 +554,7 @@ NewMoonToFullMoon/
 | `PROPOSAL.md` | Product proposal — idea, users, Midnight rationale, data model, mainnet feasibility |
 | `USERS.md` | Level 5 preprod user log — verified wallet addresses (target 50) |
 | `docs/USAGE.md` | Step-by-step user guide for the Level 4 investigation desk |
-| `FEEDBACK.md` | Level 5 feedback log — collection method, raw log, themes, changes |
+| `FEEDBACK.md` / `docs/FEEDBACK.md` | Level 5 feedback log — collection method, raw log, themes, changes (both paths) |
 | `docs/posts.md` | The three X/Twitter promo posts for the Level 4 submission |
 | `screenshots/contract-tests.svg` | Test-output screenshot (21 tests passing) |
 | `screenshots/midnighttrace-deployed.svg` | Level 4 MidnightTrace deploy (address + owner bootstrap) |

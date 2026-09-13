@@ -32,6 +32,18 @@ export default function Dashboard() {
         )}
       </section>
 
+      <section className="card" style={{ borderStyle: 'dashed', borderColor: 'rgba(244,199,112,0.42)' }}>
+        <p className="section-head">
+          <span className="section-no">00</span> Privacy at a glance
+        </p>
+        <p className="muted-text">
+          Your hidden <code>amount</code> never leaves your wallet — the proof shows{' '}
+          <code>total&apos; = total + amount</code> is true while <code>amount</code> itself stays private on your
+          device. Only totals you explicitly disclose become public.
+        </p>
+        <p className="privacy-note">New here? Start on the Home landing page or open the Audit window — no wallet needed to verify.</p>
+      </section>
+
       <section className="dashboard-shell">
         <div className="dashboard-hero">
           <div className="hero-copy">

@@ -28,6 +28,12 @@ export default function Layout() {
           <nav className={`nav${menuOpen ? ' nav-open' : ''}`} aria-label="Main navigation">
             <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 2.5 12 7l-4 4.5-4-4.5 4-4.5Z" />
+              </svg>
+              Home
+            </NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
+              <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M2 7.5 8 2.5 14 7.5V14H9.5v-3.5h-3V14H2z" />
               </svg>
               Dashboard

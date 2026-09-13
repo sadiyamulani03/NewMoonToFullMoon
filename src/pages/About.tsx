@@ -113,7 +113,41 @@ export default function About() {
 
       <section className="card">
         <p className="section-head">
-          <span className="section-no">09</span> Full-stack architecture
+          <span className="section-no">09</span> Example forensic scenario
+        </p>
+        <p className="muted-text">
+          <strong>Scenario:</strong> A compliance team must prove that three hidden batches were processed in case #7
+          without revealing the batch sizes.
+        </p>
+        <ol className="privacy-list">
+          <li>
+            <strong>Open case #7</strong> — <code>openCase(7)</code> creates the on-chain file; only the case ID and
+            phase are public.
+          </li>
+          <li>
+            <strong>Log three hidden steps</strong> — <code>logStep(7, amount=a1)</code>,{' '}
+            <code>logStep(7, amount=a2)</code>, <code>logStep(7, amount=a3)</code>. Each is a ZK proof that{' '}
+            <code>total&apos; = total + amount</code>. The ledger <code>total</code> becomes <code>a1+a2+a3</code>,
+            but <code>a1, a2, a3</code> never appear on-chain.
+          </li>
+          <li>
+            <strong>Selectively disclose</strong> — <code>discloseFinding(7, amount=total)</code> publishes only the
+            running total you choose, for the auditor&apos;s receipt book.
+          </li>
+          <li>
+            <strong>Seal the case</strong> — <code>closeCase(7)</code> sets phase to CLOSED; totals are now permanent.
+          </li>
+          <li>
+            <strong>Public audit</strong> — anyone at <code>/audit</code> verifies aggregate == Σ totals, allowlist
+            root, and that disclosed receipts match on-chain — with no wallet.
+          </li>
+        </ol>
+        <p className="privacy-note">This is the same flow you try on Cases → Case detail with your Preprod wallet.</p>
+      </section>
+
+      <section className="card">
+        <p className="section-head">
+          <span className="section-no">10</span> Full-stack architecture
         </p>
         <p className="muted-text">
           The dApp is a multi-page React app served by an Express API. On-chain logic lives in the Compact counter and
@@ -132,7 +166,7 @@ export default function About() {
       </div>
       <section className="card">
         <p className="section-head">
-          <span className="section-no">10</span> Glossary
+          <span className="section-no">11</span> Glossary
         </p>
         <dl className="glossary">
           <div className="glossary-item">

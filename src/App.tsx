@@ -9,6 +9,7 @@ import CaseDetail from './pages/CaseDetail';
 import CreateCase from './pages/CreateCase';
 import Auditor from './pages/Auditor';
 import About from './pages/About';
+import Landing from './pages/Landing';
 import './styles.css';
 
 export default function App() {
@@ -18,7 +19,8 @@ export default function App() {
         <ErrorBoundary>
           <Routes>
             <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/cases" element={<Cases />} />
               <Route path="/cases/:id" element={<CaseDetail />} />
               <Route path="/new" element={<CreateCase />} />

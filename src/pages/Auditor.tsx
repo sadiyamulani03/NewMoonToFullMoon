@@ -31,6 +31,7 @@ export default function Auditor() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [caseFilter, setCaseFilter] = useState('');
 
   const runAudit = useCallback(async () => {
     const trimmed = address.trim();
@@ -290,38 +291,68 @@ export default function Auditor() {
 
               {result.ledger.cases.length === 0 && <p className="muted-text">No case files have been opened on-chain yet.</p>}
               {result.ledger.cases.length > 0 && (
-                <table className="audit-table">
-                  <thead>
-                    <tr>
-                      <th>Case</th>
-                      <th>Total</th>
-                      <th>Last disclosed</th>
-                      <th>Events</th>
-                      <th>Phase</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.ledger.cases.map((c) => (
-                      <tr key={c.caseId.toString()}>
-                        <td>
-                          <code>#{c.caseId.toString()}</code>
-                        </td>
-                        <td>
-                          <code>{fmtTotal(c.total)}</code>
-                        </td>
-                        <td>
-                          <code>{fmtTotal(c.lastDisclosed)}</code>
-                        </td>
-                        <td>
-                          <code>{fmtTotal(c.eventCount)}</code>
-                        </td>
-                        <td>
-                          <span className={`status-tag ${c.phase === 'CLOSED' ? 'status-closed' : ''}`}>{c.phase}</span>
-                        </td>
+                <>
+                  <div className="audit-filter">
+                    <label className="form-label" htmlFor="audit-case-filter">
+                      Filter by case ID
+                    </label>
+                    <input
+                      id="audit-case-filter"
+                      className="form-input"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="e.g. 0, 1, 12 — leave empty to show all"
+                      value={caseFilter}
+                      onChange={(e) => setCaseFilter(e.target.value.replace(/[^0-9]/g, ''))}
+                    />
+                    <p className="muted-text" style={{ marginTop: '6px' }}>
+                      {(() => {
+                        const filtered = caseFilter.trim() === '' ? result.ledger!.cases : result.ledger!.cases.filter((c) => c.caseId.toString() === caseFilter.trim());
+                        return filtered.length === result.ledger!.cases.length
+                          ? `Showing all ${filtered.length} case(s).`
+                          : `Showing ${filtered.length} of ${result.ledger!.cases.length} case(s) matching #${caseFilter.trim()}.`;
+                      })()}
+                    </p>
+                  </div>
+                  <table className="audit-table">
+                    <thead>
+                      <tr>
+                        <th>Case</th>
+                        <th>Total</th>
+                        <th>Last disclosed</th>
+                        <th>Events</th>
+                        <th>Phase</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {(caseFilter.trim() === ''
+                        ? result.ledger.cases
+                        : result.ledger.cases.filter((c) => c.caseId.toString() === caseFilter.trim())
+                      ).map((c) => (
+                        <tr key={c.caseId.toString()}>
+                          <td>
+                            <code>#{c.caseId.toString()}</code>
+                          </td>
+                          <td>
+                            <code>{fmtTotal(c.total)}</code>
+                          </td>
+                          <td>
+                            <code>{fmtTotal(c.lastDisclosed)}</code>
+                          </td>
+                          <td>
+                            <code>{fmtTotal(c.eventCount)}</code>
+                          </td>
+                          <td>
+                            <span className={`status-tag ${c.phase === 'CLOSED' ? 'status-closed' : ''}`}>{c.phase}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {caseFilter.trim() !== '' && result.ledger.cases.filter((c) => c.caseId.toString() === caseFilter.trim()).length === 0 && (
+                    <p className="muted-text">No on-chain case matches #{caseFilter.trim()}.</p>
+                  )}
+                </>
               )}
             </section>
           )}

@@ -462,6 +462,8 @@ See [`docs/FEEDBACK.md`](./docs/FEEDBACK.md) (and [`FEEDBACK.md`](./FEEDBACK.md)
 
 See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 TOTAL combined (all together) — ACHIEVED 70/70 FINAL**: 50/50 Level 5 in [`USERS.md`](./USERS.md) + 20 NEW Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod…` on **Midnight Preprod** (Mainnet NOT used) — **CLOSED for submission**.
 
+> Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets (deduplicated by wallet address — `mn_addr_preprod…` — 0 duplicates, 70 unique verified).
+
 ## Product X Profile
 
 - **Profile:** https://x.com/Midnight__Trace

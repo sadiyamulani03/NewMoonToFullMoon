@@ -24,27 +24,54 @@ export default function Layout() {
                 <h1>MidnightTrace</h1>
               </div>
             </div>
-            {isConnected && walletInfo && (
-              <div className="header-wallet" aria-label="Wallet connection status">
-                <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
-                  <span className="wallet-addr" aria-label="Connected wallet address">
-                    {truncateAddr(walletInfo.address)}
+            <div className="header-actions">
+              {isConnected && walletInfo && (
+                <div className="header-wallet header-wallet-desktop" aria-label="Wallet connection status">
+                  <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
+                    <span className="wallet-addr" aria-label="Connected wallet address">
+                      {truncateAddr(walletInfo.address)}
+                    </span>
+                    <span className="network-badge" aria-label="Network">
+                      {walletInfo.networkId}
+                    </span>
+                    <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>
+                      ● Connected
+                    </span>
                   </span>
-                  <span className="network-badge" aria-label="Network">
-                    {walletInfo.networkId}
-                  </span>
-                  <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>
-                    ● Connected
-                  </span>
-                </span>
-              </div>
-            )}
+                </div>
+              )}
+              <button
+                className="menu-toggle"
+                aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((v) => !v)}
+                type="button"
+              >
+                <span />
+                <span />
+                <span />
+              </button>
+            </div>
           </div>
 
           <p className="subtitle">
-            A pocket case-file that watches a private counter. Track cases, connect a wallet, run the circuit, and get
-            receipts you can keep.
+            Private forensic ledger on Midnight. Prove that work happened — without revealing the evidence behind it.
           </p>
+          {isConnected && walletInfo && (
+            <div className="header-wallet header-wallet-mobile" aria-label="Wallet connection status">
+              <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
+                <span className="wallet-addr" aria-label="Connected wallet address">
+                  {truncateAddr(walletInfo.address)}
+                </span>
+                <span className="network-badge" aria-label="Network">
+                  {walletInfo.networkId}
+                </span>
+                <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>
+                  ● Connected
+                </span>
+              </span>
+            </div>
+          )}
 
           <nav className={`nav${menuOpen ? ' nav-open' : ''}`} aria-label="Main navigation">
             <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>

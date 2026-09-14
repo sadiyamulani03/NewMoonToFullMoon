@@ -19,55 +19,72 @@ export default function Dashboard() {
 
   return (
     <>
+      {/* Wallet — always visible, explicit states */}
       <section className="card wallet-section">
         <p className="section-head">
           <span className="section-no">01</span> Wallet
         </p>
         <WalletStatus walletState={walletState} isMobile={isMobile} />
         {isConnected && midLedger && (
-          <p className="ok-text">
-            Wallet connected on Preprod · on-chain aggregate: <code>{midLedger.aggregate.toString()}</code> ·
-            membership token: {membershipStatus === 'member' ? 'member' : 'not authorized'}
+          <p className="ok-text" style={{ marginTop: '10px', fontSize: '0.9rem' }}>
+            Connected on <strong>Preprod</strong> · on-chain aggregate <code>{midLedger.aggregate.toString()}</code> ·
+            you&apos;re <strong>{membershipStatus === 'member' ? 'authorized' : 'not yet authorized'}</strong>
+            {membershipStatus !== 'member' && ' — ask an allowlisted member to grant access'}
+          </p>
+        )}
+        {isConnected && !midLedger && (
+          <p className="muted-text" style={{ marginTop: '8px' }}>
+            Reading on-chain ledger… proofs and cases will appear once synced.
           </p>
         )}
       </section>
 
+      {/* Privacy at a glance — dashed, distinct */}
       <section className="card" style={{ borderStyle: 'dashed', borderColor: 'rgba(244,199,112,0.42)' }}>
         <p className="section-head">
           <span className="section-no">00</span> Privacy at a glance
         </p>
         <p className="muted-text">
           Your hidden <code>amount</code> never leaves your wallet — the proof shows{' '}
-          <code>total&apos; = total + amount</code> is true while <code>amount</code> itself stays private on your
-          device. Only totals you choose to share become public.{' '}
+          <code>total&apos; = total + amount</code> while <code>amount</code> stays private on your device. Only totals
+          you choose to disclose become public.{' '}
           <Link to="/about#glossary" style={{ fontWeight: 700 }} title="Glossary: Zero-knowledge proof, Aggregate, Disclose">
-            Glossary
+            Glossary →
           </Link>
         </p>
         <p className="privacy-note">
-          New here? Start on the Home landing page or open the Audit window — no wallet needed to verify. A{' '}
-          <span title="Zero-knowledge proof — prove a statement true without revealing the hidden data">ZK proof</span> is
-          just that one-line proof, explained in the Glossary.
+          New here? Start on the Home landing page or open the Audit window — no wallet needed to verify.
         </p>
       </section>
 
+      {/* Hero — primary action dominant */}
       <section className="dashboard-shell">
         <div className="dashboard-hero">
           <div className="hero-copy">
             <span className="eyebrow">Private evidence ledger</span>
             <h2>Track forensic steps without exposing the truth.</h2>
             <p>
-              MidnightTrace keeps every hidden amount private, proves the mathematics with zero-knowledge, and records
-              only the facts the chain can verify.
+              MidnightTrace keeps every hidden amount private, proves the math in zero knowledge, and records only what
+              the chain can verify. Open a case to begin — proofs and receipts follow.
             </p>
             <div className="quick-links">
-              <Link className="btn btn-primary" to="/cases">
-                View all cases
-              </Link>
-              <Link className="btn btn-secondary" to="/new">
+              <Link className="btn btn-primary btn-hero-primary" to="/new">
                 Open a new case
               </Link>
+              <Link className="btn btn-secondary" to="/cases">
+                View all cases
+              </Link>
+              <Link className="btn btn-ghost" to="/audit">
+                Audit window
+              </Link>
             </div>
+            <p className="muted-text" style={{ marginTop: '10px', fontSize: '0.85rem' }}>
+              Need a wallet? Install Lace or 1AM on Preprod — or{' '}
+              <Link to="/audit" style={{ fontWeight: 700 }}>
+                verify publicly without one
+              </Link>
+              .
+            </p>
           </div>
 
           <div className="hero-panel">
@@ -100,7 +117,7 @@ export default function Dashboard() {
               </li>
               <li>
                 <span className="dot dot-slate" />
-                <span>Audit window ready</span>
+                <span>Audit window ready — no wallet needed</span>
               </li>
             </ul>
           </div>
@@ -109,97 +126,10 @@ export default function Dashboard() {
 
       <FirstTimeGuide />
 
-      <section className="dashboard-grid">
-        <div className="card analytics-card">
-          <div className="panel-header">
-            <div>
-              <span className="eyebrow eyebrow-soft">Network health</span>
-              <h3>Operational signal</h3>
-            </div>
-            <span className="status-pill status-live">Operational</span>
-          </div>
-
-          <div className="signal-grid">
-            <div className="signal-box">
-              <span className="info-label">Case throughput</span>
-              <strong>{stats?.totalCases ?? '—'}</strong>
-              {!stats && <small className="muted-text">No cases opened yet</small>}
-              {stats && <small>cases processed</small>}
-            </div>
-            <div className="signal-box">
-              <span className="info-label" title="Zero-knowledge proofs — see About → Glossary">
-                Proof attestations
-                <Link to="/about" style={{ marginLeft: '4px', fontSize: '0.7rem' }} title="Glossary: Zero-knowledge proof">
-                  ⓘ
-                </Link>
-              </span>
-              <strong>{stats?.totalProofs ?? '—'}</strong>
-              {!stats && <small className="muted-text">No proofs yet</small>}
-              {stats && <small>receipts generated</small>}
-            </div>
-            <div className="signal-box">
-              <span className="info-label">Membership</span>
-              <strong>{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
-              <small>authorized actors</small>
-            </div>
-          </div>
-
-          <div className="trend-panel">
-            <div className="trend-row">
-              <span>Case integrity</span>
-              <strong>96.4%</strong>
-            </div>
-            <div className="progress-track">
-              <span className="progress-bar bar-amber" style={{ width: '96.4%' }} />
-            </div>
-
-            <div className="trend-row">
-              <span>Disclosure coverage</span>
-              <strong>88.1%</strong>
-            </div>
-            <div className="progress-track">
-              <span className="progress-bar bar-green" style={{ width: '88.1%' }} />
-            </div>
-          </div>
-        </div>
-
-        <div className="card activity-card">
-          <div className="panel-header">
-            <div>
-              <span className="eyebrow eyebrow-soft">Live feed</span>
-              <h3>Recent activity</h3>
-            </div>
-          </div>
-
-          <ul className="activity-list">
-            <li>
-              <span className="activity-dot dot-ok" />
-              <div>
-                <strong>Case checksum validated</strong>
-                <small>2 minutes ago</small>
-              </div>
-            </li>
-            <li>
-              <span className="activity-dot dot-gold" />
-              <div>
-                <strong>Access grant issued</strong>
-                <small>11 minutes ago</small>
-              </div>
-            </li>
-            <li>
-              <span className="activity-dot dot-slate" />
-              <div>
-                <strong>Audit window opened</strong>
-                <small>27 minutes ago</small>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </section>
-
+      {/* Real stats — no fake percentages, no fabricated activity */}
       <section className="card">
         <p className="section-head">
-          <span className="section-no">02</span> Overview
+          <span className="section-no">02</span> Overview — real counts
         </p>
         {error && <p className="error-text">{error}</p>}
         {!stats && !error && <Loading label="Loading case stats…" />}
@@ -208,12 +138,12 @@ export default function Dashboard() {
             <div className="stat-box">
               <span className="info-label">Cases</span>
               <strong className="stat-value">{stats.totalCases}</strong>
-              <span className="muted-text">{stats.openCases} open</span>
+              <span className="muted-text">{stats.openCases} open · {stats.totalCases - stats.openCases} closed</span>
             </div>
             <div className="stat-box">
               <span className="info-label">On-chain cases</span>
               <strong className="stat-value">{midLedger ? midLedger.cases.length : '—'}</strong>
-              <span className="muted-text">{midLedger ? 'in the midnighttrace ledger' : 'No cases opened yet'}</span>
+              <span className="muted-text">{midLedger ? 'in the MidnightTrace ledger' : 'Connect wallet to read ledger'}</span>
             </div>
             <div className="stat-box">
               <span className="info-label" title="Zero-knowledge proofs — see About → Glossary">
@@ -226,26 +156,44 @@ export default function Dashboard() {
               <span className="muted-text">on-chain receipts</span>
             </div>
             <div className="stat-box">
-              <span className="info-label">Allowlist members</span>
+              <span className="info-label">Allowlist</span>
               <strong className="stat-value">{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
-              <span className="muted-text">{midLedger ? 'commitments on-chain' : 'No members yet — connect wallet'}</span>
+              <span className="muted-text">{midLedger ? 'members (commitments on-chain)' : 'Connect wallet'}</span>
             </div>
           </div>
         )}
         {!midContractAddress && (
           <p className="muted-text">
-            MidnightTrace contract not configured yet — set <code>VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS</code> to see
-            on-chain case stats.
+            MidnightTrace contract not configured — set <code>VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS</code> to see on-chain
+            case stats.
           </p>
         )}
       </section>
 
+      {/* Next steps — clear, grouped */}
+      {stats && stats.totalCases === 0 && (
+        <section className="card" style={{ background: 'linear-gradient(180deg, rgba(244,199,112,0.08), rgba(15,22,34,0.9))' }}>
+          <p className="section-head">
+            <span className="section-no">03</span> What to do next
+          </p>
+          <p className="muted-text">No cases yet — open the first one. Each case starts on-chain with a number; receipts accumulate as you log hidden steps.</p>
+          <div className="quick-links" style={{ marginTop: '14px' }}>
+            <Link className="btn btn-primary" to="/new">
+              Create the first case
+            </Link>
+            <Link className="btn btn-secondary" to="/audit">
+              See how auditing works
+            </Link>
+          </div>
+        </section>
+      )}
+
       <div className="quick-links">
-        <Link className="btn btn-primary" to="/cases">
-          View all cases
-        </Link>
-        <Link className="btn btn-secondary" to="/new">
+        <Link className="btn btn-primary" to="/new">
           Open a new case
+        </Link>
+        <Link className="btn btn-secondary" to="/cases">
+          View all cases
         </Link>
         <Link className="btn btn-secondary" to="/audit">
           Audit window

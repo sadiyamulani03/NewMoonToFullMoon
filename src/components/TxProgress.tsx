@@ -5,8 +5,8 @@ interface TxProgressProps {
 }
 
 const STAGE_LABELS: Record<TxProgressProps['stage'], string> = {
-  proof: 'Generating zero-knowledge proof',
-  submit: 'Submitting transaction on-chain',
+  proof: 'Processing — generating zero-knowledge proof',
+  submit: 'Transaction submitted — awaiting finalization',
 };
 
 export default function TxProgress({ stage }: TxProgressProps) {

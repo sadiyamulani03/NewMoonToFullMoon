@@ -6,7 +6,7 @@
 **Demo:** https://midnighttrace.vercel.app
 **Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (MidnightTrace) on Preprod
 
-> This file tracks **Level 6 — Supermoon** onboarding. **Submission is CLOSED at 70 total** — Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 unique Preprod wallets. Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
+> This file tracks **Level 6 — Supermoon** onboarding. **Submission is CLOSED at 70 total** — Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 unique Preprod wallets. **Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets** (deduplicated by `mn_addr_preprod…` — 0 duplicates verified). Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
 
 | # | Wallet Address | Name | Rating | Date Onboarded |
 |---|----------------|------|--------|----------------|

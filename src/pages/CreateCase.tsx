@@ -78,7 +78,16 @@ export default function CreateCase() {
         <button className="btn btn-primary" type="submit" disabled={busy}>
           {busy ? 'Creating…' : 'Create case'}
         </button>
-        <Link className="btn btn-secondary" to="/cases">
+        <Link
+          className="btn btn-secondary"
+          to="/cases"
+          onClick={(e) => {
+            const hasContent = title.trim() !== '' || description.trim() !== '' || (owner.trim() !== '' && owner.trim() !== 'acc-labs');
+            if (hasContent && !window.confirm('Discard this case? Any text you entered will be lost.')) {
+              e.preventDefault();
+            }
+          }}
+        >
           Cancel
         </Link>
       </div>

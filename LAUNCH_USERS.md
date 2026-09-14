@@ -20,71 +20,73 @@
 | 9 | `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` | Aayesha Ansari | 4 | 2026-09-13 |
 | 10 | `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` | Laxmi Joshi | 5 | 2026-09-13 |
 | 11 | `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` | Hetvi | 4 | 2026-09-13 |
-| 12 | _pending_ | — |
-| 13 | _pending_ | — |
-| 14 | _pending_ | — |
-| 15 | _pending_ | — |
-| 16 | _pending_ | — |
-| 17 | _pending_ | — |
-| 18 | _pending_ | — |
-| 19 | _pending_ | — |
-| 20 | _pending_ | — |
-| 21 | _pending_ | — |
-| 22 | _pending_ | — |
-| 23 | _pending_ | — |
-| 24 | _pending_ | — |
-| 25 | _pending_ | — |
-| 26 | _pending_ | — |
-| 27 | _pending_ | — |
-| 28 | _pending_ | — |
-| 29 | _pending_ | — |
-| 30 | _pending_ | — |
-| 31 | _pending_ | — |
-| 32 | _pending_ | — |
-| 33 | _pending_ | — |
-| 34 | _pending_ | — |
-| 35 | _pending_ | — |
-| 36 | _pending_ | — |
-| 37 | _pending_ | — |
-| 38 | _pending_ | — |
-| 39 | _pending_ | — |
-| 40 | _pending_ | — |
-| 41 | _pending_ | — |
-| 42 | _pending_ | — |
-| 43 | _pending_ | — |
-| 44 | _pending_ | — |
-| 45 | _pending_ | — |
-| 46 | _pending_ | — |
-| 47 | _pending_ | — |
-| 48 | _pending_ | — |
-| 49 | _pending_ | — |
-| 50 | _pending_ | — |
-| 51 | _pending_ | — |
-| 52 | _pending_ | — |
-| 53 | _pending_ | — |
-| 54 | _pending_ | — |
-| 55 | _pending_ | — |
-| 56 | _pending_ | — |
-| 57 | _pending_ | — |
-| 58 | _pending_ | — |
-| 59 | _pending_ | — |
-| 60 | _pending_ | — |
-| 61 | _pending_ | — |
-| 62 | _pending_ | — |
-| 63 | _pending_ | — |
-| 64 | _pending_ | — |
-| 65 | _pending_ | — |
-| 66 | _pending_ | — |
-| 67 | _pending_ | — |
-| 68 | _pending_ | — |
-| 69 | _pending_ | — |
-| 70 | _pending_ | — |
+| 12 | `mn_addr_preprod1usvzuwkwcn5yfa8wweunmz662z7cknvgzr7cj3glp2e6a5j2y63qhyxzag` | Payal Shidgur | 5 | 2026-09-13 |
+| 13 | `mn_addr_preprod1fc867370gmrp8dfm96fmt08zuuh2xtajyc5htkc3tk9lex6ydw8q66qvzh` | Ankita Dalal | 4 | 2026-09-14 |
+| 14 | `mn_addr_preprod14sqkf6nqt04sy2gu7477a4kpn2ex3rps2tnt465af344dd8v92dq7jfr8p` | Stuti Kulkarni | 4 | 2026-09-14 |
+| 15 | `mn_addr_preprod1s2w4j87m8zunnte2a6avyfcxmza995jdtep0mj8exheddk0dhm9qm7f82t` | Sakshi kanhere | 5 | 2026-09-14 |
+| 16 | `mn_addr_preprod1hlkf0wjkgjpueh0xyw0892c456a3k2ahdamfdzx4hrxa67k8g50sjy60gk` | Afsana Inamdar | 4 | 2026-09-14 |
+| 17 | `mn_addr_preprod1y99qv26226p9jnknwjt2fesp9p66wvwjk029q2cmtn7lmzu9q2nqh04afm` | Riya Sawant | 4 | 2026-09-14 |
+| 18 | `mn_addr_preprod1tjjmdxn7fdsne9ggcv4pfakt2eal4jcal5sn0a0v4p2td7fd5tvqnu0stf` | janvi pinjan | 5 | 2026-09-14 |
+| 19 | `mn_addr_preprod1uujwkmuxhpj2lh77gzw8uaul4g35e8ce6dmzvmytlwyjnwegu9ls8255z6` | Manali Ghule | 4 | 2026-09-14 |
+| 20 | `mn_addr_preprod1af9le5s0mh87y99pd2404u3ujud44sr6ymsxp63hxpcvawlgk6uqas2kc6` | Trishal shetty | 5 | 2026-09-14 |
+| 21 | _pending_ | — | — | — |
+| 22 | _pending_ | — | — | — |
+| 23 | _pending_ | — | — | — |
+| 24 | _pending_ | — | — | — |
+| 25 | _pending_ | — | — | — |
+| 26 | _pending_ | — | — | — |
+| 27 | _pending_ | — | — | — |
+| 28 | _pending_ | — | — | — |
+| 29 | _pending_ | — | — | — |
+| 30 | _pending_ | — | — | — |
+| 31 | _pending_ | — | — | — |
+| 32 | _pending_ | — | — | — |
+| 33 | _pending_ | — | — | — |
+| 34 | _pending_ | — | — | — |
+| 35 | _pending_ | — | — | — |
+| 36 | _pending_ | — | — | — |
+| 37 | _pending_ | — | — | — |
+| 38 | _pending_ | — | — | — |
+| 39 | _pending_ | — | — | — |
+| 40 | _pending_ | — | — | — |
+| 41 | _pending_ | — | — | — |
+| 42 | _pending_ | — | — | — |
+| 43 | _pending_ | — | — | — |
+| 44 | _pending_ | — | — | — |
+| 45 | _pending_ | — | — | — |
+| 46 | _pending_ | — | — | — |
+| 47 | _pending_ | — | — | — |
+| 48 | _pending_ | — | — | — |
+| 49 | _pending_ | — | — | — |
+| 50 | _pending_ | — | — | — |
+| 51 | _pending_ | — | — | — |
+| 52 | _pending_ | — | — | — |
+| 53 | _pending_ | — | — | — |
+| 54 | _pending_ | — | — | — |
+| 55 | _pending_ | — | — | — |
+| 56 | _pending_ | — | — | — |
+| 57 | _pending_ | — | — | — |
+| 58 | _pending_ | — | — | — |
+| 59 | _pending_ | — | — | — |
+| 60 | _pending_ | — | — | — |
+| 61 | _pending_ | — | — | — |
+| 62 | _pending_ | — | — | — |
+| 63 | _pending_ | — | — | — |
+| 64 | _pending_ | — | — | — |
+| 65 | _pending_ | — | — | — |
+| 66 | _pending_ | — | — | — |
+| 67 | _pending_ | — | — | — |
+| 68 | _pending_ | — | — | — |
+| 69 | _pending_ | — | — | — |
+| 70 | _pending_ | — | — | — |
 
-Current count: 11 / 70 (Sep 13, 2026 — first Level 6 batch; 59 slots remaining)
+Current count: 20 / 70 (Sep 13–14, 2026 — two Level 6 batches; 50 slots remaining)
 
-> **Sep 13 batch note:** 11 verified Preprod addresses collected Sep 13, 2026 19:12–23:19 UTC. Average rating **4.45 / 5** (49 / 11: 5×5, 6×4). All addresses unique vs Level 5's 50 in `USERS.md` (verified — no duplicates). Full verbatim feedback for this batch is logged in `FEEDBACK.md` § Level 6 Supplemental (entries 51–61) and `docs/FEEDBACK.md` Raw Log #51–61. Suggestions triaged for next iteration (no code changes today per batch note).
+> **Sep 13 batch note:** 11 verified Preprod addresses collected Sep 13, 2026 19:12–23:19 UTC. Average rating **4.45 / 5** (49 / 11: 5×5, 6×4). All addresses unique vs Level 5's 50 in `USERS.md` (verified — no duplicates). Full verbatim feedback for this batch is logged in `FEEDBACK.md` § Level 6 Supplemental (entries 51–61) and `docs/FEEDBACK.md` Raw Log #51–61.
 
-Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6: 11 / 70 here
+> **Sep 13 late + Sep 14 batch note:** 9 new verified Preprod addresses collected Sep 13 23:41 – Sep 14 09:41 UTC (Payal Shidgur through Trishal shetty, plus Hetvi already counted). Average for 9 new: **4.56 / 5** (41 / 9: 4×4, 5×5). Combined Level 6 total 20 = **4.50 / 5** (90 / 20: 10×5, 10×4). All 9 wallets unique vs `USERS.md` 50 and vs prior 11 (verified — Hetvi duplicate excluded from count). Full verbatim feedback logged in `FEEDBACK.md` § Level 6 Supplemental — Sep 13 late + Sep 14 batch (entries 62–70) and `docs/FEEDBACK.md` Raw Log #62–70. All 3 actionable suggestions from this batch implemented in this commit.
+
+Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6: 20 / 70 here
 
 > **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
 >

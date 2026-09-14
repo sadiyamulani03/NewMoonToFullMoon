@@ -11,13 +11,20 @@ export default function Landing() {
           <h2>Prove a forensic step without exposing the evidence.</h2>
           <p className="muted-text">
             A privacy-first desk for investigators and auditors on the Midnight Network. Each step is a{' '}
-            <strong>zero-knowledge proof</strong> — the chain verifies <em>that</em> you counted, without ever seeing{' '}
-            <em>what</em> you counted.
+            <strong title="Zero-knowledge proof — see Glossary">zero-knowledge proof (ZK)</strong> — the chain verifies{' '}
+            <em>that</em> you counted, without ever seeing <em>what</em> you counted.{' '}
+            <Link to="/about#glossary" style={{ fontWeight: 700 }} title="Open Glossary: Zero-knowledge proof">
+              What is a ZK proof? →
+            </Link>
           </p>
           <p className="privacy-note" style={{ marginTop: '10px' }}>
-            Privacy in one line: your hidden <code>amount</code> is a private witness — the proof shows{' '}
-            <code>total&apos; = total + amount</code> is true, while <code>amount</code> never goes on-chain and never
-            appears on screen.
+            Privacy in one line: your hidden <code>amount</code> stays on your device (a private witness) — the proof
+            shows <code>total&apos; = total + amount</code> is true, while <code>amount</code> never goes on-chain and
+            never appears on screen.{' '}
+            <Link to="/about#glossary" style={{ fontWeight: 700 }} title="Glossary: Zero-knowledge proof">
+              Glossary
+            </Link>{' '}
+            — ZK proof = prove a statement true without revealing the hidden data.
           </p>
         </div>
         <div className="quick-links">

@@ -461,7 +461,7 @@ See [`docs/FEEDBACK.md`](./docs/FEEDBACK.md) (and [`FEEDBACK.md`](./FEEDBACK.md)
 
 ## Level 6 Users
 
-See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 verified Preprod wallet addresses** (`mn_addr_preprod…`) on **Midnight Preprod** (Mainnet NOT used). Current Level 5: 50/50 in [`USERS.md`](./USERS.md); Level 6 launch tracker: `0/70` pending real onboarding.
+See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 verified Preprod wallet addresses** (`mn_addr_preprod…`) on **Midnight Preprod** (Mainnet NOT used). Current Level 5: 50/50 in [`USERS.md`](./USERS.md); Level 6 launch tracker: **20/70** (Sep 13–14 batches, 50 slots remaining; 70 total with Level 5).
 
 ## Product X Profile
 

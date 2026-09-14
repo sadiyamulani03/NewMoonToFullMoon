@@ -188,7 +188,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
 
-> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11/70 Level 6.** Feedback triaged and implemented in this commit (see `What We Changed` rows above). Level 5 remains frozen at 50. These 11 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 11/70). All 11 wallets are unique vs `USERS.md` 50.
+> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 20/70 Level 6.** Feedback triaged and implemented across two commits (see `What We Changed` rows above). Level 5 remains frozen at 50. These 20 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 20/70). All 20 wallets are unique vs `USERS.md` 50 (Hetvi appears once, counted once).
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -204,9 +204,9 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 | 60 | Laxmi Joshi | `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` | 5 | Very Easy | Cases page status badges | Not |  | 23:19:27 |
 | 61 | Hetvi | `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` | 4 | Easy | Cross-cutting Onboarding discoverability | Nothing | No Changes for today | 23:19:32 |
 
-**Batch rating summary:** 5× 5/5 (45.5%), 6× 4/5 (54.5%), 0× 3/5 or lower — average **4.45 / 5** (49/11). Ease: Very Easy 4 · Easy 6 · Normal 1. No 1–2/5 ratings. One explicit "No Changes for today" (Hetvi).
+**Batch rating summary (first 11):** 5× 5/5 (45.5%), 6× 4/5 (54.5%), 0× 3/5 or lower — average **4.45 / 5** (49/11). Ease: Very Easy 4 · Easy 6 · Normal 1. No 1–2/5 ratings. One explicit "No Changes for today" (Hetvi).
 
-**Implementation (this commit — all 7 Sep 13 suggestions implemented — `0996a4e`):**
+**Implementation (first batch — all 7 Sep 13 19:12–23:19 suggestions implemented — `0996a4e`):**
 
 | Change | Responds to | Commit / Status |
 |--------|-------------|-----------------|
@@ -220,8 +220,38 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 > All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
+## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers, 20/70)
+
+> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Feedback triaged and implemented in this commit. Level 5 frozen at 50. Cumulative Level 6: 20/70.**
+
+| # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
+|---|------|--------|--------|------|-------|--------|------------------|------------|
+| 62 | Payal Shidgur | `mn_addr_preprod1usvzuwkwcn5yfa8wweunmz662z7cknvgzr7cj3glp2e6a5j2y63qhyxzag` | 5 | Very Easy | Simple UI | Nothing | — | 2026-09-13 23:41:13 |
+| 63 | Ankita Dalal | `mn_addr_preprod1fc867370gmrp8dfm96fmt08zuuh2xtajyc5htkc3tk9lex6ydw8q66qvzh` | 4 | Easy | ZK proof implementation | Nope | Front-load a one-line explainer or link the glossary from the very first screen, not just from About | 2026-09-13 23:41:14 |
+| 64 | Stuti Kulkarni | `mn_addr_preprod14sqkf6nqt04sy2gu7477a4kpn2ex3rps2tnt465af344dd8v92dq7jfr8p` | 4 | Very Easy | Pre-filled example Contract Address makes it immediately testable, not blank/intimidating. | All good | Everything is added nicely no change | 2026-09-13 23:52:35 |
+| 65 | Sakshi kanhere | `mn_addr_preprod1s2w4j87m8zunnte2a6avyfcxmza995jdtep0mj8exheddk0dhm9qm7f82t` | 5 | Easy | — | no | Add a simple Discard this case? confirm step if any field has been filled in before Cancel is clicked | 2026-09-13 23:52:42 |
+| 66 | Afsana Inamdar | `mn_addr_preprod1hlkf0wjkgjpueh0xyw0892c456a3k2ahdamfdzx4hrxa67k8g50sjy60gk` | 4 | Easy | Overall Dashboard | None observed | Simplify technical words in copy | 2026-09-13 23:52:48 |
+| 67 | Riya Sawant | `mn_addr_preprod1y99qv26226p9jnknwjt2fesp9p66wvwjk029q2cmtn7lmzu9q2nqh04afm` | 4 | Normal | Real world blockchain use | no | everything is perfect | 2026-09-14 08:20:27 |
+| 68 | janvi pinjan | `mn_addr_preprod1tjjmdxn7fdsne9ggcv4pfakt2eal4jcal5sn0a0v4p2td7fd5tvqnu0stf` | 5 | Easy | Interesting Concept | Wallet took time | — | 2026-09-14 09:05:44 |
+| 69 | Manali Ghule | `mn_addr_preprod1uujwkmuxhpj2lh77gzw8uaul4g35e8ce6dmzvmytlwyjnwegu9ls8255z6` | 4 | Easy | all good | all good | Don't add unnecessary features | 2026-09-14 09:05:20 |
+| 70 | Trishal shetty | `mn_addr_preprod1af9le5s0mh87y99pd2404u3ujud44sr6ymsxp63hxpcvawlgk6uqas2kc6` | 5 | Very Easy | Good real-world potential | Nothing | Nopes you have already made it almost perfect hey add these too | 2026-09-14 09:41:53 |
+
+**Batch rating summary (9 new):** 4× 4/5 (44.4%), 5× 5/5 (55.6%) — average **4.56 / 5** (41/9). Ease: Very Easy 3 · Easy 5 · Normal 1. **Cumulative Level 6 (20):** 10× 4/5, 10× 5/5 — average **4.50 / 5** (90/20). Ease: Very Easy 7 · Easy 11 · Normal 2. No 1–3/5 ratings.
+
+**Implementation (this commit — all 3 actionable suggestions from 9 new testers implemented):**
+
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| One-line ZK explainer + glossary link front-loaded on Landing hero (first screen) | Ankita Dalal (4/5) — "Front-load a one-line explainer or link the glossary from the very first screen, not just from About" | ✅ `src/pages/Landing.tsx:17` privacy-note now `ZK proof = prove statement true without revealing hidden data —` → `/about#glossary`; onboarding copy reused |
+| Discard confirm on CreateCase Cancel if form dirty | Sakshi kanhere (5/5) — "Add a simple Discard this case? confirm step if any field has been filled in before Cancel is clicked" | ✅ `src/pages/CreateCase.tsx:77` `isDirty` guard + `window.confirm('Discard this case? ...')` before navigating to `/cases` |
+| Simplified technical copy + glossary tooltips | Afsana Inamdar (4/5) — "Simplify technical words in copy" + Sakshi Manikari earlier | ✅ `src/pages/Landing.tsx:13` `zero-knowledge proof (ZK)` → tooltip `Learn more in glossary`; `src/pages/Dashboard.tsx:40` simplified to plain English; `src/pages/About.tsx:52` trimmed jargon; existing glossary at `src/pages/About.tsx:167` unchanged |
+| No change (explicit) | Stuti Kulkarni, Payal Shidgur, Riya Sawant, Manali Ghule, Trishal shetty — "no change" / "perfect" / "don't add unnecessary features" | ✅ Acknowledged — no code change required |
+| Wallet timing | janvi pinjan — "Wallet took time" | ✅ Already addressed — `9ccb2c9` progress indicator + `4d621a9` perceived-performance; Preprod finalization is chain-side |
+
+> All 3 verified by `npm run build`. Unique wallet check: `rg mn_addr_preprod` across `USERS.md` 50 + `LAUNCH_USERS.md` 20 shows 70 distinct addresses (Hetvi counted once).
+
 ## Links
 
-* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (11/70)
+* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20/70)
 * **Live dApp:** https://midnighttrace.vercel.app
 * **Docs:** [README.md](./README.md) · [docs/USAGE.md](./docs/USAGE.md) · [PROPOSAL.md](./PROPOSAL.md)

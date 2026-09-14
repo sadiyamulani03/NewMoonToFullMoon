@@ -39,9 +39,16 @@ export default function Dashboard() {
         <p className="muted-text">
           Your hidden <code>amount</code> never leaves your wallet — the proof shows{' '}
           <code>total&apos; = total + amount</code> is true while <code>amount</code> itself stays private on your
-          device. Only totals you explicitly disclose become public.
+          device. Only totals you choose to share become public.{' '}
+          <Link to="/about#glossary" style={{ fontWeight: 700 }} title="Glossary: Zero-knowledge proof, Aggregate, Disclose">
+            Glossary
+          </Link>
         </p>
-        <p className="privacy-note">New here? Start on the Home landing page or open the Audit window — no wallet needed to verify.</p>
+        <p className="privacy-note">
+          New here? Start on the Home landing page or open the Audit window — no wallet needed to verify. A{' '}
+          <span title="Zero-knowledge proof — prove a statement true without revealing the hidden data">ZK proof</span> is
+          just that one-line proof, explained in the Glossary.
+        </p>
       </section>
 
       <section className="dashboard-shell">

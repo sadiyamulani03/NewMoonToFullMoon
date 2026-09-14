@@ -188,7 +188,7 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers, 11/70)
 
-> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11/70 Level 6. Feedback triaged and implemented in this commit — see [`../FEEDBACK.md`](../FEEDBACK.md) Level 6 Supplemental for file:line mapping.** Level 5 frozen at 50.
+> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11/70 Level 6. Feedback triaged and implemented in `0996a4e` — see [`../FEEDBACK.md`](../FEEDBACK.md) Level 6 Supplemental for file:line mapping.** Level 5 frozen at 50.
 
 | # | User | Feedback Summary | Date |
 |---|------|-----------------|------|
@@ -204,9 +204,9 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 | 60 | Laxmi Joshi | 5/5, Very Easy — Liked: Cases page status badges — Issues: Not — Change: — | 2026-09-13 |
 | 61 | Hetvi | 4/5, Easy — Liked: Cross-cutting Onboarding discoverability — Issues: Nothing — Change: No Changes for today | 2026-09-13 |
 
-**Batch wallets:** `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` (Muhammad Guntur), `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` (Sakshi Patil), `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` (Akash Mondal), `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` (Shakera), `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` (Debansh Tiwari), `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` (Aditya Jha), `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` (Elijah Negasi), `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` (Mark Guevarra), `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` (Aayesha Ansari), `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` (Laxmi Joshi), `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` (Hetvi) — all unique vs `../USERS.md` 50, Preprod only.
+**Batch wallets (11):** `mn_addr_preprod1wys2pqpz3hsnpma2gkys0mhkr08kx3wu426aa6rdfw04mzag7f2sdenpnq` (Muhammad Guntur), `mn_addr_preprod1k9la82enyaalqanq2uqzsh59rsejqp3utt04z89w7fkp6fky6tzslfejxq` (Sakshi Patil), `mn_addr_preprod1vg20juw4zkd090mefm89wagamfqft0fcfqgr8dp47zkrj2xrd6rs0qk30u` (Akash Mondal), `mn_addr_preprod1hhln75qulfe4r8awtxp4tm84df65khnq9ethrrx8qlltgul05jsqm693hq` (Shakera), `mn_addr_preprod12dgkv3c69h3837a2w5qmh8vrm5m0c2g26jrfhcls0p9npndwq0wqrvdyrp` (Debansh Tiwari), `mn_addr_preprod10vsc5hfmpy4mf486q6lp5yfv02r7ct4kesj2prh2jxtaehcnp7hqz8ze3l` (Aditya Jha), `mn_addr_preprod1njjcpc5cvy8hvxxrs9488k2epc8qhrv4na7jxpt724qw846cvnkqwzrqay` (Elijah Negasi), `mn_addr_preprod1mxcqkfym9ugl3m79kkjngqstx3hle704nfg5pu2w8ljtkr60qx5qpscnkn` (Mark Guevarra), `mn_addr_preprod1qw4fjhjh2gv9m7g6cc7w25fv3jyk3g4pkwurmxdw2wwc2sj80sxqk5urxa` (Aayesha Ansari), `mn_addr_preprod1j5ymf2at55gtvhhtfjt758dk0plgazd7trfupr0yz0cm6fw45m2svv54cg` (Laxmi Joshi), `mn_addr_preprod1sw4v6js48j6gsyaggyac4n6kmnwxvqh2zekz99jlk6zd4ydkw3hqae928j` (Hetvi) — all unique vs `../USERS.md` 50, Preprod only.
 
-**Implementation (this commit — `0996a4e`):**
+**Implementation (first batch — `0996a4e`):**
 
 | Change | Responds to | Commit / Status |
 |--------|-------------|-----------------|
@@ -218,6 +218,36 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 | Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface link from landing: Don't want to connect? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link → `/audit` |
 | First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind short onboarding overlay" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + steps, gated by localStorage, mounted in `Landing.tsx:6` |
 
-> All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
+> All 7 verified by `npm run build` + 21 contract tests.
+
+## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers, 20/70)
+
+> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Cumulative Level 6: 20/70. Level 5 frozen at 50.**
+
+| # | User | Feedback Summary | Date |
+|---|------|-----------------|------|
+| 62 | Payal Shidgur | 5/5, Very Easy — Liked: Simple UI — Issues: Nothing — Change: — | 2026-09-13 23:41:13 |
+| 63 | Ankita Dalal | 4/5, Easy — Liked: ZK proof implementation — Issues: Nope — Change: Front-load a one-line explainer or link the glossary from the very first screen, not just from About | 2026-09-13 23:41:14 |
+| 64 | Stuti Kulkarni | 4/5, Very Easy — Liked: Pre-filled example Contract Address makes it immediately testable — Issues: All good — Change: Everything is added nicely no change | 2026-09-13 23:52:35 |
+| 65 | Sakshi kanhere | 5/5, Easy — Liked: — — Issues: no — Change: Add a simple Discard this case? confirm step if any field has been filled in before Cancel is clicked | 2026-09-13 23:52:42 |
+| 66 | Afsana Inamdar | 4/5, Easy — Liked: Overall Dashboard — Issues: None observed — Change: Simplify technical words in copy | 2026-09-13 23:52:48 |
+| 67 | Riya Sawant | 4/5, Normal — Liked: Real world blockchain use — Issues: no — Change: everything is perfect | 2026-09-14 08:20:27 |
+| 68 | janvi pinjan | 5/5, Easy — Liked: Interesting Concept — Issues: Wallet took time — Change: — | 2026-09-14 09:05:44 |
+| 69 | Manali Ghule | 4/5, Easy — Liked: all good — Issues: all good — Change: Don't add unnecessary features | 2026-09-14 09:05:20 |
+| 70 | Trishal shetty | 5/5, Very Easy — Liked: Good real-world potential — Issues: Nothing — Change: Nopes you have already made it almost perfect hey add these too | 2026-09-14 09:41:53 |
+
+**Batch wallets (9 new):** `mn_addr_preprod1usvzuwkwcn5yfa8wweunmz662z7cknvgzr7cj3glp2e6a5j2y63qhyxzag` (Payal), `mn_addr_preprod1fc867370gmrp8dfm96fmt08zuuh2xtajyc5htkc3tk9lex6ydw8q66qvzh` (Ankita), `mn_addr_preprod14sqkf6nqt04sy2gu7477a4kpn2ex3rps2tnt465af344dd8v92dq7jfr8p` (Stuti), `mn_addr_preprod1s2w4j87m8zunnte2a6avyfcxmza995jdtep0mj8exheddk0dhm9qm7f82t` (Sakshi kanhere), `mn_addr_preprod1hlkf0wjkgjpueh0xyw0892c456a3k2ahdamfdzx4hrxa67k8g50sjy60gk` (Afsana), `mn_addr_preprod1y99qv26226p9jnknwjt2fesp9p66wvwjk029q2cmtn7lmzu9q2nqh04afm` (Riya), `mn_addr_preprod1tjjmdxn7fdsne9ggcv4pfakt2eal4jcal5sn0a0v4p2td7fd5tvqnu0stf` (janvi), `mn_addr_preprod1uujwkmuxhpj2lh77gzw8uaul4g35e8ce6dmzvmytlwyjnwegu9ls8255z6` (Manali), `mn_addr_preprod1af9le5s0mh87y99pd2404u3ujud44sr6ymsxp63hxpcvawlgk6uqas2kc6` (Trishal) — all unique vs `USERS.md` 50 and vs prior 11 (Hetvi counted once, not duplicated).
+
+**Batch rating summary (9 new):** 4× 4/5, 5× 5/5 — avg **4.56/5** (41/9). **Cumulative 20:** 10× 4/5, 10× 5/5 — avg **4.50/5** (90/20). Ease: Very Easy 3 · Easy 5 · Normal 1 (9 new); cumulative Very Easy 7 · Easy 11 · Normal 2.
+
+**Implementation (this commit — all 3 actionable suggestions from 9 new testers):**
+
+| Change | Responds to | Commit / Status |
+|--------|-------------|-----------------|
+| One-line ZK explainer + glossary link front-loaded on Landing hero | Ankita Dalal (4/5) — "Front-load a one-line explainer or link the glossary from the very first screen" | ✅ `src/pages/Landing.tsx:17` privacy-note now one-line ZK def + `→ Glossary` link to `/about#glossary` |
+| Discard confirm on CreateCase Cancel if form dirty | Sakshi kanhere (5/5) — "Add Discard this case? confirm if any field has been filled before Cancel is clicked" | ✅ `src/pages/CreateCase.tsx:77` dirty guard + `window.confirm` |
+| Simplified technical copy | Afsana Inamdar (4/5) — "Simplify technical words in copy" | ✅ `src/pages/Landing.tsx:13` plain English, `src/pages/Dashboard.tsx:40` simplified, tooltips on `zero-knowledge proof (ZK)` → `/about#glossary` |
+| No change (explicit) | Stuti, Payal, Riya, Manali, Trishal — "no change/perfect/don't add features" | ✅ Acknowledged — no change |
+| Wallet timing | janvi pinjan — "Wallet took time" | ✅ Already addressed `9ccb2c9` + `4d621a9` (Preprod chain time) |
 
 Detailed commitments and methodology notes are in [`../FEEDBACK.md`](../FEEDBACK.md). This file mirrors the root log in the exact structure required by the Level 5 checker (`Feedback Collection Method` / `Raw Feedback Log` / `What We Heard (Themes)` / `What We Changed`).

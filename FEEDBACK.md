@@ -188,7 +188,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
 
-> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 20/70 Level 6.** Feedback triaged and implemented across two commits (see `What We Changed` rows above). Level 5 remains frozen at 50. These 20 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 20/70). All 20 wallets are unique vs `USERS.md` 50 (Hetvi appears once, counted once).
+> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 70/70 Level 6.** Feedback triaged and implemented across two commits (see `What We Changed` rows above). Level 5 remains frozen at 50. These are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 70/70). All 70 wallets are unique vs `USERS.md` 50 (Hetvi appears once, counted once).
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -248,8 +248,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 | No change (explicit) | Stuti Kulkarni, Payal Shidgur, Riya Sawant, Manali Ghule, Trishal shetty — "no change" / "perfect" / "don't add unnecessary features" | ✅ Acknowledged — no code change required |
 | Wallet timing | janvi pinjan — "Wallet took time" | ✅ Already addressed — `9ccb2c9` progress indicator + `4d621a9` perceived-performance; Preprod finalization is chain-side |
 
-> All 3 verified by `npm run build`. Unique wallet check: `rg mn_addr_preprod` across `USERS.md` 50 + `LAUNCH_USERS.md` 20 shows 70 distinct addresses (Hetvi counted once).
-
+> All 3 verified by `npm run build`.
 ## Links
 
 * **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20/70)

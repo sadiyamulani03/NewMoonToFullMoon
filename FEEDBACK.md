@@ -188,7 +188,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
 
-> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 70/70 Level 6.** Feedback triaged and implemented across two commits (see `What We Changed` rows above). Level 5 remains frozen at 50. These are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) 70/70). All 70 wallets are unique vs `USERS.md` 50 (Hetvi appears once, counted once).
+> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 20 NEW Level 6 (70/70 TOTAL with Level 5 50).** Feedback triaged and implemented across two commits `0996a4e` + `fa584da` (see `What We Changed` rows above). Level 5 remains frozen at 50. These 20 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — 50+20=70/70 TOTAL). All 20 wallets are unique vs `USERS.md` 50 (Hetvi counted once).
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -220,9 +220,9 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 > All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
-## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers, 20/70)
+## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6, 70/70 TOTAL)
 
-> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Feedback triaged and implemented in this commit. Level 5 frozen at 50. Cumulative Level 6: 20/70.**
+> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Feedback triaged and implemented in `fa584da`. Level 5 frozen at 50. Cumulative Level 6: 20 NEW = 70/70 TOTAL with Level 5.**
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -251,6 +251,6 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 > All 3 verified by `npm run build`.
 ## Links
 
-* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20/70)
+* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20 NEW = 70/70 TOTAL with Level 5 — CLOSED)
 * **Live dApp:** https://midnighttrace.vercel.app
 * **Docs:** [README.md](./README.md) · [docs/USAGE.md](./docs/USAGE.md) · [PROPOSAL.md](./PROPOSAL.md)

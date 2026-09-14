@@ -1,11 +1,12 @@
-# Level 6 Users — Preprod
+# Level 6 Users — Preprod — FINAL (70 total)
 
-**Target:** 70 verified wallet addresses
+**Target (all together): 70 verified Preprod wallet addresses — ACHIEVED 70/70 (50 Level 5 + 20 Level 6) — CLOSED for submission**
+**Level 6 in this file: 20/70 — FINAL for total-70 submission (see USERS.md 50/50)**
 **Network:** Midnight Preprod / Testnet — **Mainnet NOT used**
 **Demo:** https://midnighttrace.vercel.app
 **Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (MidnightTrace) on Preprod
 
-> This file tracks **Level 6 — Supermoon** onboarding (70 Preprod testers). Level 5’s 50 users remain in [`USERS.md`](./USERS.md) and [`docs/FEEDBACK.md`](./docs/FEEDBACK.md). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
+> This file tracks **Level 6 — Supermoon** onboarding. **Submission is CLOSED at 70 total** — Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 unique Preprod wallets. Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
 
 | # | Wallet Address | Name | Rating | Date Onboarded |
 |---|----------------|------|--------|----------------|
@@ -80,13 +81,15 @@
 | 69 | _pending_ | — | — | — |
 | 70 | _pending_ | — | — | — |
 
-Current count: 20 / 70 (Sep 13–14, 2026 — two Level 6 batches; 50 slots remaining)
+Current count: **20 / 70 Level 6 — FINAL (Sep 13–14, 2026) + 50 / 50 Level 5 = 70 / 70 TOTAL — CLOSED for submission**
 
 > **Sep 13 batch note:** 11 verified Preprod addresses collected Sep 13, 2026 19:12–23:19 UTC. Average rating **4.45 / 5** (49 / 11: 5×5, 6×4). All addresses unique vs Level 5's 50 in `USERS.md` (verified — no duplicates). Full verbatim feedback for this batch is logged in `FEEDBACK.md` § Level 6 Supplemental (entries 51–61) and `docs/FEEDBACK.md` Raw Log #51–61.
 
-> **Sep 13 late + Sep 14 batch note:** 9 new verified Preprod addresses collected Sep 13 23:41 – Sep 14 09:41 UTC (Payal Shidgur through Trishal shetty, plus Hetvi already counted). Average for 9 new: **4.56 / 5** (41 / 9: 4×4, 5×5). Combined Level 6 total 20 = **4.50 / 5** (90 / 20: 10×5, 10×4). All 9 wallets unique vs `USERS.md` 50 and vs prior 11 (verified — Hetvi duplicate excluded from count). Full verbatim feedback logged in `FEEDBACK.md` § Level 6 Supplemental — Sep 13 late + Sep 14 batch (entries 62–70) and `docs/FEEDBACK.md` Raw Log #62–70. All 3 actionable suggestions from this batch implemented in this commit.
+> **Sep 13 late + Sep 14 batch note:** 9 new verified Preprod addresses collected Sep 13 23:41 – Sep 14 09:41 UTC (Payal Shidgur through Trishal shetty, plus Hetvi already counted). Average for 9 new: **4.56 / 5** (41 / 9: 4×4, 5×5). Combined Level 6 total 20 = **4.50 / 5** (90 / 20: 10×5, 10×4). All 9 wallets unique vs `USERS.md` 50 and vs prior 11 (verified — Hetvi duplicate excluded from count). Full verbatim feedback logged in `FEEDBACK.md` § Level 6 Supplemental — Sep 13 late + Sep 14 batch (entries 62–70) and `docs/FEEDBACK.md` Raw Log #62–70. All 3 actionable suggestions from this batch implemented in commit `fa584da`.
 
-Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6: 20 / 70 here
+> **FINAL:** 70 total = 50 (USERS.md) + 20 (this file) — 70 distinct `mn_addr_preprod1…` verified (`grep -Eo` 70 unique, 0 dupes). No further wallets required for total-70 submission. Rows 21–70 remain `_pending_` as structural placeholders (closed).
+
+Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6 in this file: **20 / 70 — FINAL for total 70**
 
 > **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
 >

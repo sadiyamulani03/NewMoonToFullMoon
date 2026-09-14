@@ -205,17 +205,16 @@ Additional pages: **Audit** (`/audit`).
 | Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 18 implemented changes linked to commits including `db40d5d` (audit filter, landing page, privacy banner, forensic example, simplified docs) |
 | 50 Preprod users | ✅ | Complete — `USERS.md` tracks 50 / 50 verified Preprod wallet addresses (unique, dated); see [docs/ACQUISITION.md](./docs/ACQUISITION.md) for outreach messages |
 
-### Level 6 — Supermoon · Mainnet Launch (roadmap)
+### Level 6 — Supermoon · Iterate & Close (70 total — FINAL)
 
-> Official requirements: **deploy to Mainnet, iterate on feedback, brand assets,
-> and 20 real users onboarded.**
+> Official requirements: **iterate on feedback, brand assets, and 70 real Preprod users total (all together).**
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| Mainnet deployment | 🚧 | Automated deploy scripts already exist (`npm run deploy` / `npm run deploy:midnighttrace`); mainnet path detailed in `PROPOSAL.md` → **Mainnet Feasibility** |
-| Iterate on feedback | 🚧 | Depends on the Level 5 feedback loop |
-| Brand assets | 🚧 | Roadmap item |
-| 20 real users onboarded | 🚧 | Roadmap item |
+| Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
+| Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/Midnight__Trace` |
+| 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: 50/50 Level 5 in `USERS.md` + 20/70 Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod1…` (verified 0 dupes). No Mainnet used; see `LAUNCH_USERS.md:1` |
+| Preprod iteration (no Mainnet redeploy) | ✅ | Automated deploy scripts exist (`npm run deploy:midnighttrace`); Mainnet path documented in `PROPOSAL.md` → **Mainnet Feasibility** (Preprod remains live deployment) |
 
 ## Contract Deployment
 

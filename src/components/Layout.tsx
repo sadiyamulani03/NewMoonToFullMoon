@@ -110,7 +110,7 @@ export default function Layout() {
       <footer className="footer">
         <p>Proofs are generated locally — your private step never reaches the chain or this screen.</p>
         <p style={{ marginTop: '8px', fontSize: '0.78rem', opacity: 0.9 }}>
-          <a href="https://midnighttrace.vercel.app" target="_blank" rel="noreferrer">Live</a>
+          <a href="https://midnighttrace-dr1q2df8w-sadiyamulani03s-projects.vercel.app" target="_blank" rel="noreferrer">Live</a>
           {' · '}
           <a href="/audit">Audit</a>
           {' · '}

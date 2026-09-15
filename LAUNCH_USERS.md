@@ -3,8 +3,8 @@
 **Target (all together): 70 verified Preprod wallet addresses — ACHIEVED 70/70 (50 Level 5 + 20 Level 6) — CLOSED for submission**
 **Level 6 in this file: 20 NEW — with Level 5 (50) = 70/70 TOTAL FINAL — CLOSED**
 **Network:** Midnight Preprod / Testnet — **Mainnet NOT used**
-**Demo:** https://midnighttrace.vercel.app
-**Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (MidnightTrace) on Preprod
+**Demo:** https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app
+**Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (MidnightTrace v1.1 — live) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (v1.0 legacy) on Preprod
 
 > This file tracks **Level 6 — Supermoon** onboarding. **Submission is CLOSED at 70 total** — Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 unique Preprod wallets. **Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets** (deduplicated by `mn_addr_preprod…` — 0 duplicates verified). Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
 
@@ -91,7 +91,7 @@ Current count: **70 / 70 TOTAL — FINAL — 50 / 50 Level 5 + 20 NEW Level 6 (S
 
 Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6 in this file: **20 NEW — 70/70 TOTAL with Level 5 — CLOSED**
 
-> **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
+> **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
 >
 > **Rules:** Never generate fake `mn_addr_preprod…`, never duplicate, never count the same wallet twice, never count Mainnet addresses. Level 5 users are separate; a Level 5 tester may re-test for Level 6 but must be counted once per launch set.
 

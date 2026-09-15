@@ -1047,6 +1047,15 @@ a:hover {
   max-width: 100%;
 }
 
+.header-wallet-stack {
+  width: 100%;
+  margin-top: 2px;
+  display: block;
+}
+.header-wallet-stack .header-wallet-pill {
+  width: 100%;
+  justify-content: flex-start;
+}
 .header-wallet-pill {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(244, 199, 112, 0.28);
@@ -2040,6 +2049,17 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 22px;
+}
+.marketing-wallet-bar {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 2.5vw, 28px) 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+.marketing-wallet-pill {
+  margin-top: 0;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22);
 }
 .marketing-menu-toggle {
   display: none;

@@ -43,13 +43,7 @@ export default function MarketingLayout() {
           </nav>
 
           <div className="marketing-header-actions">
-            {isConnected && walletInfo ? (
-              <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
-                <span className="wallet-addr">{truncateAddr(walletInfo.address)}</span>
-                <span className="network-badge">{walletInfo.networkId}</span>
-                <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>● Connected</span>
-              </span>
-            ) : (
+            {!isConnected && (
               <Link to="/dashboard" className="btn btn-primary marketing-cta">Launch App</Link>
             )}
             <button
@@ -65,6 +59,15 @@ export default function MarketingLayout() {
             </button>
           </div>
         </div>
+        {isConnected && walletInfo && (
+          <div className="marketing-wallet-bar" aria-label="Wallet connection status">
+            <span className="wallet-pill header-wallet-pill marketing-wallet-pill" title={walletInfo.address}>
+              <span className="wallet-addr">{truncateAddr(walletInfo.address)}</span>
+              <span className="network-badge">{walletInfo.networkId}</span>
+              <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>● Connected</span>
+            </span>
+          </div>
+        )}
       </header>
 
       <main className="container marketing-container">

@@ -25,21 +25,6 @@ export default function Layout() {
               </div>
             </div>
             <div className="header-actions">
-              {isConnected && walletInfo && (
-                <div className="header-wallet header-wallet-desktop" aria-label="Wallet connection status">
-                  <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
-                    <span className="wallet-addr" aria-label="Connected wallet address">
-                      {truncateAddr(walletInfo.address)}
-                    </span>
-                    <span className="network-badge" aria-label="Network">
-                      {walletInfo.networkId}
-                    </span>
-                    <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>
-                      ● Connected
-                    </span>
-                  </span>
-                </div>
-              )}
               <button
                 className="menu-toggle"
                 aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
@@ -54,11 +39,8 @@ export default function Layout() {
             </div>
           </div>
 
-          <p className="subtitle">
-            Private forensic ledger on Midnight. Prove that work happened — without revealing the evidence behind it.
-          </p>
           {isConnected && walletInfo && (
-            <div className="header-wallet header-wallet-mobile" aria-label="Wallet connection status">
+            <div className="header-wallet header-wallet-stack" aria-label="Wallet connection status">
               <span className="wallet-pill header-wallet-pill" title={walletInfo.address}>
                 <span className="wallet-addr" aria-label="Connected wallet address">
                   {truncateAddr(walletInfo.address)}
@@ -72,6 +54,10 @@ export default function Layout() {
               </span>
             </div>
           )}
+
+          <p className="subtitle">
+            Private forensic ledger on Midnight. Prove that work happened — without revealing the evidence behind it.
+          </p>
 
           <nav className={`nav${menuOpen ? ' nav-open' : ''}`} aria-label="Main navigation">
             <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>

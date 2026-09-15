@@ -30,7 +30,7 @@ export const PRIVATE_STATE_ID = 'midnighttraceCounterPrivateState';
  */
 export const MIDNIGHTTRACE_CONTRACT_ADDRESS =
   import.meta.env.VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS ??
-  'c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72';
+  'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501';
 
 /** Private state id used by the midnighttrace contract. */
 export const MIDNIGHTTRACE_PRIVATE_STATE_ID = 'midnighttracePrivateState';
@@ -41,4 +41,4 @@ export const MIDNIGHTTRACE_PRIVATE_STATE_ID = 'midnighttracePrivateState';
  */
 export const MIDNIGHTTRACE_OWNER_SECRET =
   import.meta.env.VITE_MIDNIGHTTRACE_OWNER_SECRET ??
-  '35863ae0140ed4ec22dd856bdbbcc3228c6153570fc24a6dd9ecdffe1a02c6c7';
+  '281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04';

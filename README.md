@@ -31,7 +31,8 @@
 | Network  | Contract address                                                  | Contract |
 |----------|-------------------------------------------------------------------|----------|
 | Preprod  | `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` | Counter (Levels 1–3) — Live demo |
-| Preprod  | `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` | MidnightTrace (Level 4) |
+| Preprod  | `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` | MidnightTrace v1.1 (Uint32 + metadataHash) — Live |
+| Preprod  | `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` | MidnightTrace v1.0 (legacy) |
 | Preview  | `e86050af934fed3ed7d6e8dfab05a7198d4d91521b68279ecaccd26e68d4ffb6` | Counter (Level 1) |
 
 > The Level 4 MidnightTrace address is added to this table **and** to

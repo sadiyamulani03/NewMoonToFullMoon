@@ -20,7 +20,7 @@
 ## Live Demo
 
 - **Live Link:** https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app
-- **Demo video :** https://drive.google.com/file/d/1bOeonY699oXLjS_eNTHpgxTeijhwt9vF/view?usp=sharing
+- **Demo video :** https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/view?usp=sharing
 
 > Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,
 > and the Express API (`/api/health`, `/api/cases`, `/api/stats`, …). Deployed

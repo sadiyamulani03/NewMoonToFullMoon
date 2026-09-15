@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 import { getStats, type Stats } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
+import { useDemo } from '../context/DemoContext';
 import WalletStatus from '../components/WalletStatus';
-import FirstTimeGuide from '../components/FirstTimeGuide';
 import Loading from '../components/Loading';
 
 export default function Dashboard() {
@@ -12,59 +12,81 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const { walletState, isConnected, isMobile, midLedger, membershipStatus, midContractAddress } =
     useMidnightContext();
+  const { isDemo, mockLedger, mockCases, enableDemo, disableDemo } = useDemo();
 
   useEffect(() => {
+    if (isDemo) return;
     getStats().then(setStats).catch((e: unknown) => setError(String(e)));
-  }, []);
+  }, [isDemo]);
+
+  const ledger = isDemo ? mockLedger : midLedger;
+  const displayStats: Stats | null = isDemo
+    ? {
+        totalCases: mockCases.length,
+        openCases: mockCases.filter((c) => c.status === 'open').length,
+        totalProofs: mockCases.reduce((a, c) => a + c.receipts.length, 0),
+        lastReceipt: null,
+      }
+    : stats;
 
   return (
     <>
-      {/* Wallet — always visible, explicit states */}
-      <section className="card wallet-section">
+      {/* Demo banner */}
+      <section className="card" style={{ borderStyle: 'dashed', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 16px' }}>
+        <span className="muted-text" style={{ fontSize: '0.88rem' }}>
+          <span className="info-label" style={{ background: isDemo ? 'rgba(139,224,175,0.15)' : 'rgba(244,199,112,0.12)', color: isDemo ? '#8be0af' : '#f4dba2' }}>
+            {isDemo ? 'Demo — not on-chain' : 'Live · Preprod'}
+          </span>
+          {isDemo ? 'Demo ledger in memory — logStep/disclose/close work with zero wallet.' : 'No wallet? Try demo — mock ledger, zero setup.'}
+        </span>
+        {isDemo ? (
+          <button className="btn btn-secondary" onClick={disableDemo} style={{ padding: '8px 14px' }}>
+            Exit demo — use real chain
+          </button>
+        ) : (
+          <button className="btn btn-primary" onClick={enableDemo} style={{ padding: '8px 14px' }}>
+            Try demo — no wallet
+          </button>
+        )}
+      </section>
+
+      {/* Wallet — always visible */}
+      <section className="card">
         <p className="section-head">
           <span className="section-no">01</span> Wallet
         </p>
-        <WalletStatus walletState={walletState} isMobile={isMobile} />
-        {isConnected && midLedger && (
-          <p className="ok-text" style={{ marginTop: '10px', fontSize: '0.9rem' }}>
-            Connected on <strong>Preprod</strong> · on-chain aggregate <code>{midLedger.aggregate.toString()}</code> ·
-            you&apos;re <strong>{membershipStatus === 'member' ? 'authorized' : 'not yet authorized'}</strong>
-            {membershipStatus !== 'member' && ' — ask an allowlisted member to grant access'}
+        {isDemo ? (
+          <p className="ok-text" style={{ fontSize: '0.9rem' }}>
+            Demo mode — wallet not required. Actions update the in-memory ledger instantly.
+            <button className="btn btn-ghost" style={{ marginLeft: 8, padding: '4px 8px', fontSize: '0.8rem' }} onClick={disableDemo}>Exit demo</button>
           </p>
-        )}
-        {isConnected && !midLedger && (
-          <p className="muted-text" style={{ marginTop: '8px' }}>
-            Reading on-chain ledger… proofs and cases will appear once synced. No wallet? Use{' '}
-            <Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link> to verify without connecting.
-          </p>
-        )}
-        {!isConnected && (
-          <p className="muted-text" style={{ marginTop: '8px' }}>
-            Not connected — connect Lace or 1AM on Preprod to run proofs, or{' '}
-            <Link to="/audit" style={{ fontWeight: 700 }}>open the Audit window</Link> to verify publicly with no wallet.
-          </p>
+        ) : (
+          <>
+            <WalletStatus walletState={walletState} isMobile={isMobile} />
+            {isConnected && ledger && (
+              <p className="ok-text" style={{ marginTop: '10px', fontSize: '0.9rem' }}>
+                Connected on <strong>Preprod</strong> · on-chain aggregate <code>{ledger.aggregate.toString()}</code> ·
+                you&apos;re <strong>{membershipStatus === 'member' ? 'authorized' : 'not yet authorized'}</strong>
+                {membershipStatus !== 'member' && ' — ask an allowlisted member to grant access'}
+              </p>
+            )}
+            {isConnected && !ledger && (
+              <p className="muted-text" style={{ marginTop: '8px' }}>
+                Reading on-chain ledger… proofs and cases will appear once synced. No wallet? Use{' '}
+                <Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link> to verify without connecting.
+              </p>
+            )}
+            {!isConnected && (
+              <p className="muted-text" style={{ marginTop: '8px' }}>
+                Not connected — connect Lace or 1AM on Preprod to run proofs, or{' '}
+                <Link to="/audit" style={{ fontWeight: 700 }}>open the Audit window</Link> to verify publicly with no wallet.
+              </p>
+            )}
+          </>
         )}
       </section>
 
-      {/* Privacy at a glance — dashed, distinct */}
-      <section className="card" style={{ borderStyle: 'dashed', borderColor: 'rgba(244,199,112,0.42)' }}>
-        <p className="section-head">
-          <span className="section-no">00</span> Privacy at a glance
-        </p>
-        <p className="muted-text">
-          Your hidden <code>amount</code> never leaves your wallet — the proof shows{' '}
-          <code>total&apos; = total + amount</code> while <code>amount</code> stays private on your device. Only totals
-          you choose to disclose become public.{' '}
-          <Link to="/about#glossary" style={{ fontWeight: 700 }} title="Glossary: Zero-knowledge proof, Aggregate, Disclose">
-            Glossary →
-          </Link>
-        </p>
-        <p className="privacy-note">
-          New here? Start on the Home landing page or open the Audit window — no wallet needed to verify.
-        </p>
-      </section>
-
-      {/* Hero — primary action dominant */}
+      {/* Hero */}
       <section className="dashboard-shell">
         <div className="dashboard-hero">
           <div className="hero-copy">
@@ -96,15 +118,15 @@ export default function Dashboard() {
 
           <div className="hero-panel">
             <div className="panel-topline">
-              <span className="status-pill status-live">Live</span>
-              <span className="panel-chip">Preprod</span>
+              <span className="status-pill status-live">{isDemo ? 'Demo' : 'Live'}</span>
+              <span className="panel-chip">{isDemo ? 'In-memory' : 'Preprod'}</span>
             </div>
 
             <div className="mini-grid">
               <div className="mini-stat">
                 <span className="info-label">Aggregate</span>
-                {midLedger ? (
-                  <strong>{midLedger.aggregate.toString()}</strong>
+                {ledger ? (
+                  <strong>{ledger.aggregate.toString()}</strong>
                 ) : (
                   <>
                     <div className="skeleton skeleton-text" aria-hidden="true" />
@@ -116,8 +138,8 @@ export default function Dashboard() {
               </div>
               <div className="mini-stat">
                 <span className="info-label">Members</span>
-                {midLedger ? (
-                  <strong>{midLedger.memberCount.toString()}</strong>
+                {ledger ? (
+                  <strong>{ledger.memberCount.toString()}</strong>
                 ) : (
                   <>
                     <div className="skeleton skeleton-text" style={{ width: 46 }} aria-hidden="true" />
@@ -145,28 +167,26 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <FirstTimeGuide />
-
-      {/* Real stats — no fake percentages, no fabricated activity */}
+      {/* ONE stats-grid */}
       <section className="card">
         <p className="section-head">
           <span className="section-no">02</span> Overview — real counts
         </p>
         {error && <p className="error-text">{error}</p>}
-        {!stats && !error && <Loading label="Loading case stats…" />}
-        {stats && (
+        {!displayStats && !error && !isDemo && <Loading label="Loading case stats…" />}
+        {displayStats && (
           <div className="stats-grid">
             <div className="stat-box">
               <span className="info-label">Cases</span>
-              <strong className="stat-value">{stats.totalCases}</strong>
-              <span className="muted-text">{stats.openCases} open · {stats.totalCases - stats.openCases} closed</span>
+              <strong className="stat-value">{displayStats.totalCases}</strong>
+              <span className="muted-text">{displayStats.openCases} open · {displayStats.totalCases - displayStats.openCases} closed</span>
             </div>
             <div className="stat-box">
               <span className="info-label">On-chain cases</span>
-              {midLedger ? (
+              {ledger ? (
                 <>
-                  <strong className="stat-value">{midLedger.cases.length}</strong>
-                  <span className="muted-text">in the MidnightTrace ledger</span>
+                  <strong className="stat-value">{ledger.cases.length}</strong>
+                  <span className="muted-text">in the {isDemo ? 'demo' : 'MidnightTrace'} ledger</span>
                 </>
               ) : (
                 <>
@@ -182,14 +202,14 @@ export default function Dashboard() {
                   ⓘ
                 </Link>
               </span>
-              <strong className="stat-value">{stats.totalProofs}</strong>
-              <span className="muted-text">on-chain receipts</span>
+              <strong className="stat-value">{displayStats.totalProofs}</strong>
+              <span className="muted-text">{isDemo ? 'demo receipts' : 'on-chain receipts'}</span>
             </div>
             <div className="stat-box">
               <span className="info-label">Allowlist</span>
-              {midLedger ? (
+              {ledger ? (
                 <>
-                  <strong className="stat-value">{midLedger.memberCount.toString()}</strong>
+                  <strong className="stat-value">{ledger.memberCount.toString()}</strong>
                   <span className="muted-text">members (commitments on-chain)</span>
                 </>
               ) : (
@@ -201,34 +221,13 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-        {!midContractAddress && (
+        {!isDemo && !midContractAddress && (
           <p className="muted-text">
             MidnightTrace contract not configured — set <code>VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS</code> to see on-chain
             case stats.
           </p>
         )}
       </section>
-
-      {/* Next steps — clear, grouped */}
-      {stats && stats.totalCases === 0 && (
-        <section className="card" style={{ background: 'linear-gradient(180deg, rgba(244,199,112,0.08), rgba(15,22,34,0.9))' }}>
-          <p className="section-head">
-            <span className="section-no">03</span> What to do next
-          </p>
-          <p className="muted-text">No cases yet — open the first one. Each case starts on-chain with a number; receipts accumulate as you log hidden steps.</p>
-          <p className="muted-text" style={{ fontSize: '0.82rem', opacity: 0.85 }}>
-            Demo note: case titles live in the demo API and reset on redeploy — your on-chain proofs and totals are permanent and always verifiable in <Link to="/audit">Audit</Link>.
-          </p>
-          <div className="quick-links" style={{ marginTop: '14px' }}>
-            <Link className="btn btn-primary" to="/new">
-              Create the first case
-            </Link>
-            <Link className="btn btn-secondary" to="/audit">
-              See how auditing works
-            </Link>
-          </div>
-        </section>
-      )}
 
       <div className="quick-links">
         <Link className="btn btn-primary" to="/new">

@@ -57,9 +57,42 @@ body::after {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr);
   position: relative;
   background: linear-gradient(180deg, rgba(8, 13, 22, 0.95), rgba(9, 16, 26, 0.98));
+}
+.app-shell-collapsed {
+  grid-template-columns: 64px minmax(0, 1fr);
+}
+.app-shell-collapsed .header-content {
+  max-width: 64px;
+  padding: 16px 8px 16px;
+  align-items: center;
+}
+.app-shell-collapsed .header .subtitle,
+.app-shell-collapsed .header-wallet .network-badge,
+.app-shell-collapsed .header-wallet .status-pill {
+  display: none;
+}
+.app-shell-collapsed .nav-link {
+  justify-content: center;
+  padding: 10px 8px;
+}
+.app-shell-collapsed .nav-collapsed {
+  gap: 6px;
+}
+@media (max-width: 760px) {
+  .app-shell-collapsed {
+    grid-template-columns: 1fr;
+  }
+  .app-shell-collapsed .header-content {
+    max-width: 100%;
+    padding: 16px;
+    align-items: stretch;
+  }
+  .collapse-toggle {
+    display: none;
+  }
 }
 
 .header {
@@ -84,9 +117,9 @@ body::after {
 
 .header-content {
   width: 100%;
-  max-width: 280px;
+  max-width: 220px;
   margin: 0;
-  padding: 26px 20px 24px;
+  padding: 22px 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -176,13 +209,12 @@ body::after {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(15, 22, 34, 0.9), rgba(12, 18, 28, 0.8));
+  background: rgba(15, 22, 34, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
-  box-shadow: 0 18px 40px rgba(2, 6, 13, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  padding: 26px 28px 28px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(2, 6, 13, 0.2);
+  padding: 20px 20px 22px;
   position: relative;
-  backdrop-filter: blur(2px);
 }
 
 .dashboard-shell {
@@ -194,14 +226,14 @@ body::after {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
   gap: 20px;
-  min-height: 360px;
-  padding: 32px;
-  border-radius: 30px;
+  min-height: 320px;
+  padding: 24px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
-    radial-gradient(circle at top right, rgba(244, 199, 112, 0.2), transparent 28%),
+    radial-gradient(circle at top right, rgba(244, 199, 112, 0.15), transparent 28%),
     linear-gradient(135deg, rgba(11, 17, 27, 0.98), rgba(21, 32, 49, 0.96) 50%, rgba(35, 46, 64, 0.96));
-  box-shadow: 0 22px 52px rgba(2, 6, 13, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 16px rgba(2, 6, 13, 0.2);
   overflow: hidden;
 }
 
@@ -272,8 +304,8 @@ body::after {
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
-  padding: 18px 18px 16px;
+  border-radius: 10px;
+  padding: 16px 16px 14px;
   backdrop-filter: blur(6px);
 }
 
@@ -320,8 +352,8 @@ body::after {
 
 .mini-stat {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 12px 12px 10px;
+  border-radius: 10px;
+  padding: 10px 10px 8px;
   background: rgba(17, 23, 33, 0.28);
 }
 
@@ -383,14 +415,8 @@ body::after {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 12px;
-  right: 12px;
-  border-top: 3px double rgba(201, 138, 45, 0.55);
-}
+/* card::before double-border removed for cleaner single 1px card */
+.card::before { display: none; }
 
 .section-head {
   margin: 0 0 14px;
@@ -647,11 +673,10 @@ address,
 }
 
 .feature-card {
-  border: 1px solid rgba(180, 191, 211, 0.2);
-  border-radius: 18px;
-  padding: 16px 16px 14px;
-  background: linear-gradient(180deg, rgba(17, 24, 35, 0.9), rgba(12, 18, 28, 0.9));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(180, 191, 211, 0.15);
+  border-radius: 10px;
+  padding: 14px 14px 12px;
+  background: rgba(17, 24, 35, 0.9);
 }
 
 .feature-card h3 {
@@ -691,9 +716,9 @@ address,
 
 .glossary-item {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 14px 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .glossary-item dt {
@@ -1310,14 +1335,13 @@ a:hover {
 
 .stat-box {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
-  padding: 18px 18px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px 16px 14px;
   display: flex;
   flex-direction: column;
   gap: 5px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  min-height: 150px;
+  min-height: 130px;
   justify-content: space-between;
 }
 
@@ -1730,14 +1754,14 @@ a:hover {
 .landing-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
-  gap: 24px;
-  padding: 32px;
-  border-radius: 30px;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
     radial-gradient(circle at top right, rgba(244, 199, 112, 0.14), transparent 30%),
     linear-gradient(135deg, rgba(11, 17, 27, 0.98), rgba(21, 32, 49, 0.96) 55%, rgba(35, 46, 64, 0.96));
-  box-shadow: 0 22px 52px rgba(2, 6, 13, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 16px rgba(2, 6, 13, 0.2);
   overflow: hidden;
 }
 .landing-hero-copy h1 {
@@ -1774,12 +1798,12 @@ a:hover {
 .shield-card {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
-  padding: 20px 18px 16px;
+  border-radius: 12px;
+  padding: 18px 16px 14px;
   backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .shield-icon {
   width: 64px;
@@ -1872,8 +1896,8 @@ a:hover {
 }
 .step {
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 16px 14px;
+  border-radius: 10px;
+  padding: 14px 12px;
   background: rgba(255,255,255,0.02);
   display: flex;
   flex-direction: column;
@@ -1972,13 +1996,13 @@ a:hover {
   }
 }
 
-/* Cards — slightly tighter radius on product polish: keep 22-24 where heavy, but unified shadow */
+/* Cards — lighter radius 12px de-congested */
 .card {
-  border-radius: 22px;
+  border-radius: 12px;
 }
 @media (max-width: 760px) {
   .card {
-    border-radius: 18px;
+    border-radius: 10px;
   }
 }
 

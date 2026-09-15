@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { addReceipt, exportCaseReceipts, getCase, setCaseStatus, type ForensicCase } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
+import { useDemo } from '../context/DemoContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
 import WalletStatus from '../components/WalletStatus';
 import TxProgress from '../components/TxProgress';
@@ -21,7 +22,7 @@ function fmtTime(iso: string): string {
 }
 
 function fmtBlock(id: string, blockHeight: number): string {
-  return `block ${blockHeight} · preprod · ${id}`;
+  return `block ${blockHeight} · ${id.slice(0, 8)}…`;
 }
 
 export default function CaseDetail() {
@@ -32,7 +33,7 @@ export default function CaseDetail() {
   const [caseIndex, setCaseIndex] = useState('');
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
-  const [txStage, setTxStage] = useState<'proof' | 'submit'>('proof');
+  const [txStage] = useState<'proof' | 'submit'>('proof');
   const [runMessage, setRunMessage] = useState<string | null>(null);
   const [memberSecretInput, setMemberSecretInput] = useState('');
   const [memberMessage, setMemberMessage] = useState<string | null>(null);
@@ -54,18 +55,33 @@ export default function CaseDetail() {
     callCloseCase,
   } = useMidnightContext();
 
+  const { isDemo, mockCases, mockLedger, demoLogStep, demoDisclose, demoClose, demoOpenCase, getDemoCase } = useDemo();
+
+  const ledger = isDemo ? mockLedger : midLedger;
+
   const reload = useCallback(() => {
+    if (isDemo) {
+      const found = getDemoCase(id) ?? mockCases.find((c) => c.id === id) ?? null;
+      if (found) setCaseItem(found);
+      else setError('Demo case not found');
+      return;
+    }
     getCase(id).then(setCaseItem).catch((e: unknown) => setError(String(e)));
-  }, [id]);
+  }, [id, isDemo, getDemoCase, mockCases]);
 
   useEffect(() => {
     reload();
   }, [reload]);
 
-  // Suggested on-chain case index: prefer this file's receipt, else next free id (max+1), else 0.
+  // Keep caseItem in sync with demo updates
+  useEffect(() => {
+    if (!isDemo) return;
+    const found = mockCases.find((c) => c.id === id);
+    if (found) setCaseItem(found);
+  }, [mockCases, id, isDemo]);
+
   useEffect(() => {
     if (onChainIndex !== null) return;
-    // If this off-chain case already has a receipt, follow that on-chain slot.
     if (caseItem && caseItem.receipts.length > 0) {
       const first = caseItem.receipts[0].caseIndex;
       if (first !== undefined && first !== null) {
@@ -75,22 +91,20 @@ export default function CaseDetail() {
         return;
       }
     }
-    if (midLedger) {
-      if (midLedger.cases.length === 0) {
+    if (ledger) {
+      if (ledger.cases.length === 0) {
         setOnChainIndex(0n);
         setCaseIndex('0');
         return;
       }
-      const max = midLedger.cases.reduce((m, c) => (c.caseId > m ? c.caseId : m), 0n);
-      // If no receipt, suggest the next free slot; if ledger exists, default to max (shows existing) but hint next.
-      // For a fresh off-chain file, nextId = max+1 is the product-friendly default.
+      const max = ledger.cases.reduce((m, c) => (c.caseId > m ? c.caseId : m), 0n);
       const hasReceipt = !!(caseItem && caseItem.receipts.length > 0);
-      const suggested = hasReceipt ? midLedger.cases[0].caseId : max + 1n;
+      const suggested = hasReceipt ? ledger.cases[0].caseId : max + 1n;
       const clamped = suggested > 65535n ? max : suggested;
       setOnChainIndex(clamped);
       setCaseIndex(clamped.toString());
     }
-  }, [midLedger, onChainIndex, caseItem]);
+  }, [ledger, onChainIndex, caseItem]);
 
   const resolveCaseId = useCallback((): bigint => {
     const parsed = BigInt(caseIndex || '0');
@@ -104,6 +118,7 @@ export default function CaseDetail() {
       stepType: 'logStep' | 'discloseFinding' | 'closeCase',
       recordedTotal?: bigint | null,
     ) => {
+      if (isDemo) return; // demo already updated via context
       await addReceipt(id, {
         txId: done.txId,
         blockHeight: done.blockHeight,
@@ -116,12 +131,30 @@ export default function CaseDetail() {
       }
       reload();
     },
-    [id, reload, resolveCaseId],
+    [id, reload, resolveCaseId, isDemo],
   );
 
   const runActive = async () => {
+    if (isDemo && caseItem) {
+      const cid = resolveCaseId();
+      if (action === 'logStep') {
+        const parsed = BigInt(amount || '0');
+        if (parsed < 0n) { setRunMessage('Amount cannot be negative'); return; }
+        demoLogStep(cid, parsed, caseItem.id);
+        setRunMessage('Demo: hidden step logged locally (not on-chain).');
+      } else if (action === 'discloseFinding') {
+        const parsed = BigInt(amount || '0');
+        demoDisclose(cid, parsed, caseItem.id);
+        setRunMessage('Demo: disclosed total updated in-memory.');
+      } else {
+        demoClose(cid, caseItem.id);
+        setRunMessage('Demo: case sealed in-memory.');
+      }
+      setAmount('');
+      return;
+    }
     if (!isConnected) {
-      setRunMessage('Connect the wallet first.');
+      setRunMessage('Connect the wallet first — or enable Demo mode.');
       return;
     }
     if (membershipStatus !== 'member') {
@@ -129,7 +162,6 @@ export default function CaseDetail() {
       return;
     }
     setBusy(true);
-    setTxStage('proof');
     setRunMessage(null);
     try {
       const caseId = resolveCaseId();
@@ -160,8 +192,21 @@ export default function CaseDetail() {
   };
 
   const openCaseOnChain = async () => {
+    if (isDemo && caseItem) {
+      const cid = resolveCaseId();
+      // demo already has case; just add a fresh open receipt if needed
+      demoLogStep(cid, 0n, caseItem.id);
+      setRunMessage(`Demo: case #${cid.toString()} marked open in-memory.`);
+      return;
+    }
+    if (isDemo) {
+      const cid = resolveCaseId();
+      const newId = demoOpenCase(cid, caseItem?.title ?? `Case #${cid.toString()}`, caseItem?.description ?? '');
+      setRunMessage(`Demo: new case #${cid.toString()} created as ${newId}.`);
+      return;
+    }
     if (!isConnected) {
-      setRunMessage('Connect the wallet first.');
+      setRunMessage('Connect the wallet first — or enable Demo.');
       return;
     }
     if (membershipStatus !== 'member') {
@@ -169,11 +214,9 @@ export default function CaseDetail() {
       return;
     }
     setBusy(true);
-    setTxStage('proof');
     setRunMessage(null);
     try {
       const caseId = resolveCaseId();
-      // Metadata hash anchors off-chain title+description on-chain for tamper-evident audit
       const meta = `${caseItem?.title ?? ''}|${caseItem?.description ?? ''}|${caseId.toString()}`;
       const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(meta));
       const metadataHash = new Uint8Array(hashBuf);
@@ -188,6 +231,7 @@ export default function CaseDetail() {
   };
 
   const grantNewMember = async () => {
+    if (isDemo) { setMemberMessage('Demo: membership is mocked — grant is simulated as already authorized.'); return; }
     if (!isConnected) {
       setMemberMessage('Connect the wallet first.');
       return;
@@ -199,7 +243,7 @@ export default function CaseDetail() {
     setMemberMessage(null);
     const secretHex = memberSecretInput.trim().replace(/^0x/i, '');
     if (!/^[0-9a-fA-F]{64}$/.test(secretHex)) {
-      setMemberMessage('Member secret must be exactly 64 hex characters (32 bytes). Generate one with your tooling.');
+      setMemberMessage('Member secret must be exactly 64 hex characters (32 bytes).');
       return;
     }
     try {
@@ -207,7 +251,7 @@ export default function CaseDetail() {
       for (let i = 0; i < 32; i++) secret[i] = parseInt(secretHex.slice(i * 2, i * 2 + 2), 16);
       const r = await callGrantAccess(secret);
       setMemberMessage(
-        `Access granted. Commit the newcomer's secret (${toHex(commitmentForSecret(secret)).slice(0, 16)}… → shown in the panel below) so they can prove membership from their wallet. tx ${r.txId.slice(0, 12)}…`,
+        `Access granted. Commit ${toHex(commitmentForSecret(secret)).slice(0, 16)}… tx ${r.txId.slice(0, 12)}…`,
       );
       setMemberSecretInput('');
     } catch (e: unknown) {
@@ -216,9 +260,10 @@ export default function CaseDetail() {
   };
 
   const provideOwnerSecret = () => {
+    if (isDemo) { setMemberMessage('Demo: member secret is mocked — already authorized.'); return; }
     try {
       applyOwnerSecret(memberSecretInput.trim());
-      setMemberMessage('Owner secret applied — membership proof will use it. Keep it secret, keep it safe.');
+      setMemberMessage('Owner secret applied — membership proof will use it.');
       setMemberSecretInput('');
     } catch (e: unknown) {
       setMemberMessage((e as Error).message);
@@ -236,8 +281,8 @@ export default function CaseDetail() {
     URL.revokeObjectURL(url);
   };
 
-  const onChainCase = onChainIndex !== null && midLedger
-    ? midLedger.cases.find((c) => c.caseId === onChainIndex) ?? null
+  const onChainCase = onChainIndex !== null && ledger
+    ? ledger.cases.find((c) => c.caseId === onChainIndex) ?? null
     : null;
 
   return (
@@ -246,32 +291,47 @@ export default function CaseDetail() {
         <Link to="/cases">Cases</Link>
         <span> / </span>
         <span className="info-label">{caseItem?.title ?? 'case'}</span>
+        {isDemo && <span className="info-label" style={{ background: 'rgba(139,224,175,0.15)', color: '#8be0af' }}>Demo — not on-chain</span>}
       </div>
 
-      {!isConnected && (
-        <section className="card">
-          <p className="section-head">
-            <span className="section-no">01</span> Wallet
-          </p>
-          <WalletStatus walletState={walletState} isMobile={isMobile} />
-        </section>
-      )}
-
+      {/* CARD 1: Case overview + wallet + membership (merged) */}
       <section className="card">
         <p className="section-head">
-          <span className="section-no">02</span> Case file
+          <span className="section-no">01</span> Case file — overview
         </p>
+        {isDemo ? (
+          <p className="muted-text" style={{ marginBottom: 8 }}><span className="info-label" style={{ background: 'rgba(139,224,175,0.15)', color: '#8be0af' }}>Demo — not on-chain</span> All edits here are in-memory — refresh resets.</p>
+        ) : !isConnected && (
+          <div style={{ marginBottom: 12 }}>
+            <WalletStatus walletState={walletState} isMobile={isMobile} />
+          </div>
+        )}
+
         {error && <p className="error-text">{error}</p>}
         {!caseItem && !error && <Loading label="Loading case…" />}
         {caseItem && (
           <>
-            <strong className="case-title">{caseItem.title}</strong>
-            <span className="status-tag">{caseItem.status}</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <strong className="case-title" style={{ fontSize: '1.2rem' }}>{caseItem.title}</strong>
+              <span className={`status-tag ${caseItem.status === 'closed' ? 'status-closed' : ''}`}>{caseItem.status}</span>
+              <span className="muted-text" style={{ fontSize: '0.82rem' }}>{caseItem.receipts.length} proof{caseItem.receipts.length === 1 ? '' : 's'} · opened {fmtTime(caseItem.createdAt)}</span>
+            </div>
             <p className="muted-text">{caseItem.description}</p>
-            <p>
+            <p style={{ marginTop: 8 }}>
               <span className="info-label">Owner</span> <code className="address">{caseItem.owner}</code>
+              <span className="info-label" style={{ marginLeft: 8 }}>Allowlist</span>{' '}
+              <span className={`status-tag ${membershipStatus === 'member' || isDemo ? '' : 'status-closed'}`}>
+                {isDemo ? 'demo — authorized' : membershipStatus === 'member' ? 'member' : membershipStatus === 'not-member' ? 'not authorized' : 'unknown'}
+              </span>
+              {!isDemo && (
+                <>
+                  <span className="info-label" style={{ marginLeft: 8 }}>Commitment</span>{' '}
+                  <code className="tx-id" style={{ fontSize: '0.78rem' }}>{memberCommitmentHex ?? 'connect wallet'}</code>
+                </>
+              )}
             </p>
-            <div className="ledger-row">
+
+            <div className="ledger-row" style={{ marginTop: 12 }}>
               <span className="info-label">On-chain total</span>
               <code className="value">{onChainCase ? onChainCase.total.toString() : '—'}</code>
               <span className="info-label">Last disclosed</span>
@@ -280,34 +340,51 @@ export default function CaseDetail() {
               <code className="value">{onChainCase ? onChainCase.eventCount.toString() : '—'}</code>
               <span className="info-label">Phase</span>
               <code className="value">{onChainCase ? onChainCase.phase : '—'}</code>
-              {onChainCase?.metadataHash && (
-                <>
-                  <span className="info-label" title="SHA-256 of title+description anchored at openCase — tamper-evident">Metadata hash</span>
-                  <code className="value" title={Array.from(onChainCase.metadataHash).map(b=>b.toString(16).padStart(2,'0')).join('')}>{Array.from(onChainCase.metadataHash).slice(0,4).map(b=>b.toString(16).padStart(2,'0')).join('')}…</code>
-                </>
-              )}
             </div>
             {(!onChainIndex || !onChainCase) && (
-              <p className="muted-text">
+              <p className="muted-text" style={{ marginTop: 8 }}>
                 This case file is not on-chain yet. Pick a case index and open it below.
               </p>
             )}
+
+            {/* Inline membership actions — merged into overview card to save a card */}
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
+              <label className="form-label" htmlFor="member-secret">Member secret (32-byte hex) — grant or claim access</label>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <input
+                  id="member-secret"
+                  className="form-input"
+                  style={{ flex: '1 1 220px' }}
+                  value={memberSecretInput}
+                  onChange={(e) => setMemberSecretInput(e.target.value)}
+                  placeholder="64 hex chars"
+                />
+                <button className="btn btn-secondary" onClick={() => void grantNewMember()} disabled={!isDemo && isConnected && membershipStatus !== 'member'} style={{ padding: '9px 14px' }}>
+                  Grant access
+                </button>
+                <button className="btn btn-ghost" onClick={provideOwnerSecret} disabled={!memberSecretInput.trim()} style={{ padding: '9px 12px' }}>
+                  Use as my secret
+                </button>
+              </div>
+              {memberMessage && <p className="muted-text" style={{ marginTop: 8 }}>{memberMessage}</p>}
+            </div>
           </>
         )}
       </section>
 
+      {/* CARD 2: Investigate (on-chain actions) */}
       <section className="card">
         <p className="section-head">
-          <span className="section-no">03</span> Investigate (on-chain)
+          <span className="section-no">02</span> Investigate — run the circuit
         </p>
-        <p className="muted-text">
-          Every action creates a <span title="A cryptographic proof that total' = total + hidden amount, without revealing the amount">zero-knowledge proof</span> checked by the contract. Your{' '}
-          <span title="The private amount — never stored on-chain, never shown on screen">hidden amount</span> stays on your device; only totals you choose to disclose become public.{' '}
+        <p className="muted-text" style={{ marginBottom: 10 }}>
+          Every action creates a <span title="A cryptographic proof that total' = total + hidden amount, without revealing the amount">zero-knowledge proof</span>. Your{' '}
+          <span title="The private amount — never stored on-chain, never shown on screen">hidden amount</span> stays on your device; only disclosed totals become public.{' '}
           <Link to="/about#glossary" style={{ fontWeight: 700 }}>Glossary →</Link>
         </p>
 
-        <label className="form-label" htmlFor="case-index" title="The numeric ID of the case file on the Midnight ledger">
-          On-chain case index <span style={{ textTransform: 'none', letterSpacing: 0, fontFamily: 'var(--font-body)', opacity: 0.7 }}>(auto-assigned · next free slot)</span>
+        <label className="form-label" htmlFor="case-index">
+          On-chain case index
           {!indexEdit && caseIndex && (
             <button type="button" className="btn btn-ghost" style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.7rem' }} onClick={() => setIndexEdit(true)}>
               Edit
@@ -328,22 +405,15 @@ export default function CaseDetail() {
           placeholder="0"
           readOnly={!indexEdit}
           title={indexEdit ? 'Editable — must be 0-65535 and free on-chain' : 'Auto-assigned — click Edit to override'}
-          style={!indexEdit ? { opacity: 0.92, cursor: 'default' } : undefined}
+          style={!indexEdit ? { opacity: 0.92 } : undefined}
         />
-        {!indexEdit && midLedger && (
+        {!indexEdit && ledger && (
           <p className="muted-text" style={{ fontSize: '0.82rem', marginTop: 6 }}>
-            Suggested #{caseIndex} — next free ID{midLedger.cases.length > 0 ? ` (max on-chain is #${midLedger.cases.reduce((m,c)=>c.caseId>m?c.caseId:m,0n).toString()})` : ''}. Click Edit to use a different slot if needed.
+            Suggested #{caseIndex} — next free ID{ledger.cases.length > 0 ? ` (max on-chain is #${ledger.cases.reduce((m,c)=>c.caseId>m?c.caseId:m,0n).toString()})` : ''}.
           </p>
         )}
 
-        {onChainCase && (
-          <p>
-            <span className="info-label">This case</span>{' '}
-            <code>total {onChainCase.total.toString()} · disclosed {onChainCase.lastDisclosed.toString()} · {onChainCase.phase}</code>
-          </p>
-        )}
-
-        <select className="form-input" value={action} onChange={(e) => setAction(e.target.value as Action)}>
+        <select className="form-input" value={action} onChange={(e) => setAction(e.target.value as Action)} style={{ marginTop: 12 }}>
           <option value="logStep">Log a hidden step (add untracked movement)</option>
           <option value="discloseFinding">Disclose a finding (publish running total)</option>
           <option value="closeCase">Seal the case (make totals permanent)</option>
@@ -351,7 +421,7 @@ export default function CaseDetail() {
 
         {action !== 'closeCase' && (
           <>
-            <label className="form-label" htmlFor="step-amount" title={action === 'logStep' ? 'Private witness — proved in ZK, never stored on-chain' : 'Only this disclosed total becomes public'}>
+            <label className="form-label" htmlFor="step-amount">
               {action === 'logStep' ? 'Step amount — private, stays on your device' : 'Running total to publish — becomes public'}
             </label>
             <input
@@ -365,38 +435,36 @@ export default function CaseDetail() {
           </>
         )}
 
-        {!onChainCase && (
+        {!onChainCase ? (
           <button className="btn btn-secondary btn-block" onClick={() => void openCaseOnChain()} disabled={busy}>
-            Open case # on-chain first
+            Open case # on-chain first{isDemo ? ' (demo)' : ''}
           </button>
-        )}
-        {onChainCase && (
+        ) : (
           <button
             className="btn btn-primary btn-block"
             onClick={() => void runActive()}
-            disabled={busy || action === 'closeCase' ? busy : busy || !amount}
+            disabled={busy || (action !== 'closeCase' && !amount && !isDemo)}
           >
             {busy
               ? 'Working the zero-knowledge proof…'
               : action === 'logStep'
-                ? 'Log hidden step'
+                ? isDemo ? 'Log hidden step (demo)' : 'Log hidden step'
                 : action === 'discloseFinding'
-                  ? 'Disclose finding'
-                  : 'Seal case'}
+                  ? isDemo ? 'Disclose finding (demo)' : 'Disclose finding'
+                  : isDemo ? 'Seal case (demo)' : 'Seal case'}
           </button>
         )}
         {busy && <TxProgress stage={txStage} />}
-        {runMessage && <p className={runMessage.startsWith('Transaction') || runMessage.startsWith('Case') ? 'ok-text' : 'error-text'}>{runMessage}</p>}
+        {runMessage && <p className={runMessage.includes('Demo') || runMessage.startsWith('Transaction') || runMessage.startsWith('Case') ? 'ok-text' : 'error-text'} style={{ marginTop: 10 }}>{runMessage}</p>}
       </section>
 
+      {/* CARD 3: Chain of custody */}
       <section className="card">
         <p className="section-head">
-          <span className="section-no">04</span> Chain of custody
+          <span className="section-no">03</span> Chain of custody
         </p>
-        <p className="muted-text">
-          Receipts are filed in order of finalization, so the timeline is independently verifiable: every proof
-          references the block where the contract accepted it, and the disclosed column shows exactly when a running
-          total was made public.
+        <p className="muted-text" style={{ marginBottom: 10 }}>
+          Receipts in finalization order — block + txId + step type. {isDemo && <em>Demo receipts are in-memory.</em>}
         </p>
         {!caseItem && <Loading label="Loading…" />}
         {caseItem && caseItem.receipts.length === 0 && (
@@ -420,8 +488,8 @@ export default function CaseDetail() {
                             : 'Step logged'}
                       </strong>
                       <span className="info-label"> · {fmtTime(r.createdAt)}</span>
-                      <p>
-                        <span className="info-label">txId</span> <code className="tx-id">{r.txId}</code>
+                      <p style={{ margin: '6px 0 0', display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <span className="info-label">txId</span> <code className="tx-id">{r.txId.slice(0, 18)}…</code>
                         <span className="info-label">at</span> <code>{fmtBlock(r.txId, r.blockHeight)}</code>
                         <span className="info-label">case</span> <code>#{r.caseIndex ?? 0}</code>
                         {r.stepType === 'discloseFinding' && (
@@ -437,51 +505,10 @@ export default function CaseDetail() {
           </ul>
         )}
         {caseItem && (
-          <button className="btn btn-secondary" onClick={downloadExport} disabled={caseItem.receipts.length === 0}>
+          <button className="btn btn-secondary" onClick={downloadExport} disabled={caseItem.receipts.length === 0} style={{ marginTop: 12 }}>
             Export receipts (JSON)
           </button>
         )}
-      </section>
-
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">05</span> Team and membership
-        </p>
-        <p className="muted-text">
-          The contract authorizes members by <strong>private allowlist</strong>: it stores only commitments (hashes),
-          never identities nor secrets. Your wallet's membership commitment is below; proving membership is a
-          zero-knowledge proof that your secret opens a leaf in the on-chain Merkle tree.
-        </p>
-        <p>
-          <span className="info-label">Your commitment</span>{' '}
-          <code className="tx-id">{memberCommitmentHex ?? 'connect the wallet to derive one'}</code>
-        </p>
-        <p>
-          <span className="info-label">Allowlist status</span>{' '}
-          <span className={`status-tag ${membershipStatus === 'member' ? '' : 'status-closed'}`}>
-            {membershipStatus === 'member' ? 'member' : membershipStatus === 'not-member' ? 'not authorized' : 'unknown'}
-          </span>
-        </p>
-
-        <label className="form-label" htmlFor="member-secret">
-          Member secret (32-byte hex) — paste the deployer secret to grant yourself or a colleague access
-        </label>
-        <input
-          id="member-secret"
-          className="form-input"
-          value={memberSecretInput}
-          onChange={(e) => setMemberSecretInput(e.target.value)}
-          placeholder="64 hex characters"
-        />
-        <div className="wallet-actions">
-          <button className="btn btn-primary" onClick={() => void grantNewMember()} disabled={isConnected && membershipStatus !== 'member'}>
-            Grant access for this secret
-          </button>
-          <button className="btn btn-secondary" onClick={provideOwnerSecret} disabled={!memberSecretInput.trim()}>
-            Use as my member secret
-          </button>
-        </div>
-        {memberMessage && <p className="muted-text">{memberMessage}</p>}
       </section>
     </>
   );

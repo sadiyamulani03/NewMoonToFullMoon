@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 import { createCase } from '../lib/api';
+import { useDemo } from '../context/DemoContext';
 
 export default function CreateCase() {
   const [title, setTitle] = useState('');
@@ -10,6 +11,7 @@ export default function CreateCase() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { isDemo, demoOpenCase } = useDemo();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,6 +22,12 @@ export default function CreateCase() {
     setBusy(true);
     setError(null);
     try {
+      if (isDemo) {
+        const nextIdx = Math.floor(Math.random() * 900) + 20;
+        const newId = demoOpenCase(BigInt(nextIdx), title.trim(), description.trim());
+        navigate(`/cases/${newId}`);
+        return;
+      }
       const created = await createCase({
         title: title.trim(),
         description: description.trim(),
@@ -33,10 +41,17 @@ export default function CreateCase() {
   }
 
   return (
-    <form className="card" onSubmit={onSubmit}>
-      <p className="section-head">
-        <span className="section-no">02</span> Open a new case
-      </p>
+    <>
+      {isDemo && (
+        <div className="card" style={{ borderStyle: 'dashed', padding: '12px 16px' }}>
+          <span className="info-label" style={{ background: 'rgba(139,224,175,0.15)', color: '#8be0af' }}>Demo — not on-chain</span>
+          <span className="muted-text" style={{ marginLeft: 8, fontSize: '0.88rem' }}>New case is created in-memory only — no wallet, no gas.</span>
+        </div>
+      )}
+      <form className="card" onSubmit={onSubmit}>
+        <p className="section-head">
+          <span className="section-no">02</span> Open a new case
+        </p>
 
       <label className="form-label" htmlFor="case-title">
         Case title
@@ -91,6 +106,7 @@ export default function CreateCase() {
           Cancel
         </Link>
       </div>
-    </form>
+      </form>
+    </>
   );
 }

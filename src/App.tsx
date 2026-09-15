@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { MidnightProvider } from './context/MidnightContext';
+import { DemoProvider } from './context/DemoContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import MarketingLayout from './components/MarketingLayout';
@@ -16,23 +17,25 @@ import './styles.css';
 export default function App() {
   return (
     <BrowserRouter>
-      <MidnightProvider>
-        <ErrorBoundary>
-          <Routes>
-            <Route element={<MarketingLayout />}>
-              <Route path="/" element={<Landing />} />
-            </Route>
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/cases" element={<Cases />} />
-              <Route path="/cases/:id" element={<CaseDetail />} />
-              <Route path="/new" element={<CreateCase />} />
-              <Route path="/audit" element={<Auditor />} />
-              <Route path="/about" element={<About />} />
-            </Route>
-          </Routes>
-        </ErrorBoundary>
-      </MidnightProvider>
+      <DemoProvider>
+        <MidnightProvider>
+          <ErrorBoundary>
+            <Routes>
+              <Route element={<MarketingLayout />}>
+                <Route path="/" element={<Landing />} />
+              </Route>
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/cases" element={<Cases />} />
+                <Route path="/cases/:id" element={<CaseDetail />} />
+                <Route path="/new" element={<CreateCase />} />
+                <Route path="/audit" element={<Auditor />} />
+                <Route path="/about" element={<About />} />
+              </Route>
+            </Routes>
+          </ErrorBoundary>
+        </MidnightProvider>
+      </DemoProvider>
     </BrowserRouter>
   );
 }

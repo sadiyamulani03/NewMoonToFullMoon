@@ -1,12 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import OnboardingOverlay from '../components/OnboardingOverlay';
+import { useDemo } from '../context/DemoContext';
 
 export default function Landing() {
+  const { isDemo, enableDemo } = useDemo();
+  const navigate = useNavigate();
+
+  const handleDemo = () => {
+    if (!isDemo) enableDemo();
+    navigate('/dashboard');
+  };
+
   return (
     <>
       <OnboardingOverlay />
 
-      {/* Hero — product identity in ~10 seconds */}
+      {/* Section 1: Hero */}
       <section className="landing-hero">
         <div className="landing-hero-copy">
           <span className="eyebrow">Private forensics · Midnight Preprod · Live</span>
@@ -28,11 +37,11 @@ export default function Landing() {
             <Link className="btn btn-primary" to="/dashboard">
               Launch App
             </Link>
-            <Link className="btn btn-secondary" to="/audit">
+            <button className="btn btn-secondary" onClick={handleDemo}>
+              {isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}
+            </button>
+            <Link className="btn btn-ghost" to="/audit">
               Verify publicly — no wallet
-            </Link>
-            <Link className="btn btn-ghost" to="/about">
-              How it works
             </Link>
           </div>
 
@@ -86,34 +95,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Problem / Solution — side-by-side, not wall of text */}
-      <section className="landing-split">
-        <div className="card landing-split-card">
-          <p className="section-head">
-            <span className="section-no">01</span> The problem
-          </p>
-          <h3>Forensics needs proof without exposure.</h3>
-          <p className="muted-text">
-            Investigators must attest they counted, traced, or verified evidence — but sharing raw amounts leaks
-            sensitive data. Most chains publish everything.
-          </p>
-        </div>
-        <div className="card landing-split-card card-accent">
-          <p className="section-head">
-            <span className="section-no">02</span> The solution
-          </p>
-          <h3>Prove it in zero knowledge. Disclose only when you choose.</h3>
-          <p className="muted-text">
-            MidnightTrace keeps step amounts private by default. Only the totals you explicitly disclose become
-            public — and every total is backed by a cryptographic proof.
-          </p>
-        </div>
-      </section>
-
-      {/* How it works — 4 steps */}
+      {/* Section 2: How it works — 4 steps */}
       <section className="card">
         <p className="section-head">
-          <span className="section-no">03</span> How it works — 30 seconds
+          <span className="section-no">01</span> How it works — 30 seconds
         </p>
         <ol className="steps-grid">
           <li className="step">
@@ -139,101 +124,26 @@ export default function Landing() {
         </ol>
       </section>
 
-      {/* Privacy model — explicit */}
-      <section className="card privacy-model-card">
-        <p className="section-head">
-          <span className="section-no">04</span> Privacy model
-        </p>
-        <div className="privacy-columns">
-          <div className="privacy-col">
-            <span className="info-label label-public">Public — on-chain</span>
-            <ul>
-              <li>Running <code>total</code> per case</li>
-              <li>Disclosed totals (only if you call disclose)</li>
-              <li>Case phase, event count, aggregate</li>
-              <li>Allowlist membership root</li>
-            </ul>
-          </div>
-          <div className="privacy-col">
-            <span className="info-label label-private">Private — never on-chain</span>
-            <ul>
-              <li>Step <code>amount</code> witnesses</li>
-              <li>Member secrets / identities</li>
-              <li>Case descriptions (off-chain only)</li>
-            </ul>
-          </div>
-          <div className="privacy-col">
-            <span className="info-label" style={{ background: 'var(--ok-soft)', color: 'var(--ok)', borderColor: 'rgba(139,224,175,0.3)' }}>
-              Proved in ZK
-            </span>
-            <ul>
-              <li>total&apos; = total + hidden amount</li>
-              <li>Caller is on the private allowlist</li>
-              <li>Disclosed total matches hidden total</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Midnight — compact */}
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">05</span> Why Midnight
-        </p>
-        <p className="muted-text">
-          Midnight&apos;s Compact contracts keep witnesses private by default and require an explicit{' '}
-          <code>disclose()</code> to publish anything. That gives MidnightTrace{' '}
-          <strong>selective disclosure natively</strong> — verifiable without surveillance.
-        </p>
-        <div className="feature-pills" style={{ marginTop: '14px' }}>
-          <span>Selective disclosure</span>
-          <span>Private allowlist via commitments</span>
-          <span>Chain-of-custody receipts</span>
-          <span>Wallet-delegated proving</span>
-        </div>
-      </section>
-
-      {/* Example scenario — concise */}
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">06</span> Example — 3 hidden batches in case #7
-        </p>
-        <ol className="privacy-list">
-          <li>
-            Open <code>#7</code> with <code>openCase(7)</code>.
-          </li>
-          <li>
-            Log three hidden steps — each a ZK proof; on-chain <code>total</code> becomes <code>a1+a2+a3</code>, but{' '}
-            <code>a1, a2, a3</code> never appear on-chain.
-          </li>
-          <li>
-            Optionally <code>discloseFinding(7)</code> to publish the total for auditors.
-          </li>
-          <li>
-            <code>closeCase(7)</code> seals the case; the Audit window shows CLOSED and a verifiable fingerprint.
-          </li>
-        </ol>
-        <p className="privacy-note">Try this flow on Cases → Case detail with your Preprod wallet.</p>
-      </section>
-
-      {/* Final CTA */}
+      {/* Section 3: Final CTA */}
       <section className="card cta-card">
         <div className="cta-copy">
           <h3>Try it in two minutes.</h3>
           <p className="muted-text">
-            Install <strong>Lace</strong> or <strong>1AM</strong>, switch to <strong>Preprod</strong>, fund with tNIGHT
-            at the faucet, then launch the app.
+            Install <strong>Lace</strong> or <strong>1AM</strong> on <strong>Preprod</strong> for real proofs, or run the demo with zero setup.
           </p>
         </div>
         <div className="quick-links">
-          <Link className="btn btn-primary" to="/dashboard">
+          <button className="btn btn-primary" onClick={handleDemo}>
+            {isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}
+          </button>
+          <Link className="btn btn-secondary" to="/dashboard">
             Launch App
           </Link>
           <a className="btn btn-secondary" href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer">
             Get tNIGHT
           </a>
-          <Link className="btn btn-secondary" to="/audit">
-            Audit window
+          <Link className="btn btn-ghost" to="/about">
+            How it works
           </Link>
         </div>
       </section>

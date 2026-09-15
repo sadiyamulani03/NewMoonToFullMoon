@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
+import { useDemo } from '../context/DemoContext';
 
 function truncateAddr(addr: string): string {
   if (addr.length <= 20) return addr;
@@ -11,6 +12,7 @@ export default function MarketingLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const { isConnected, walletInfo } = useMidnightContext();
+  const { isDemo, toggleDemo } = useDemo();
 
   return (
     <div className="marketing-shell">
@@ -43,7 +45,10 @@ export default function MarketingLayout() {
           </nav>
 
           <div className="marketing-header-actions">
-            {!isConnected && (
+            <button className={`btn ${isDemo ? 'btn-primary' : 'btn-secondary'} marketing-cta`} onClick={toggleDemo} style={{ padding: '8px 12px', fontSize: '0.82rem', borderRadius: 8 }}>
+              {isDemo ? '● Demo on' : 'Try demo'}
+            </button>
+            {!isConnected && !isDemo && (
               <Link to="/dashboard" className="btn btn-primary marketing-cta">Launch App</Link>
             )}
             <button

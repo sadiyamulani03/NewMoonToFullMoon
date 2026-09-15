@@ -215,7 +215,7 @@ Additional pages: **Audit** (`/audit`).
 | Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
 | Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/Midnight__Trace` |
 | 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: 50/50 Level 5 in `USERS.md` + 20/70 Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod1…` (verified 0 dupes). No Mainnet used; see `LAUNCH_USERS.md:1` |
-| Preprod iteration (no Mainnet redeploy) | ✅ | Automated deploy scripts exist (`npm run deploy:midnighttrace`); Mainnet path documented in `PROPOSAL.md` → **Mainnet Feasibility** (Preprod remains live deployment) |
+| Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.1` redeployed at `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (Uint32 scaling + metadataHash anchor, `2026-09-15T09:41`); v1.0 `c69ac004…` retained as legacy; Mainnet path in `PROPOSAL.md` |
 
 ## Contract Deployment
 
@@ -401,7 +401,7 @@ Notes:
 ## Run Tests
 
 ```bash
-# Contract unit tests (circuit logic, state transitions, privacy) — 21 tests
+# Contract unit tests (circuit logic, state transitions, privacy) — 24 tests
 npm run test:contract
 
 # Frontend build + ZK smoke test + API smoke test
@@ -414,14 +414,14 @@ Output (contract tests):
 > midnighttrace@1.0.0 test:contract
 > vitest run
 
- ✓ tests/counter.test.ts (8 tests) 163ms
- ✓ tests/midnighttrace.test.ts (13 tests) 904ms
+  ✓ tests/counter.test.ts (8 tests) 163ms
+  ✓ tests/midnighttrace.test.ts (16 tests) 904ms
 
- Test Files  2 passed (2)
-      Tests  21 passed (21)
- ```
+  Test Files  2 passed (2)
+       Tests  24 passed (24)
+```
 
-The 13 midnighttrace tests cover: owner allowlist bootstrap, deterministic
+The 16 midnighttrace tests cover: owner allowlist bootstrap, deterministic
 ledger projection, open/duplicate cases, hidden-amount `logStep` (the amount is
 never disclosed), chain-of-custody ordering, `discloseFinding` selective
 disclosure, non-member rejection, member-grant `grantAccess`, non-member grant

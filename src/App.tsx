@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MidnightProvider } from './context/MidnightContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
+import MarketingLayout from './components/MarketingLayout';
 import Dashboard from './pages/Dashboard';
 import Cases from './pages/Cases';
 import CaseDetail from './pages/CaseDetail';
@@ -18,8 +19,10 @@ export default function App() {
       <MidnightProvider>
         <ErrorBoundary>
           <Routes>
-            <Route element={<Layout />}>
+            <Route element={<MarketingLayout />}>
               <Route path="/" element={<Landing />} />
+            </Route>
+            <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/cases" element={<Cases />} />
               <Route path="/cases/:id" element={<CaseDetail />} />

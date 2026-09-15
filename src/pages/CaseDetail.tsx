@@ -37,6 +37,7 @@ export default function CaseDetail() {
   const [memberSecretInput, setMemberSecretInput] = useState('');
   const [memberMessage, setMemberMessage] = useState<string | null>(null);
   const [onChainIndex, setOnChainIndex] = useState<bigint | null>(null);
+  const [indexEdit, setIndexEdit] = useState(false);
 
   const {
     isConnected,
@@ -61,14 +62,35 @@ export default function CaseDetail() {
     reload();
   }, [reload]);
 
-  // Suggested on-chain case index: the first matching entry in the live
-  // ledger, else 0.
+  // Suggested on-chain case index: prefer this file's receipt, else next free id (max+1), else 0.
   useEffect(() => {
-    if (midLedger && midLedger.cases.length > 0 && onChainIndex === null) {
-      setOnChainIndex(midLedger.cases[0].caseId);
-      setCaseIndex(midLedger.cases[0].caseId.toString());
+    if (onChainIndex !== null) return;
+    // If this off-chain case already has a receipt, follow that on-chain slot.
+    if (caseItem && caseItem.receipts.length > 0) {
+      const first = caseItem.receipts[0].caseIndex;
+      if (first !== undefined && first !== null) {
+        const v = BigInt(first);
+        setOnChainIndex(v);
+        setCaseIndex(v.toString());
+        return;
+      }
     }
-  }, [midLedger, onChainIndex]);
+    if (midLedger) {
+      if (midLedger.cases.length === 0) {
+        setOnChainIndex(0n);
+        setCaseIndex('0');
+        return;
+      }
+      const max = midLedger.cases.reduce((m, c) => (c.caseId > m ? c.caseId : m), 0n);
+      // If no receipt, suggest the next free slot; if ledger exists, default to max (shows existing) but hint next.
+      // For a fresh off-chain file, nextId = max+1 is the product-friendly default.
+      const hasReceipt = !!(caseItem && caseItem.receipts.length > 0);
+      const suggested = hasReceipt ? midLedger.cases[0].caseId : max + 1n;
+      const clamped = suggested > 65535n ? max : suggested;
+      setOnChainIndex(clamped);
+      setCaseIndex(clamped.toString());
+    }
+  }, [midLedger, onChainIndex, caseItem]);
 
   const resolveCaseId = useCallback((): bigint => {
     const parsed = BigInt(caseIndex || '0');
@@ -275,16 +297,34 @@ export default function CaseDetail() {
         </p>
 
         <label className="form-label" htmlFor="case-index" title="The numeric ID of the case file on the Midnight ledger">
-          On-chain case index <span style={{ textTransform: 'none', letterSpacing: 0, fontFamily: 'var(--font-body)', opacity: 0.7 }}>(number shown on-chain)</span>
+          On-chain case index <span style={{ textTransform: 'none', letterSpacing: 0, fontFamily: 'var(--font-body)', opacity: 0.7 }}>(auto-assigned · next free slot)</span>
+          {!indexEdit && caseIndex && (
+            <button type="button" className="btn btn-ghost" style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.7rem' }} onClick={() => setIndexEdit(true)}>
+              Edit
+            </button>
+          )}
+          {indexEdit && (
+            <button type="button" className="btn btn-ghost" style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.7rem' }} onClick={() => setIndexEdit(false)}>
+              Lock
+            </button>
+          )}
         </label>
         <input
           id="case-index"
           className="form-input"
           inputMode="numeric"
           value={caseIndex}
-          onChange={(e) => setCaseIndex(e.target.value)}
+          onChange={(e) => setCaseIndex(e.target.value.replace(/[^0-9]/g, ''))}
           placeholder="0"
+          readOnly={!indexEdit}
+          title={indexEdit ? 'Editable — must be 0-65535 and free on-chain' : 'Auto-assigned — click Edit to override'}
+          style={!indexEdit ? { opacity: 0.92, cursor: 'default' } : undefined}
         />
+        {!indexEdit && midLedger && (
+          <p className="muted-text" style={{ fontSize: '0.82rem', marginTop: 6 }}>
+            Suggested #{caseIndex} — next free ID{midLedger.cases.length > 0 ? ` (max on-chain is #${midLedger.cases.reduce((m,c)=>c.caseId>m?c.caseId:m,0n).toString()})` : ''}. Click Edit to use a different slot if needed.
+          </p>
+        )}
 
         {onChainCase && (
           <p>

@@ -103,13 +103,27 @@ export default function Dashboard() {
             <div className="mini-grid">
               <div className="mini-stat">
                 <span className="info-label">Aggregate</span>
-                <strong>{midLedger ? midLedger.aggregate.toString() : '—'}</strong>
-                {!midLedger && <small className="muted-text" style={{ display: 'block', marginTop: '4px' }}>No cases opened yet</small>}
+                {midLedger ? (
+                  <strong>{midLedger.aggregate.toString()}</strong>
+                ) : (
+                  <>
+                    <div className="skeleton skeleton-text" aria-hidden="true" />
+                    <small className="muted-text" style={{ display: 'block', marginTop: '8px' }}>
+                      <Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link> without wallet — or connect to read live
+                    </small>
+                  </>
+                )}
               </div>
               <div className="mini-stat">
                 <span className="info-label">Members</span>
-                <strong>{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
-                {!midLedger && <small className="muted-text" style={{ display: 'block', marginTop: '4px' }}>Connect wallet to see</small>}
+                {midLedger ? (
+                  <strong>{midLedger.memberCount.toString()}</strong>
+                ) : (
+                  <>
+                    <div className="skeleton skeleton-text" style={{ width: 46 }} aria-hidden="true" />
+                    <small className="muted-text" style={{ display: 'block', marginTop: '8px' }}>Connect wallet to see</small>
+                  </>
+                )}
               </div>
             </div>
 
@@ -149,8 +163,17 @@ export default function Dashboard() {
             </div>
             <div className="stat-box">
               <span className="info-label">On-chain cases</span>
-              <strong className="stat-value">{midLedger ? midLedger.cases.length : '—'}</strong>
-              <span className="muted-text">{midLedger ? 'in the MidnightTrace ledger' : 'Connect wallet to read ledger'}</span>
+              {midLedger ? (
+                <>
+                  <strong className="stat-value">{midLedger.cases.length}</strong>
+                  <span className="muted-text">in the MidnightTrace ledger</span>
+                </>
+              ) : (
+                <>
+                  <div className="skeleton skeleton-text" style={{ width: 36 }} aria-hidden="true" />
+                  <span className="muted-text"><Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link> to verify without wallet</span>
+                </>
+              )}
             </div>
             <div className="stat-box">
               <span className="info-label" title="Zero-knowledge proofs — see About → Glossary">
@@ -164,8 +187,17 @@ export default function Dashboard() {
             </div>
             <div className="stat-box">
               <span className="info-label">Allowlist</span>
-              <strong className="stat-value">{midLedger ? midLedger.memberCount.toString() : '—'}</strong>
-              <span className="muted-text">{midLedger ? 'members (commitments on-chain)' : 'Connect wallet'}</span>
+              {midLedger ? (
+                <>
+                  <strong className="stat-value">{midLedger.memberCount.toString()}</strong>
+                  <span className="muted-text">members (commitments on-chain)</span>
+                </>
+              ) : (
+                <>
+                  <div className="skeleton skeleton-text" style={{ width: 36 }} aria-hidden="true" />
+                  <span className="muted-text">Connect wallet</span>
+                </>
+              )}
             </div>
           </div>
         )}

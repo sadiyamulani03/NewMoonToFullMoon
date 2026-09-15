@@ -64,6 +64,20 @@ export default function Landing() {
               <span className="shield-label label-private">PRIVATE: amount</span>
             </div>
           </div>
+          <div className="demo-preview" aria-hidden="true">
+            <div className="demo-preview-head">
+              <span className="demo-dot" style={{ background: '#ff5f57' }} />
+              <span className="demo-dot" style={{ background: '#febc2e' }} />
+              <span className="demo-dot" style={{ background: '#28c840' }} />
+              <span style={{ marginLeft: 8 }}>midnighttrace · preprod · live</span>
+            </div>
+            <div className="demo-lines">
+              <span className="demo-line"><span className="demo-muted">$</span> openCase(7) <span className="demo-ok">✓ sealed on-chain</span></span>
+              <span className="demo-line"><span className="demo-muted">$</span> logStep(7, <span className="label-private" style={{ padding: '1px 6px', borderRadius: 999 }}>hidden</span>) <span className="demo-ok">✓ ZK proof</span></span>
+              <span className="demo-line"><span className="demo-muted">$</span> logStep(7, <span className="label-private" style={{ padding: '1px 6px', borderRadius: 999 }}>hidden</span>) <span className="demo-ok">✓ ZK proof</span></span>
+              <span className="demo-line"><span className="demo-muted">$</span> audit — <span className="demo-ok">aggregate ✓ all checks passed</span></span>
+            </div>
+          </div>
           <div className="trust-strip">
             <span>Selective disclosure</span>
             <span>Private allowlist</span>

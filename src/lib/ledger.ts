@@ -35,13 +35,15 @@ export function readMidnightTraceLedger(state: StateValue | ChargedState): Midni
   const l = midnightTraceLedger(state);
   const cases: OnChainCase[] = [];
   for (const [caseId, caseState] of l.cases) {
+    // v1.0 compatibility: old ledger has no metadataHash
+    const meta = (caseState as unknown as { metadataHash?: Uint8Array }).metadataHash ?? new Uint8Array(32);
     cases.push({
       caseId,
       total: caseState.total,
       lastDisclosed: caseState.lastDisclosed,
       eventCount: caseState.eventCount,
       phase: caseState.phase === 0 ? 'ACTIVE' : 'CLOSED',
-      metadataHash: caseState.metadataHash,
+      metadataHash: meta,
     });
   }
   cases.sort((a, b) => (a.caseId < b.caseId ? -1 : 1));

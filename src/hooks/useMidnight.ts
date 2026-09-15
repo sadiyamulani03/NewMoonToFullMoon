@@ -304,9 +304,20 @@ export function useMidnight() {
       const deployed = await requireMid();
       const secret = await requireSecret();
       const hash = metadataHash ?? new Uint8Array(32);
-      const result = await deployed.callTx.openCase(caseId, hash, secret);
-      await refreshMidnight();
-      return { txId: result.public.txId, blockHeight: result.public.blockHeight };
+      try {
+        const result = await deployed.callTx.openCase(caseId, hash, secret);
+        await refreshMidnight();
+        return { txId: result.public.txId, blockHeight: result.public.blockHeight };
+      } catch (e: unknown) {
+        const msg = String((e as Error)?.message ?? e);
+        // v1.0 live contract expects openCase(caseId) only — fallback for backward compat
+        if (msg.includes('expected 1 argument') || msg.includes('expected 2 argument') || msg.includes('received 2') || msg.includes('received 3')) {
+          const result = await (deployed.callTx.openCase as unknown as (id: bigint) => Promise<{ public: { txId: string; blockHeight: bigint | number } }>)(caseId);
+          await refreshMidnight();
+          return { txId: result.public.txId, blockHeight: result.public.blockHeight };
+        }
+        throw e;
+      }
     },
     [requireMid, requireSecret, refreshMidnight],
   );

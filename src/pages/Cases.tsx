@@ -47,7 +47,15 @@ export default function Cases() {
         </div>
         {error && <p className="error-text">{error}</p>}
         {!cases && !error && <Loading label="Loading cases…" />}
-        {cases && cases.length === 0 && <p className="muted-text">No cases yet — open the first one.</p>}
+        {cases && cases.length === 0 && (
+          <>
+            <p className="muted-text">No cases yet — open the first one. Your proof receipts will appear below in finalization order.</p>
+            <p className="muted-text" style={{ fontSize: '0.82rem', opacity: 0.85 }}>
+              Demo data resets on redeploy; on-chain totals remain — verify any case in{' '}
+              <Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link>.
+            </p>
+          </>
+        )}
         {cases && cases.length > 0 && (
           <ul className="case-list">
             {cases.map((c) => (

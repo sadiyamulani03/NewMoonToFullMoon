@@ -269,12 +269,13 @@ export default function CaseDetail() {
           <span className="section-no">03</span> Investigate (on-chain)
         </p>
         <p className="muted-text">
-          Every action mints a zero-knowledge proof that is checked and committed by the MidnightTrace contract. Step
-          amounts are private witnesses; only what you choose to disclose ever reaches the ledger.
+          Every action creates a <span title="A cryptographic proof that total' = total + hidden amount, without revealing the amount">zero-knowledge proof</span> checked by the contract. Your{' '}
+          <span title="The private amount — never stored on-chain, never shown on screen">hidden amount</span> stays on your device; only totals you choose to disclose become public.{' '}
+          <Link to="/about#glossary" style={{ fontWeight: 700 }}>Glossary →</Link>
         </p>
 
-        <label className="form-label" htmlFor="case-index">
-          On-chain case index
+        <label className="form-label" htmlFor="case-index" title="The numeric ID of the case file on the Midnight ledger">
+          On-chain case index <span style={{ textTransform: 'none', letterSpacing: 0, fontFamily: 'var(--font-body)', opacity: 0.7 }}>(number shown on-chain)</span>
         </label>
         <input
           id="case-index"
@@ -300,8 +301,8 @@ export default function CaseDetail() {
 
         {action !== 'closeCase' && (
           <>
-            <label className="form-label" htmlFor="step-amount">
-              {action === 'logStep' ? 'Step amount (private, never shown on-chain)' : 'Running total to publish'}
+            <label className="form-label" htmlFor="step-amount" title={action === 'logStep' ? 'Private witness — proved in ZK, never stored on-chain' : 'Only this disclosed total becomes public'}>
+              {action === 'logStep' ? 'Step amount — private, stays on your device' : 'Running total to publish — becomes public'}
             </label>
             <input
               id="step-amount"

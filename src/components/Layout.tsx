@@ -123,6 +123,18 @@ export default function Layout() {
 
       <footer className="footer">
         <p>Proofs are generated locally — your private step never reaches the chain or this screen.</p>
+        <p style={{ marginTop: '8px', fontSize: '0.78rem', opacity: 0.9 }}>
+          <a href="https://midnighttrace.vercel.app" target="_blank" rel="noreferrer">Live</a>
+          {' · '}
+          <a href="/audit">Audit</a>
+          {' · '}
+          <a href="/about">How it works</a>
+          {' · '}
+          <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X @Midnight__Trace</a>
+          {' · '}
+          <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub</a>
+          <span style={{ marginLeft: '8px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', opacity: 0.7 }}>v1.0 · Preprod · MidnightTrace</span>
+        </p>
       </footer>
     </div>
   );

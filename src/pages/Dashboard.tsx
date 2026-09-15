@@ -34,7 +34,14 @@ export default function Dashboard() {
         )}
         {isConnected && !midLedger && (
           <p className="muted-text" style={{ marginTop: '8px' }}>
-            Reading on-chain ledger… proofs and cases will appear once synced.
+            Reading on-chain ledger… proofs and cases will appear once synced. No wallet? Use{' '}
+            <Link to="/audit" style={{ fontWeight: 700 }}>Audit</Link> to verify without connecting.
+          </p>
+        )}
+        {!isConnected && (
+          <p className="muted-text" style={{ marginTop: '8px' }}>
+            Not connected — connect Lace or 1AM on Preprod to run proofs, or{' '}
+            <Link to="/audit" style={{ fontWeight: 700 }}>open the Audit window</Link> to verify publicly with no wallet.
           </p>
         )}
       </section>
@@ -177,6 +184,9 @@ export default function Dashboard() {
             <span className="section-no">03</span> What to do next
           </p>
           <p className="muted-text">No cases yet — open the first one. Each case starts on-chain with a number; receipts accumulate as you log hidden steps.</p>
+          <p className="muted-text" style={{ fontSize: '0.82rem', opacity: 0.85 }}>
+            Demo note: case titles live in the demo API and reset on redeploy — your on-chain proofs and totals are permanent and always verifiable in <Link to="/audit">Audit</Link>.
+          </p>
           <div className="quick-links" style={{ marginTop: '14px' }}>
             <Link className="btn btn-primary" to="/new">
               Create the first case

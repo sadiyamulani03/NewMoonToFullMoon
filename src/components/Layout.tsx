@@ -98,12 +98,6 @@ export default function Layout() {
             </div>
           )}
 
-          {!collapsed && (
-            <p className="subtitle">
-              Private forensic ledger on Midnight. Prove that work happened — without revealing the evidence behind it.
-            </p>
-          )}
-
           <nav className={`nav${menuOpen ? ' nav-open' : ''} ${collapsed ? 'nav-collapsed' : ''}`} aria-label="Main navigation">
             <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu} title="Home">
               <svg className="nav-icon" viewBox="0 0 16 16" aria-hidden="true">

@@ -1049,7 +1049,9 @@ a:hover {
 
 .header-wallet-stack {
   width: 100%;
-  margin-top: 2px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: block;
 }
 .header-wallet-stack .header-wallet-pill {
@@ -2053,9 +2055,11 @@ a:hover {
 .marketing-wallet-bar {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 clamp(16px, 2.5vw, 28px) 12px;
+  padding: 10px clamp(16px, 2.5vw, 28px) 12px;
   display: flex;
   justify-content: flex-end;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 2px;
 }
 .marketing-wallet-pill {
   margin-top: 0;

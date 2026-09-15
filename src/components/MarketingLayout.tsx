@@ -1,98 +1,50 @@
-import { useState } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
-import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
 
-function truncateAddr(addr: string): string {
-  if (addr.length <= 20) return addr;
-  return `${addr.slice(0, 14)}…${addr.slice(-6)}`;
-}
-
 export default function MarketingLayout() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const closeMenu = () => setMenuOpen(false);
-  const { isConnected, walletInfo } = useMidnightContext();
   const { isDemo, toggleDemo } = useDemo();
-
   return (
     <div className="marketing-shell">
       <header className="marketing-header">
         <div className="marketing-header-inner">
-          <Link to="/" className="brand-wrap marketing-brand" onClick={closeMenu}>
-            <div className="brand-mark">M</div>
-            <div className="brand-block">
-              <p className="kicker" style={{ marginBottom: 2 }}>Midnight Network · preprod</p>
-              <span className="marketing-brand-title">MidnightTrace</span>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            <div className="rail-mark marketing-rail-mark">M</div>
+            <div>
+              <div className="rail-kicker" style={{ color: 'var(--muted)' }}>Midnight Network · Preprod</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-ink)', lineHeight: 1 }}>MidnightTrace</div>
             </div>
           </Link>
 
-          <nav className={`marketing-nav${menuOpen ? ' marketing-nav-open' : ''}`} aria-label="Main navigation">
-            <NavLink to="/" end className={({ isActive }) => `nav-link marketing-nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
-              Home
-            </NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => `nav-link marketing-nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
-              Dashboard
-            </NavLink>
-            <NavLink to="/cases" className={({ isActive }) => `nav-link marketing-nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
-              Cases
-            </NavLink>
-            <NavLink to="/audit" className={({ isActive }) => `nav-link marketing-nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
-              Audit
-            </NavLink>
-            <NavLink to="/about" className={({ isActive }) => `nav-link marketing-nav-link${isActive ? ' nav-link-active' : ''}`} onClick={closeMenu}>
-              About
-            </NavLink>
+          <nav className="marketing-nav" aria-label="Primary">
+            <NavLink to="/" end className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Home</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Dashboard</NavLink>
+            <NavLink to="/cases" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Cases</NavLink>
+            <NavLink to="/audit" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Auditor</NavLink>
+            <NavLink to="/about" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>About</NavLink>
           </nav>
 
-          <div className="marketing-header-actions">
-            <button className={`btn ${isDemo ? 'btn-primary' : 'btn-secondary'} marketing-cta`} onClick={toggleDemo} style={{ padding: '8px 12px', fontSize: '0.82rem', borderRadius: 8 }}>
-              {isDemo ? '● Demo on' : 'Try demo'}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }}>
+              {isDemo ? '● Demo on' : 'Try demo — no wallet'}
             </button>
-            {!isConnected && !isDemo && (
-              <Link to="/dashboard" className="btn btn-primary marketing-cta">Launch App</Link>
-            )}
-            <button
-              className="menu-toggle marketing-menu-toggle"
-              aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((v) => !v)}
-              type="button"
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+            <Link to="/dashboard" className="btn btn-primary" style={{ padding: '7px 12px', fontSize: '0.82rem' }}>Launch app</Link>
           </div>
         </div>
-        {isConnected && walletInfo && (
-          <div className="marketing-wallet-bar" aria-label="Wallet connection status">
-            <span className="wallet-pill header-wallet-pill marketing-wallet-pill" title={walletInfo.address}>
-              <span className="wallet-addr">{truncateAddr(walletInfo.address)}</span>
-              <span className="network-badge">{walletInfo.networkId}</span>
-              <span className="status-pill status-live" style={{ padding: '3px 8px', fontSize: '0.6rem' }}>● Connected</span>
-            </span>
-          </div>
-        )}
       </header>
 
-      <main className="container marketing-container">
+      <main className="marketing-container">
+        {isDemo && (
+          <div className="demo-bar" style={{ background: 'white', borderStyle: 'dashed' }}>
+            <span><strong style={{ color: 'var(--verify)' }}>Demo — not on-chain</strong> <span style={{ color: 'var(--muted)' }}>Mock ledger in memory across all pages. Exit in header.</span></span>
+            <button className="btn btn-ghost" onClick={toggleDemo} style={{ padding: '6px 10px' }}>Exit demo</button>
+          </div>
+        )}
         <Outlet />
       </main>
 
       <footer className="footer">
-        <p>Proofs are generated locally — your private step never reaches the chain or this screen.</p>
-        <p style={{ marginTop: '8px', fontSize: '0.78rem', opacity: 0.9 }}>
-          <a href="https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app" target="_blank" rel="noreferrer">Live</a>
-          {' · '}
-          <a href="/audit">Audit</a>
-          {' · '}
-          <a href="/about">How it works</a>
-          {' · '}
-          <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X @Midnight__Trace</a>
-          {' · '}
-          <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub</a>
-          <span style={{ marginLeft: '8px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', opacity: 0.7 }}>v1.0 · Preprod · MidnightTrace</span>
-        </p>
+        <span className="mono" style={{ fontSize: '0.72rem' }}>MidnightTrace · Evidence ledger on Midnight · Private amounts stay redacted</span>
+        {' · '}<a href="/audit">Audit</a> · <a href="/about">Privacy model</a> · <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X</a>
       </footer>
     </div>
   );

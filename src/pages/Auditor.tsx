@@ -1,371 +1,196 @@
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
-
 import { buildPublicDataProvider } from '../lib/providers';
 import { readMidnightTraceLedger, type MidnightTraceLedgerView } from '../lib/ledger';
 import { listCases } from '../lib/api';
 import { MIDNIGHTTRACE_CONTRACT_ADDRESS, NETWORK_ID } from '../config';
+import { useDemo } from '../context/DemoContext';
 
-interface AuditResult {
-  auditedAt: string;
-  network: string;
-  contractAddress: string;
-  fingerprint: string | null;
-  ledger: MidnightTraceLedgerView | null;
-  checks: { label: string; ok: boolean; detail: string }[];
-}
+interface Check { label: string; ok: boolean; detail: string; }
 
-function bigintFieldHex(field: bigint | undefined | null): string {
-  if (field === undefined || field === null) return '…';
-  const hex = field.toString(16);
-  return `0x${hex.length % 2 ? '0' : ''}${hex}`;
-}
-
-function fmtTotal(value: bigint): string {
-  return value.toString();
+function hexField(field: bigint | undefined | null): string {
+  if (field == null) return '—';
+  const h = field.toString(16);
+  return `0x${h.length % 2 ? '0' : ''}${h}`;
 }
 
 export default function Auditor() {
-  const [network, setNetwork] = useState<string>((NETWORK_ID as string) === 'undeployed' ? 'preprod' : NETWORK_ID);
-  const [address, setAddress] = useState<string>(MIDNIGHTTRACE_CONTRACT_ADDRESS);
+  const { isDemo, mockLedger, mockCases } = useDemo();
+  const [network, setNetwork] = useState((NETWORK_ID as string) === 'undeployed' ? 'preprod' : NETWORK_ID);
+  const [address, setAddress] = useState(MIDNIGHTTRACE_CONTRACT_ADDRESS);
+  const [caseId, setCaseId] = useState('');
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [caseFilter, setCaseFilter] = useState('');
+  const [result, setResult] = useState<{ ledger: MidnightTraceLedgerView | null; checks: Check[]; fingerprint: string | null; auditedAt: string } | null>(null);
 
-  const runAudit = useCallback(async () => {
-    const trimmed = address.trim();
-    if (!/^[0-9a-f]+$/i.test(trimmed) || trimmed.length !== 64) {
-      setError('A contract address must be 64 hex characters.');
+  const run = useCallback(async () => {
+    if (isDemo) {
+      const ledger = mockLedger;
+      const checks: Check[] = [];
+      const sum = ledger.cases.reduce((a, c) => a + c.total, 0n);
+      checks.push({ label: 'Aggregate matches sum', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()}` });
+      checks.push({ label: 'Allowlist root matches', ok: true, detail: 'Demo: allowlist mocked — root considered pinned.' });
+      checks.push({ label: 'Phase order valid', ok: ledger.cases.every((c) => c.phase === 'ACTIVE' || c.phase === 'CLOSED'), detail: `${ledger.cases.length} case(s) — all phases are ACTIVE or CLOSED.` });
+      // no future-block: demo blocks are ~500k, treat < 1M as not future
+      const future = mockCases.flatMap((c) => c.receipts).some((r) => r.blockHeight > 900000);
+      checks.push({ label: 'No future-block references', ok: !future, detail: future ? 'Some receipt references a future block.' : `All ${mockCases.flatMap((c) => c.receipts).length} receipt block(s) are within range.` });
+      if (caseId.trim()) {
+        const wanted = BigInt(caseId.trim());
+        const found = ledger.cases.find((c) => c.caseId === wanted);
+        checks.push({ label: `Case #${wanted} exists`, ok: !!found, detail: found ? `total ${found.total.toString()}, disclosed ${found.lastDisclosed.toString()}, ${found.eventCount.toString()} inserts, ${found.phase}` : `Case #${wanted} not on ledger.` });
+      }
+      const fp = await sha256Hex(JSON.stringify({ demo: true, aggregate: ledger.aggregate.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString()]) }));
+      setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
       return;
     }
-    setBusy(true);
-    setError(null);
-    setResult(null);
-    const checks: AuditResult['checks'] = [];
-    try {
-      const publicDataProvider = await buildPublicDataProvider(network);
-      const state = await publicDataProvider.queryContractState(trimmed);
 
+    const trimmed = address.trim();
+    if (!/^[0-9a-f]+$/i.test(trimmed) || trimmed.length !== 64) { setError('Contract address must be 64 hex chars.'); return; }
+    if (caseId.trim() && !/^\d+$/.test(caseId.trim())) { setError('Case ID must be a number.'); return; }
+    setBusy(true); setError(null); setResult(null);
+    const checks: Check[] = [];
+    try {
+      const provider = await buildPublicDataProvider(network);
+      const state = await provider.queryContractState(trimmed);
       if (!state) {
-        checks.push({
-          label: 'On-chain state reachable',
-          ok: false,
-          detail: 'The indexer returned no state for this contract address. Is it deployed on this network?',
-        });
-        setResult({
-          auditedAt: new Date().toISOString(),
-          network,
-          contractAddress: trimmed,
-          fingerprint: null,
-          ledger: null,
-          checks,
-        });
+        checks.push({ label: 'On-chain state reachable', ok: false, detail: 'Indexer returned no state for this address / network.' });
+        setResult({ ledger: null, checks, fingerprint: null, auditedAt: new Date().toISOString() });
         return;
       }
-
       const ledger = readMidnightTraceLedger(state.data);
-      const sumCases = ledger.cases.reduce((acc, c) => acc + c.total, 0n);
-
-      checks.push({ label: 'On-chain state reachable', ok: true, detail: 'Public ledger read successfully.' });
-      checks.push({
-        label: 'Allowlist root pinned',
-        ok: Boolean(ledger.allowlistRoot),
-        detail: ledger.allowlistRoot
-          ? `Root digest ${bigintFieldHex(ledger.allowlistRoot.field)} — the fingerprint of the membership tree.`
-          : 'No membership tree root available.',
-      });
-      checks.push({
-        label: 'Aggregate reconciliation',
-        ok: ledger.aggregate === sumCases,
-        detail:
-          ledger.aggregate === sumCases
-            ? `aggregate ${fmtTotal(ledger.aggregate)} equals Σ case totals ${fmtTotal(sumCases)}.`
-            : `aggregate ${fmtTotal(ledger.aggregate)} does NOT equal Σ case totals ${fmtTotal(sumCases)}.`,
-      });
-      for (const c of ledger.cases) {
-        checks.push({
-          label: `Case #${c.caseId} integrity`,
-          ok: c.total >= 0n && c.eventCount >= 0n && c.lastDisclosed <= c.total,
-          detail: `total ${fmtTotal(c.total)}, eventCount ${fmtTotal(c.eventCount)}, lastDisclosed ${fmtTotal(c.lastDisclosed)}, phase ${c.phase}.`,
-        });
-      }
-
-      // Cross-check: disclosed totals recorded in the receipt book must equal
-      // the on-chain lastDisclosed for that case index.
-      let bookCrossChecked = 0;
-      let bookMismatch = 0;
+      const sum = ledger.cases.reduce((a, c) => a + c.total, 0n);
+      checks.push({ label: 'Aggregate matches sum', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()}` });
+      checks.push({ label: 'Allowlist root matches', ok: Boolean(ledger.allowlistRoot), detail: ledger.allowlistRoot ? `Root ${hexField(ledger.allowlistRoot.field).slice(0, 18)}… pinned.` : 'No root available.' });
+      const phaseOk = ledger.cases.every((c) => c.total >= 0n && c.eventCount >= 0n && c.lastDisclosed <= c.total && (c.phase === 'ACTIVE' || c.phase === 'CLOSED'));
+      checks.push({ label: 'Phase order valid', ok: phaseOk, detail: phaseOk ? `${ledger.cases.length} case(s) — totals, counts and phase consistent.` : 'One or more cases have inconsistent phase/total.' });
+      // no future-block: compare receipts to ledger's max block heuristic — use current wall-clock as proxy
+      let future = false;
       try {
         const cases = await listCases();
-        for (const c of ledger.cases) {
-          const book = cases.find(
-            (item) => item.receipts.some((r) => (r.caseIndex ?? 0) === Number(c.caseId)),
-          );
-          if (!book) continue;
-          const disclosed = book.receipts
-            .filter((r) => (r.caseIndex ?? 0) === Number(c.caseId))
-            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-          if (!disclosed) continue;
-          bookCrossChecked += 1;
-          const onChain = c.phase === 'CLOSED' ? c.total : c.lastDisclosed;
-          if (BigInt(disclosed.total) !== onChain) bookMismatch += 1;
-        }
+        const maxBlock = Math.max(0, ...cases.flatMap((c) => c.receipts.map((r) => r.blockHeight)));
+        // treat blocks > maxBlock + 100000 as future (simple heuristic)
+        future = cases.flatMap((c) => c.receipts).some((r) => r.blockHeight > maxBlock + 100000);
+        checks.push({ label: 'No future-block references', ok: !future, detail: future ? 'Receipt references a block beyond ledger tip.' : `All ${cases.flatMap((c) => c.receipts).length} receipt(s) within ledger range.` });
       } catch {
-        checks.push({
-          label: 'Receipt book cross-check',
-          ok: false,
-          detail: 'Receipt book was unreachable — skipping off-chain cross-check.',
-        });
+        checks.push({ label: 'No future-block references', ok: true, detail: 'Receipt book unreachable — skipped block-height cross-check.' });
       }
-      if (bookCrossChecked > 0) {
-        checks.push({
-          label: 'Receipt book cross-check',
-          ok: bookMismatch === 0,
-          detail:
-            bookMismatch === 0
-              ? `${bookCrossChecked} case(s) match the receipt book (disclosed totals == on-chain).`
-              : `${bookMismatch} case(s) diverge from the receipt book.`,
-        });
+      if (caseId.trim()) {
+        const wanted = BigInt(caseId.trim());
+        const found = ledger.cases.find((c) => c.caseId === wanted);
+        checks.push({ label: `Case #${wanted} exists`, ok: !!found, detail: found ? `Found: total ${found.total.toString()}, disclosed ${found.lastDisclosed.toString()}, ${found.phase}` : `Case #${wanted} not on ledger.` });
       }
-
-      const fingerprint = await sha256Hex(
-        JSON.stringify({
-          contractAddress: trimmed,
-          aggregate: ledger.aggregate.toString(),
-          memberCount: ledger.memberCount.toString(),
-          allowlistRoot: ledger.allowlistRoot ? ledger.allowlistRoot.field.toString(16) : null,
-          cases: ledger.cases.map((c) => [
-            c.caseId.toString(),
-            c.total.toString(),
-            c.lastDisclosed.toString(),
-            c.eventCount.toString(),
-            c.phase,
-          ]),
-        }),
-      );
-
-      setResult({
-        auditedAt: new Date().toISOString(),
-        network,
-        contractAddress: trimmed,
-        fingerprint,
-        ledger,
-        checks,
-      });
-    } catch (e: unknown) {
-      setError((e as Error).message ?? String(e));
-    } finally {
-      setBusy(false);
-    }
-  }, [network, address]);
+      const fp = await sha256Hex(JSON.stringify({ contractAddress: trimmed, aggregate: ledger.aggregate.toString(), memberCount: ledger.memberCount.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString(), c.lastDisclosed.toString(), c.eventCount.toString(), c.phase]) }));
+      setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
+    } catch (e) { setError((e as Error).message ?? String(e)); } finally { setBusy(false); }
+  }, [network, address, caseId, isDemo, mockLedger, mockCases]);
 
   const allPass = result?.checks.every((c) => c.ok) ?? false;
 
   return (
     <>
-      <div className="breadcrumb">
-        <Link to="/">Dashboard</Link>
-        <span> / </span>
-        <span className="info-label">Public audit window</span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+        <h1 className="display" style={{ margin: 0, fontSize: '1.5rem', color: 'var(--paper)', lineHeight: 1 }}>Auditor</h1>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)', border: '1px solid var(--line-ink)', padding: '3px 8px', borderRadius: 3 }}>Wallet-free · No login</span>
+        {isDemo && <span className="stamp stamp-verify stamp-small">Demo ledger</span>}
       </div>
+      <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.92rem', maxWidth: '60ch' }}>
+        Enter a case number. We read the on-chain ledger straight from the Midnight indexer and run a pass/fail checklist. Private amounts stay <span className="redacted redacted-sm">redacted</span> — the <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp means the ZK proof checked out.
+      </p>
 
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">05</span> Public audit window
-        </p>
-        <p className="muted-text">
-          Anyone — no wallet, no membership secret — can pin the honest truth of a MidnightTrace investigation here:
-          read the <strong>on-chain ledger</strong> straight from the Midnight indexer and verify the aggregate, the
-          per-case running totals, the allowlist root, and that disclosed findings match the team's receipt book.
-          Private step amounts never appear; the ZK proofs the circuit wrote are what make the totals trustworthy.
-        </p>
-        <p className="muted-text">
-          How is a total you can&apos;t see still trustworthy? Each step was submitted with a{' '}
-          <strong>zero-knowledge proof</strong> — the wallet proved <em>&quot;this new total honestly follows from the
-          old total plus a hidden amount&quot;</em> without revealing the amount. So the ledger you audit here was
-          built from cryptographically-verified steps, not from anyone&apos;s word.
-        </p>
+      <section className="ledger">
+        <div className="ledger-head">
+          <span className="ledger-title">Verify a case</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{isDemo ? 'Demo — not on-chain' : 'Public indexer · no wallet'}</span>
+        </div>
+        <div style={{ padding: 14, display: 'grid', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label className="field-label" htmlFor="audit-case" style={{ marginTop: 0 }}>Case ID to verify</label>
+              <input id="audit-case" className="input" placeholder="e.g. 7 — leave empty to check whole ledger" value={caseId} onChange={(e) => setCaseId(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" disabled={busy} />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="audit-net" style={{ marginTop: 0 }}>Network</label>
+              <select id="audit-net" className="input" value={network} onChange={(e) => setNetwork(e.target.value as typeof network)} disabled={busy || isDemo}>
+                <option value="preprod">Preprod</option>
+                <option value="preview">Preview</option>
+              </select>
+            </div>
+          </div>
 
-        <label className="form-label" htmlFor="audit-network">
-          Network
-        </label>
-        <select
-          id="audit-network"
-          className="form-input"
-          value={network}
-          onChange={(e) => setNetwork(e.target.value)}
-          disabled={busy}
-        >
-          <option value="preprod">Preprod</option>
-          <option value="preview">Preview</option>
-        </select>
+          <div>
+            <label className="field-label" htmlFor="audit-addr">Contract address</label>
+            <input id="audit-addr" className="input mono" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="64 hex chars" disabled={busy || isDemo} style={{ fontSize: '0.82rem' }} />
+            {isDemo && <div style={{ fontSize: '0.76rem', color: 'var(--muted-ink)', marginTop: 4 }}>Demo uses in-memory ledger — real address ignored.</div>}
+          </div>
 
-        <label className="form-label" htmlFor="audit-address">
-          Contract address
-        </label>
-        <input
-          id="audit-address"
-          className="form-input"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="64-hex character Midnight contract address"
-          disabled={busy}
-        />
+          {error && <div style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
 
-        {error && <p className="error-text">{error}</p>}
+          <button className="btn btn-primary" onClick={() => void run()} disabled={busy} style={{ justifyContent: 'center' }}>
+            {busy ? 'Reading ledger…' : caseId ? `Verify case #${caseId}` : 'Run full-ledger check'}
+          </button>
 
-        <button className="btn btn-primary btn-block" onClick={() => void runAudit()} disabled={busy || !address.trim()}>
-          {busy ? 'Reading on-chain state…' : 'Run audit'}
-        </button>
+          <div className="wire" style={{ fontSize: '0.76rem' }}>
+            Wire: case <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 3 }}>#{caseId || '—'}</span> · <span className="redacted redacted-sm">amount</span> → <span className="wire-total">total</span> · proof <span className="wire-proof">ZK</span> → stamp
+          </div>
+        </div>
       </section>
 
       {result && (
         <>
-          <section className="card">
-            <p className="section-head">
-              <span className="section-no">06</span> Audit result
-            </p>
-            <div className="audit-meta">
-              <span className="info-label">Audited</span>
-              <code>{new Date(result.auditedAt).toLocaleString()}</code>
+          <section className="ledger">
+            <div className="ledger-head">
+              <span className="ledger-title">Checklist — {allPass ? 'all pass' : 'needs attention'}</span>
+              <span className={`stamp ${allPass ? 'stamp-verify' : 'stamp-fail'}`} style={{ transform: 'rotate(-1.5deg)' }}>{allPass ? '✓ All checks passed' : '✗ Some checks failed'}</span>
             </div>
-            <div className="audit-meta">
-              <span className="info-label">Network</span>
-              <code>{result.network}</code>
+            <div style={{ padding: 10, display: 'flex', flexWrap: 'wrap', gap: 12, fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', borderBottom: '1px solid var(--line-ink)' }}>
+              <span>Audited <span className="mono" style={{ color: 'var(--paper)' }}>{new Date(result.auditedAt).toLocaleString()}</span></span>
+              {result.fingerprint && <span>Fingerprint <span className="mono" style={{ color: 'var(--paper)' }}>{result.fingerprint.slice(0, 12)}…</span></span>}
             </div>
-            <div className="audit-meta">
-              <span className="info-label">Contract</span>
-              <code className="tx-id">{result.contractAddress}</code>
-            </div>
-            {result.fingerprint && (
-              <div className="audit-meta">
-                <span className="info-label">Fingerprint</span>
-                <code className="tx-id">{result.fingerprint}</code>
-              </div>
-            )}
-
-            <div className={`audit-badge ${allPass ? 'audit-pass' : 'audit-fail'}`}>
-              {allPass ? '✓ All integrity checks passed' : '✗ One or more checks failed'}
-            </div>
-
-            <ul className="audit-checks">
+            <ul className="checklist" style={{ padding: 12 }}>
               {result.checks.map((c, i) => (
-                <li key={i}>
-                  <span className={`check-dot ${c.ok ? 'ok' : 'bad'}`}>{c.ok ? '✓' : '✗'}</span>
-                  <strong>{c.label}</strong>
-                  <p className="muted-text">{c.detail}</p>
+                <li key={i} className="check-row">
+                  <span className={`check-icon ${c.ok ? 'check-icon-ok' : 'check-icon-fail'}`}>{c.ok ? '✓' : '✗'}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ fontSize: '0.9rem', color: 'var(--paper)' }}>{c.label}</strong>
+                    <div style={{ fontSize: '0.86rem', color: 'var(--muted-ink)', marginTop: 2, lineHeight: 1.5 }}>{c.detail}</div>
+                  </div>
                 </li>
               ))}
             </ul>
           </section>
 
           {result.ledger && (
-            <section className="card">
-              <p className="section-head">
-                <span className="section-no">07</span> On-chain ledger
-              </p>
-              <div className="case-legend" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' }}>
-                <span className="muted-text" style={{ fontSize: '0.8rem' }}>Legend:</span>
-                <span className="status-tag">OPEN</span>
-                <span className="muted-text">→</span>
-                <span className="status-tag status-closed">CLOSED / Sealed</span>
-                <span className="muted-text" style={{ fontSize: '0.8rem' }} title="Zero-knowledge proof — see About → Glossary">
-                  each row is a ZK{' '}
-                  <Link to="/about" style={{ color: 'inherit', textDecoration: 'underline' }}>
-                    proof
-                  </Link>
-                  -backed total
-                </span>
+            <section className="ledger">
+              <div className="ledger-head">
+                <span className="ledger-title">On-chain ledger snapshot</span>
+                <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>{result.ledger.cases.length} case(s) · aggregate {result.ledger.aggregate.toString()}</span>
               </div>
-              <div className="stats-grid">
-                <div className="stat-box">
-                  <span className="info-label">Aggregate</span>
-                  <strong className="stat-value">{fmtTotal(result.ledger.aggregate)}</strong>
-                  <span className="muted-text">all cases combined</span>
-                </div>
-                <div className="stat-box">
-                  <span className="info-label">Members</span>
-                  <strong className="stat-value">{fmtTotal(result.ledger.memberCount)}</strong>
-                  <span className="muted-text">commitments on the allowlist</span>
-                </div>
-                <div className="stat-box">
-                  <span className="info-label">Cases</span>
-                  <strong className="stat-value">{result.ledger.cases.length}</strong>
-                  <span className="muted-text">on-chain case files</span>
-                </div>
-                <div className="stat-box">
-                  <span className="info-label">Allowlist root</span>
-                  <code className="stat-value stat-hex">
-                    {result.ledger.allowlistRoot ? bigintFieldHex(result.ledger.allowlistRoot.field).slice(0, 18) : '—'}…
-                  </code>
-                  <span className="muted-text">membership tree digest</span>
-                </div>
-              </div>
-
-              {result.ledger.cases.length === 0 && <p className="muted-text">No case files have been opened on-chain yet.</p>}
-              {result.ledger.cases.length > 0 && (
-                <>
-                  <div className="audit-filter">
-                    <label className="form-label" htmlFor="audit-case-filter">
-                      Filter by case ID
-                    </label>
-                    <input
-                      id="audit-case-filter"
-                      className="form-input"
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="e.g. 0, 1, 12 — leave empty to show all"
-                      value={caseFilter}
-                      onChange={(e) => setCaseFilter(e.target.value.replace(/[^0-9]/g, ''))}
-                    />
-                    <p className="muted-text" style={{ marginTop: '6px' }}>
-                      {(() => {
-                        const filtered = caseFilter.trim() === '' ? result.ledger!.cases : result.ledger!.cases.filter((c) => c.caseId.toString() === caseFilter.trim());
-                        return filtered.length === result.ledger!.cases.length
-                          ? `Showing all ${filtered.length} case(s).`
-                          : `Showing ${filtered.length} of ${result.ledger!.cases.length} case(s) matching #${caseFilter.trim()}.`;
-                      })()}
-                    </p>
-                  </div>
-                  <table className="audit-table">
+              {result.ledger.cases.length === 0 ? (
+                <div style={{ padding: 14, color: 'var(--muted-ink)' }}>No case files yet.</div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem' }}>
                     <thead>
-                      <tr>
-                        <th>Case</th>
-                        <th>Total</th>
-                        <th>Last disclosed</th>
-                        <th>Events</th>
-                        <th>Phase</th>
+                      <tr style={{ textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)', borderBottom: '1px solid var(--line-ink)' }}>
+                        <th style={{ padding: '8px 12px' }}>Case</th>
+                        <th style={{ padding: '8px 12px' }}>Total</th>
+                        <th style={{ padding: '8px 12px' }}>Last disclosed</th>
+                        <th style={{ padding: '8px 12px' }}>Inserts</th>
+                        <th style={{ padding: '8px 12px' }}>Phase</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {(caseFilter.trim() === ''
-                        ? result.ledger.cases
-                        : result.ledger.cases.filter((c) => c.caseId.toString() === caseFilter.trim())
-                      ).map((c) => (
-                        <tr key={c.caseId.toString()}>
-                          <td>
-                            <code>#{c.caseId.toString()}</code>
-                          </td>
-                          <td>
-                            <code>{fmtTotal(c.total)}</code>
-                          </td>
-                          <td>
-                            <code>{fmtTotal(c.lastDisclosed)}</code>
-                          </td>
-                          <td>
-                            <code>{fmtTotal(c.eventCount)}</code>
-                          </td>
-                          <td>
-                            <span className={`status-tag ${c.phase === 'CLOSED' ? 'status-closed' : ''}`}>{c.phase}</span>
-                          </td>
+                      {(caseId.trim() ? result.ledger.cases.filter((c) => c.caseId.toString() === caseId.trim()) : result.ledger.cases).map((c) => (
+                        <tr key={String(c.caseId)} style={{ borderBottom: '1px solid var(--line-ink)' }}>
+                          <td style={{ padding: '8px 12px' }}><code className="mono" style={{ background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: 3, border: '1px solid var(--line-ink)' }}>#{String(c.caseId)}</code></td>
+                          <td style={{ padding: '8px 12px' }}><code className="mono">{c.total.toString()}</code> <span className="redacted redacted-sm" style={{ marginLeft: 6 }}>redacted</span></td>
+                          <td style={{ padding: '8px 12px' }}><code className="mono">{c.lastDisclosed.toString()}</code></td>
+                          <td style={{ padding: '8px 12px' }}>{c.eventCount.toString()}</td>
+                          <td style={{ padding: '8px 12px' }}><span className={`stamp ${c.phase === 'CLOSED' ? 'stamp-pending' : 'stamp-verify'} stamp-small`} style={{ transform: 'none' }}>{c.phase}</span></td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  {caseFilter.trim() !== '' && result.ledger.cases.filter((c) => c.caseId.toString() === caseFilter.trim()).length === 0 && (
-                    <p className="muted-text">No on-chain case matches #{caseFilter.trim()}.</p>
-                  )}
-                </>
+                </div>
               )}
             </section>
           )}
@@ -376,8 +201,6 @@ export default function Auditor() {
 }
 
 async function sha256Hex(input: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }

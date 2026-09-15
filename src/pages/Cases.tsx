@@ -1,158 +1,124 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-
 import { listCases, type ForensicCase } from '../lib/api';
-import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
-import Loading from '../components/Loading';
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export default function Cases() {
+  const { isDemo, mockCases } = useDemo();
   const [cases, setCases] = useState<ForensicCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState('');
-  const { isConnected, midLedger, membershipStatus } = useMidnightContext();
-  const { isDemo, mockCases, mockLedger } = useDemo();
+  const [q, setQ] = useState('');
 
   useEffect(() => {
-    if (isDemo) {
-      setCases(mockCases);
-      return;
-    }
-    listCases().then(setCases).catch((e: unknown) => setError(String(e)));
+    if (isDemo) { setCases(mockCases); return; }
+    listCases().then(setCases).catch((e) => setError(String(e)));
   }, [isDemo, mockCases]);
 
-  const ledger = isDemo ? mockLedger : midLedger;
+  useEffect(() => { if (isDemo) setCases(mockCases); }, [isDemo, mockCases]);
 
   const filtered = useMemo(() => {
     if (!cases) return null;
-    const q = filter.trim().toLowerCase();
-    if (!q) return cases;
-    return cases.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.id.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.receipts.some((r) => String(r.caseIndex ?? '').includes(q)),
+    const s = q.trim().toLowerCase();
+    if (!s) return cases;
+    return cases.filter((c) =>
+      [c.title, c.id, c.description, String(c.receipts[0]?.caseIndex ?? '')].some((v) => v.toLowerCase().includes(s))
     );
-  }, [cases, filter]);
+  }, [cases, q]);
 
   return (
     <>
-      {isDemo && (
-        <div className="card" style={{ borderStyle: 'dashed', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-          <span className="muted-text" style={{ fontSize: '0.88rem' }}>
-            <span className="info-label" style={{ background: 'rgba(139,224,175,0.15)', color: '#8be0af' }}>Demo — not on-chain</span>
-            Mock cases • actions work without wallet
-          </span>
-          <span className="muted-text" style={{ fontSize: '0.8rem' }}>{mockCases.length} demo case(s)</span>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <h1 className="display" style={{ margin: 0, fontSize: '1.6rem', color: 'var(--paper)', lineHeight: 1 }}>Case files</h1>
+          <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.9rem' }}>
+            Folder inserts on ledger {isDemo && <span style={{ color: 'var(--verify)' }}>· Demo — not on-chain</span>} · amounts <span className="redacted redacted-sm">redacted</span> unless disclosed
+          </p>
         </div>
-      )}
+        <Link to="/new" className="btn btn-primary">Open new case</Link>
+      </div>
 
-      {isConnected && ledger && !isDemo && (
-        <section className="card">
-          <p className="section-head">
-            <span className="section-no">01</span> Live ledger
-          </p>
-          <p className="muted-text">
-            On-chain aggregate <code>{ledger.aggregate.toString()}</code> · {ledger.cases.length} case file(s) ·{' '}
-            {ledger.memberCount.toString()} authorized member(s) · allowlist root{' '}
-            <code className="tx-id">0x{ledger.allowlistRoot ? ledger.allowlistRoot.field.toString(16) : '—'}</code>{' '}
-            · you: {membershipStatus === 'member' ? 'member' : 'not authorized'}
-          </p>
-        </section>
-      )}
-
-      <section className="card">
-        <p className="section-head">
-          <span className="section-no">02</span> Cases
-        </p>
-
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            className="form-input"
-            style={{ flex: '1 1 220px', maxWidth: 360 }}
-            placeholder="Search by title, case ID or description…"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            aria-label="Search cases"
-          />
-          {filter && (
-            <button className="btn btn-ghost" onClick={() => setFilter('')} style={{ padding: '8px 12px' }}>
-              Clear
-            </button>
-          )}
-          <span className="muted-text" style={{ fontSize: '0.82rem' }}>
-            {filtered ? `${filtered.length} / ${cases?.length ?? 0}` : ''}
+      <div className="ledger">
+        <div className="ledger-head" style={{ gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: '1 1 260px' }}>
+            <input
+              className="input"
+              placeholder="Search title, ID or case #"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Search cases"
+              style={{ maxWidth: 360 }}
+            />
+            {q && <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '6px 10px' }}>Clear</button>}
+          </div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {filtered ? `${filtered.length} / ${cases?.length ?? 0}` : '—'}
           </span>
         </div>
 
-        <div className="case-legend" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px', alignItems: 'center' }}>
-          <span className="muted-text" style={{ fontSize: '0.8rem' }}>Case states:</span>
-          <span className="status-tag">OPEN</span>
-          <span className="muted-text">→</span>
-          <span className="status-tag status-closed">CLOSED / Sealed</span>
-          <span className="muted-text" style={{ fontSize: '0.8rem' }}>(sealed totals are permanent)</span>
+        <div style={{ padding: '8px 14px', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', fontSize: '0.78rem', color: 'var(--muted-ink)' }}>
+          <span className="stamp stamp-verify stamp-small">Verified</span> proof-backed row
+          <span style={{ opacity: 0.5 }}>·</span>
+          <span className="stamp stamp-pending stamp-small">Pending</span> not yet disclosed
         </div>
 
-        {error && <p className="error-text">{error}</p>}
-        {!cases && !error && <Loading label="Loading cases…" />}
+        {error && <div style={{ padding: 14, color: '#ff8d7a', fontSize: '0.88rem' }}>{error}</div>}
+        {!cases && !error && <div style={{ padding: 18, color: 'var(--muted-ink)' }}>Loading folder…</div>}
 
         {cases && cases.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '32px 16px', border: '1px dashed var(--line)', borderRadius: 10, background: 'rgba(255,255,255,0.02)' }}>
-            <p style={{ fontSize: '2rem', margin: 0 }}>📂</p>
-            <h3 style={{ margin: '10px 0 6px', fontFamily: 'var(--font-display)' }}>No cases yet</h3>
-            <p className="muted-text" style={{ maxWidth: 420, margin: '0 auto 14px' }}>
-              The demo API is ephemeral and resets on redeploy — that’s expected. Create a case or try the demo to see seeded data.
+          <div className="empty" style={{ margin: 12 }}>
+            <div className="empty-icon">🗂️</div>
+            <h3 className="empty-title">Ledger just reset</h3>
+            <p className="empty-text">
+              The API store is ephemeral and clears on cold start — expected on Vercel. Your on-chain totals remain. Add a case or switch on demo for seeded files.
             </p>
-            <div className="quick-links" style={{ justifyContent: 'center' }}>
-              <Link className="btn btn-primary" to="/new">Open a new case</Link>
-              <Link className="btn btn-secondary" to="/dashboard">Try demo</Link>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/new" className="btn btn-primary">Open first case</Link>
+              <Link to="/dashboard" className="btn btn-secondary">Try demo folder</Link>
             </div>
           </div>
         )}
 
         {filtered && filtered.length === 0 && cases && cases.length > 0 && (
-          <div style={{ textAlign: 'center', padding: '24px 16px' }}>
-            <p className="muted-text">No cases match “{filter}”.</p>
-            <button className="btn btn-ghost" onClick={() => setFilter('')}>Clear search</button>
+          <div style={{ padding: 22, textAlign: 'center', color: 'var(--muted-ink)' }}>
+            No files match “{q}”. <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '4px 8px' }}>Clear search</button>
           </div>
         )}
 
         {filtered && filtered.length > 0 && (
-          <ul className="case-list">
+          <div>
             {filtered.map((c) => (
-              <li key={c.id}>
-                <Link className="case-row" to={`/cases/${c.id}`}>
-                  <div>
-                    <strong className="case-title">{c.title}</strong>
-                    <span className="info-label" title="Zero-knowledge proofs — each receipt is a ZK proof that total' = total + hidden amount. See About → Glossary.">
-                      {' '}
-                      · {c.receipts.length}{' '}
-                      <span style={{ color: 'inherit', textDecoration: 'underline' }}>
-                        proof{c.receipts.length === 1 ? '' : 's'}
-                      </span>{' '}
-                      · opened {fmtDate(c.createdAt)}
-                    </span>
-                    <p className="muted-text" style={{ margin: '6px 0 0' }}>{c.description}</p>
+              <Link key={c.id} to={`/cases/${c.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="ledger-row" style={{ alignItems: 'flex-start' }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <strong style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--paper)' }}>{c.title}</strong>
+                      <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--line-ink)', padding: '2px 6px', borderRadius: 3 }}>
+                        #{c.receipts[0]?.caseIndex ?? c.id.slice(0, 6)}
+                      </span>
+                      <span style={{ fontSize: '0.76rem', color: 'var(--muted-ink)' }}>· {c.receipts.length} insert{c.receipts.length === 1 ? '' : 's'} · {fmtDate(c.createdAt)}</span>
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: '0.86rem', color: 'var(--muted-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.description}</div>
+                    <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span className="redacted redacted-sm">private amount</span>
+                      <span style={{ color: 'var(--muted-ink)', fontSize: '0.78rem' }}>→</span>
+                      <code className="mono" style={{ fontSize: '0.78rem', background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '1px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total verified</code>
+                    </div>
                   </div>
-                  <span className={`status-tag ${c.status === 'closed' ? 'status-closed' : ''}`}>{c.status}</span>
-                </Link>
-              </li>
+                  <span className={`stamp ${c.status === 'closed' ? 'stamp-pending' : 'stamp-verify'} stamp-small`} style={{ flexShrink: 0, marginTop: 2 }}>{c.status === 'closed' ? 'Sealed' : 'Open'}</span>
+                </div>
+              </Link>
             ))}
-          </ul>
+          </div>
         )}
-      </section>
-      <div className="quick-links">
-        <Link className="btn btn-primary" to="/new">
-          Open a new case
-        </Link>
-        <Link className="btn btn-secondary" to="/audit">
-          Auditors: verify on-chain state
-        </Link>
+      </div>
+
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <Link to="/new" className="btn btn-primary">Open a new case</Link>
+        <Link to="/audit" className="btn btn-ghost">Audit without wallet</Link>
       </div>
     </>
   );

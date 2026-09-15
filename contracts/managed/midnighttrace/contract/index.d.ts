@@ -5,7 +5,8 @@ export enum Phase { ACTIVE = 0, CLOSED = 1 }
 export type Case = { total: bigint;
                      lastDisclosed: bigint;
                      eventCount: bigint;
-                     phase: Phase
+                     phase: Phase;
+                     metadataHash: Uint8Array
                    };
 
 export type Witnesses<PS> = {
@@ -19,7 +20,10 @@ export type Witnesses<PS> = {
 }
 
 export type ImpureCircuits<PS> = {
-  openCase(context: __compactRuntime.CircuitContext<PS>, caseId_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  openCase(context: __compactRuntime.CircuitContext<PS>,
+           caseId_0: bigint,
+           metadataHash_0: Uint8Array,
+           secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   grantAccess(context: __compactRuntime.CircuitContext<PS>,
               newCommitment_0: Uint8Array,
               secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
@@ -37,7 +41,10 @@ export type ImpureCircuits<PS> = {
 }
 
 export type ProvableCircuits<PS> = {
-  openCase(context: __compactRuntime.CircuitContext<PS>, caseId_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  openCase(context: __compactRuntime.CircuitContext<PS>,
+           caseId_0: bigint,
+           metadataHash_0: Uint8Array,
+           secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   grantAccess(context: __compactRuntime.CircuitContext<PS>,
               newCommitment_0: Uint8Array,
               secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
@@ -58,7 +65,10 @@ export type PureCircuits = {
 }
 
 export type Circuits<PS> = {
-  openCase(context: __compactRuntime.CircuitContext<PS>, caseId_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  openCase(context: __compactRuntime.CircuitContext<PS>,
+           caseId_0: bigint,
+           metadataHash_0: Uint8Array,
+           secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   grantAccess(context: __compactRuntime.CircuitContext<PS>,
               newCommitment_0: Uint8Array,
               secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;

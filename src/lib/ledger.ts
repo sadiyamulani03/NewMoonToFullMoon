@@ -19,6 +19,7 @@ export interface OnChainCase {
   lastDisclosed: bigint;
   eventCount: bigint;
   phase: 'ACTIVE' | 'CLOSED';
+  metadataHash: Uint8Array;
 }
 
 export interface MidnightTraceLedgerView {
@@ -40,6 +41,7 @@ export function readMidnightTraceLedger(state: StateValue | ChargedState): Midni
       lastDisclosed: caseState.lastDisclosed,
       eventCount: caseState.eventCount,
       phase: caseState.phase === 0 ? 'ACTIVE' : 'CLOSED',
+      metadataHash: caseState.metadataHash,
     });
   }
   cases.sort((a, b) => (a.caseId < b.caseId ? -1 : 1));

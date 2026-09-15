@@ -300,13 +300,15 @@ export function useMidnight() {
   }, [walletInfo]);
 
   const callOpenCase = useCallback(
-    async (caseId: bigint) => {
+    async (caseId: bigint, metadataHash?: Uint8Array) => {
       const deployed = await requireMid();
-      const result = await deployed.callTx.openCase(caseId);
+      const secret = await requireSecret();
+      const hash = metadataHash ?? new Uint8Array(32);
+      const result = await deployed.callTx.openCase(caseId, hash, secret);
       await refreshMidnight();
       return { txId: result.public.txId, blockHeight: result.public.blockHeight };
     },
-    [requireMid, refreshMidnight],
+    [requireMid, requireSecret, refreshMidnight],
   );
 
   const callGrantAccess = useCallback(

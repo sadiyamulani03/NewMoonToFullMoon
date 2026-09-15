@@ -54,14 +54,15 @@ import CompactStandardLibrary;
 export enum Phase { ACTIVE, CLOSED }
 
 export struct Case {
-    total: Uint<16>,
-    lastDisclosed: Uint<16>,
-    eventCount: Uint<16>,
+    total: Uint<32>,
+    lastDisclosed: Uint<32>,
+    eventCount: Uint<32>,
     phase: Phase,
+    metadataHash: Bytes<32>,
 }
 
 // ── PUBLIC LEDGER ──────────────────────────────────────────────────────
-export ledger cases: Map<Uint<16>, Case>;
+export ledger cases: Map<Uint<32>, Case>;
 export ledger allowlist: HistoricMerkleTree<24, Bytes<32>>;
 export ledger memberCount: Counter;
 export ledger aggregate: Counter;
@@ -80,15 +81,19 @@ constructor(ownerCommitment: Bytes<32>) {
 // member's exact leaf is never revealed.
 witness findAuthPath(commitment: Bytes<32>): MerkleTreePath<24, Bytes<32>>;
 
-// Opens a new independent case file. Anyone may open a case; only
-// authorized members (proved in ZK) may subsequently update it.
-export circuit openCase(caseId: Uint<16>): [] {
+// Opens a new independent case file. Only authorized members may open
+// cases — the opener's metadataHash (hash of title+description) is anchored
+// on-chain so auditors can verify the off-chain receipt book wasn't tampered.
+// Uint<32> scales to 4B evidence items / events for real forensic volumes.
+export circuit openCase(caseId: Uint<32>, metadataHash: Bytes<32>, secret: Bytes<32>): [] {
+    assert(checkMembership(secret), "Not an authorized investigator");
     assert(!cases.member(disclose(caseId)), "Case already exists");
     cases.insert(disclose(caseId), Case {
         total: 0,
         lastDisclosed: 0,
         eventCount: 0,
         phase: Phase.ACTIVE,
+        metadataHash: disclose(metadataHash),
     });
 }
 
@@ -105,16 +110,18 @@ export circuit grantAccess(newCommitment: Bytes<32>, secret: Bytes<32>): [] {
 
 // Private counter step — the core forensics primitive. The case total moves
 // by the hidden `amount`, the chain-of-custody event counter advances, and
-// nothing about the evidence is written to the ledger.
-export circuit logStep(caseId: Uint<16>, amount: Uint<16>, secret: Bytes<32>): [] {
+// nothing about the evidence is written to the ledger. Uint<32> totals scale
+// to 4B while per-step amount stays Uint<16> for Counter compatibility.
+export circuit logStep(caseId: Uint<32>, amount: Uint<16>, secret: Bytes<32>): [] {
     assert(mutable(caseId), "Case does not exist, or is closed");
     assert(checkMembership(secret), "Not an authorized investigator");
     const caseState = cases.lookup(disclose(caseId));
     cases.insert(disclose(caseId), Case {
-        total: (caseState.total + disclose(amount)) as Uint<16>,
+        total: (caseState.total + (disclose(amount) as Uint<32>)) as Uint<32>,
         lastDisclosed: caseState.lastDisclosed,
-        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: caseState.phase,
+        metadataHash: caseState.metadataHash,
     });
     aggregate.increment(disclose(amount));
 }
@@ -123,15 +130,16 @@ export circuit logStep(caseId: Uint<16>, amount: Uint<16>, secret: Bytes<32>): [
 // arithmetic to logStep, but the amount is ALSO published into the public
 // `lastDisclosed` field so a regulation body can inspect a single figure
 // while everything else about the case stays shielded.
-export circuit discloseFinding(caseId: Uint<16>, amount: Uint<16>, secret: Bytes<32>): [] {
+export circuit discloseFinding(caseId: Uint<32>, amount: Uint<16>, secret: Bytes<32>): [] {
     assert(mutable(caseId), "Case does not exist, or is closed");
     assert(checkMembership(secret), "Not an authorized investigator");
     const caseState = cases.lookup(disclose(caseId));
     cases.insert(disclose(caseId), Case {
-        total: (caseState.total + disclose(amount)) as Uint<16>,
-        lastDisclosed: disclose(amount),
-        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        total: (caseState.total + (disclose(amount) as Uint<32>)) as Uint<32>,
+        lastDisclosed: (disclose(amount) as Uint<32>),
+        eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: caseState.phase,
+        metadataHash: caseState.metadataHash,
     });
     aggregate.increment(disclose(amount));
 }
@@ -139,15 +147,16 @@ export circuit discloseFinding(caseId: Uint<16>, amount: Uint<16>, secret: Bytes
 // Seals a case file (integrity attestation). Once CLOSED the public ledger
 // can never change it again — a report published against a closed case is
 // provably current and unchanged. Sealing also moves the event counter.
-export circuit closeCase(caseId: Uint<16>, secret: Bytes<32>): [] {
+export circuit closeCase(caseId: Uint<32>, secret: Bytes<32>): [] {
     assert(mutable(caseId), "Case does not exist, or is closed");
     assert(checkMembership(secret), "Not an authorized investigator");
     const caseState = cases.lookup(disclose(caseId));
     cases.insert(disclose(caseId), Case {
         total: caseState.total,
         lastDisclosed: caseState.lastDisclosed,
-        eventCount: (caseState.eventCount + 1) as Uint<16>,
+        eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: Phase.CLOSED,
+        metadataHash: caseState.metadataHash,
     });
 }
 
@@ -161,7 +170,7 @@ circuit checkMembership(secret: Bytes<32>): Boolean {
     return allowlist.checkRoot(disclose(merkleTreePathRoot<24, Bytes<32>>(authPath)));
 }
 
-circuit mutable(caseId: Uint<16>): Boolean {
+circuit mutable(caseId: Uint<32>): Boolean {
     if (cases.member(disclose(caseId))) {
         return cases.lookup(disclose(caseId)).phase == Phase.ACTIVE;
     }

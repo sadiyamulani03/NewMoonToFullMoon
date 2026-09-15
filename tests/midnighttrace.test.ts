@@ -162,4 +162,40 @@ describe('MidnightTrace smart contract', () => {
     expect(ledgerJson).not.toContain(JSON.stringify(secretBytes));
     expect(ledgerJson.length).toBeGreaterThan(0);
   });
+
+  it('anchors off-chain metadata hash on-chain for tamper-evident cases', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    const titleHash = new Uint8Array(32).fill(0xab);
+    sim.openCase(5n, titleHash, OWNER);
+    const c = sim.case(5n)!;
+    expect(c.metadataHash).toEqual(titleHash);
+    // Different hash → different case identity anchor
+    const otherHash = new Uint8Array(32).fill(0xcd);
+    sim.openCase(6n, otherHash, OWNER);
+    expect(sim.case(6n)!.metadataHash).toEqual(otherHash);
+    expect(sim.case(5n)!.metadataHash).not.toEqual(sim.case(6n)!.metadataHash);
+  });
+
+  it('scales to Uint32 totals beyond 65535 (real forensic volumes)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    sim.openCase(10n, new Uint8Array(32), OWNER);
+    // Log 3 steps of max Uint16 each — total 196605 > 65535, proves Uint32 on-chain
+    sim.logStep(10n, 65535n, OWNER);
+    sim.logStep(10n, 65535n, OWNER);
+    sim.logStep(10n, 65535n, OWNER);
+    const c = sim.case(10n)!;
+    expect(c.total).toEqual(196605n);
+    expect(c.eventCount).toEqual(3n);
+    expect(sim.aggregate()).toEqual(196605n);
+  });
+
+  it('requires authorized member to open a case (openCase now ZK-gated)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    const intruder = testSecret(9);
+    const hash = new Uint8Array(32);
+    expect(() => sim.openCase(99n, hash, intruder)).toThrow();
+    // Owner can still open
+    sim.openCase(99n, hash, OWNER);
+    expect(sim.case(99n)).toBeDefined();
+  });
 });

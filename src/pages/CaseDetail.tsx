@@ -94,7 +94,7 @@ export default function CaseDetail() {
 
   const resolveCaseId = useCallback((): bigint => {
     const parsed = BigInt(caseIndex || '0');
-    if (parsed < 0n || parsed > 65535n) throw new Error('Case index must be 0–65535.');
+    if (parsed < 0n || parsed > 4294967295n) throw new Error('Case index must be 0–4294967295 (Uint32).');
     return parsed;
   }, [caseIndex]);
 
@@ -173,8 +173,12 @@ export default function CaseDetail() {
     setRunMessage(null);
     try {
       const caseId = resolveCaseId();
-      const r = await callOpenCase(caseId);
-      setRunMessage(`Case #${caseId.toString()} opened on-chain (tx ${r.txId.slice(0, 12)}…).`);
+      // Metadata hash anchors off-chain title+description on-chain for tamper-evident audit
+      const meta = `${caseItem?.title ?? ''}|${caseItem?.description ?? ''}|${caseId.toString()}`;
+      const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(meta));
+      const metadataHash = new Uint8Array(hashBuf);
+      const r = await callOpenCase(caseId, metadataHash);
+      setRunMessage(`Case #${caseId.toString()} opened on-chain (tx ${r.txId.slice(0, 12)}…, metadata anchored).`);
       await onLanded({ txId: r.txId, blockHeight: r.blockHeight }, 'logStep', 0n);
     } catch (e: unknown) {
       setRunMessage((e as Error & { reason?: string }).reason ?? (e as Error).message ?? String(e));
@@ -276,6 +280,12 @@ export default function CaseDetail() {
               <code className="value">{onChainCase ? onChainCase.eventCount.toString() : '—'}</code>
               <span className="info-label">Phase</span>
               <code className="value">{onChainCase ? onChainCase.phase : '—'}</code>
+              {onChainCase?.metadataHash && (
+                <>
+                  <span className="info-label" title="SHA-256 of title+description anchored at openCase — tamper-evident">Metadata hash</span>
+                  <code className="value" title={Array.from(onChainCase.metadataHash).map(b=>b.toString(16).padStart(2,'0')).join('')}>{Array.from(onChainCase.metadataHash).slice(0,4).map(b=>b.toString(16).padStart(2,'0')).join('')}…</code>
+                </>
+              )}
             </div>
             {(!onChainIndex || !onChainCase) && (
               <p className="muted-text">

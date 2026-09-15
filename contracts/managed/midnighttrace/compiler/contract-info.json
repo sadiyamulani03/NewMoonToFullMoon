@@ -12,7 +12,21 @@
           "name": "caseId",
           "type": {
             "type-name": "Uint",
-            "maxval": 65535
+            "maxval": 4294967295
+          }
+        },
+        {
+          "name": "metadataHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "secret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
           }
         }
       ],
@@ -57,7 +71,7 @@
           "name": "caseId",
           "type": {
             "type-name": "Uint",
-            "maxval": 65535
+            "maxval": 4294967295
           }
         },
         {
@@ -90,7 +104,7 @@
           "name": "caseId",
           "type": {
             "type-name": "Uint",
-            "maxval": 65535
+            "maxval": 4294967295
           }
         },
         {
@@ -123,7 +137,7 @@
           "name": "caseId",
           "type": {
             "type-name": "Uint",
-            "maxval": 65535
+            "maxval": 4294967295
           }
         },
         {
@@ -212,7 +226,7 @@
       "storage": "Map",
       "key": {
         "type-name": "Uint",
-        "maxval": 65535
+        "maxval": 4294967295
       },
       "value": {
         "type-name": "Struct",
@@ -222,21 +236,21 @@
             "name": "total",
             "type": {
               "type-name": "Uint",
-              "maxval": 65535
+              "maxval": 4294967295
             }
           },
           {
             "name": "lastDisclosed",
             "type": {
               "type-name": "Uint",
-              "maxval": 65535
+              "maxval": 4294967295
             }
           },
           {
             "name": "eventCount",
             "type": {
               "type-name": "Uint",
-              "maxval": 65535
+              "maxval": 4294967295
             }
           },
           {
@@ -248,6 +262,13 @@
                 "ACTIVE",
                 "CLOSED"
               ]
+            }
+          },
+          {
+            "name": "metadataHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
             }
           }
         ]

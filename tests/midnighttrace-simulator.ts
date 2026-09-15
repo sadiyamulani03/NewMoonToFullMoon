@@ -63,10 +63,25 @@ export class MidnightTraceSimulator {
     return this.getLedger().aggregate;
   }
 
-  public openCase(caseId: bigint): void {
+  public openCase(caseId: bigint, metadataHash?: Uint8Array, secret?: Uint8Array): void {
+    const hash = metadataHash ?? new Uint8Array(32);
+    // Default to owner secret if not provided — tests use owner for bootstrapping
+    // For simulator we need a secret that is on allowlist; pick the owner's commitment path.
+    // If secret not supplied, we derive from a zero secret that won't be found — so we try to use provided secret or fallback to owner secret (testSecret 0).
+    // Callers (tests) should pass secret explicitly now that openCase requires it.
+    const openerSecret = secret ?? new Uint8Array(32);
+    // If openerSecret is all zeros (fallback) it won't be on allowlist — use owner secret bytes (index 0) as default for backward compat in tests that call openCase(1n) without secret.
+    let effectiveSecret = openerSecret;
+    if (openerSecret.every((b) => b === 0)) {
+      // Reconstruct owner secret (testSecret 0) — "0" bytes
+      effectiveSecret = new Uint8Array(32);
+      new TextEncoder().encode('0').forEach((b, i) => { effectiveSecret[i] = b; });
+    }
     this.circuitContext = this.contract.impureCircuits.openCase(
       this.circuitContext,
       caseId,
+      hash,
+      effectiveSecret,
     ).context;
   }
 

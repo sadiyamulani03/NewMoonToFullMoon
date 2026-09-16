@@ -27,6 +27,7 @@ export default function CaseDetail() {
   const [memberMsg, setMemberMsg] = useState<string | null>(null);
   const [onChainIdx, setOnChainIdx] = useState<bigint | null>(null);
   const [editIdx, setEditIdx] = useState(false);
+  const [lastProof, setLastProof] = useState<{ txId: string; blockHeight: number | bigint; caseId: string; network: string } | null>(null);
 
   const { isConnected, walletState, isMobile, midLedger, memberCommitmentHex, membershipStatus, applyOwnerSecret, callOpenCase, callGrantAccess, callLogStep, callDiscloseFinding, callCloseCase } = useMidnightContext();
   const { isDemo, mockCases, mockLedger, demoLogStep, demoDisclose, demoClose, demoOpenCase, getDemoCase } = useDemo();
@@ -80,12 +81,13 @@ export default function CaseDetail() {
   };
 
   const run = async () => {
-    setMsgTechnical(null); setShowTechnical(false);
+    setMsgTechnical(null); setShowTechnical(false); setLastProof(null);
     if (isDemo && caseItem) {
       const cid = resolveId();
-      if (action === 'logStep') { const p = validateAmount(amount); if (p === null) return; demoLogStep(cid, p, caseItem.id); setMsg('✓ Demo: finding logged — redacted amount → public total updated.'); setMsgTechnical(null); }
-      else if (action === 'discloseFinding') { const p = validateAmount(amount); if (p === null) return; demoDisclose(cid, p, caseItem.id); setMsg('✓ Demo: total disclosed — now public.'); setMsgTechnical(null); }
-      else { demoClose(cid, caseItem.id); setMsg('✓ Demo: case sealed — phase CLOSED.'); setMsgTechnical(null); }
+      const mockTx = Array.from({ length: 12 }, () => Math.floor(Math.random()*16).toString(16)).join('') + '…';
+      if (action === 'logStep') { const p = validateAmount(amount); if (p === null) return; demoLogStep(cid, p, caseItem.id); setMsg('✓ Demo: finding logged — redacted amount → public total updated.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500123, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
+      else if (action === 'discloseFinding') { const p = validateAmount(amount); if (p === null) return; demoDisclose(cid, p, caseItem.id); setMsg('✓ Demo: total disclosed — now public.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500124, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
+      else { demoClose(cid, caseItem.id); setMsg('✓ Demo: case sealed — phase CLOSED.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500125, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
       setAmount(''); return;
     }
     if (!isConnected) { setMsg('Connect wallet or enable Demo — no proof can be generated without a wallet.'); setMsgTechnical(null); return; }
@@ -99,17 +101,20 @@ export default function CaseDetail() {
         const r = await callLogStep(cid, p);
         setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'logStep');
+        setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       } else if (action === 'discloseFinding') {
         const p = validateAmount(amount); if (p === null) { setBusy(false); return; }
         setBusyStage('proof');
         const r = await callDiscloseFinding(cid, p);
         setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'discloseFinding', p);
+        setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       } else {
         setBusyStage('proof');
         const r = await callCloseCase(cid);
         setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'closeCase');
+        setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       }
       setMsg('✓ Proof verified — receipt filed on ledger.');
       setMsgTechnical(null);
@@ -286,6 +291,29 @@ export default function CaseDetail() {
                       {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 4, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>{msgTechnical}</pre>}
                     </div>
                   )}
+                </div>
+              )}
+              {msg?.startsWith('✓') && lastProof && (
+                <div className="ledger" style={{ marginTop: 12, borderColor: 'var(--verify-border)' }}>
+                  <div className="ledger-head" style={{ background: 'var(--verify-soft)', borderBottomColor: 'var(--verify-border)' }}>
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--verify)', fontSize: '0.9rem' }}>✓ PROOF VERIFIED</span>
+                    <span className="stamp stamp-verify stamp-small" style={{ transform: 'none' }}>Verified</span>
+                  </div>
+                  <div style={{ padding: '10px 12px', display: 'grid', gap: 6, fontSize: '0.82rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}><span style={{ color: 'var(--muted-ink)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Verification</span><span style={{ color: 'var(--verify)', fontWeight: 700 }}>VERIFIED</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Case</span><code className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>#{lastProof.caseId}</code></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Proof</span><code className="mono" style={{ color: 'var(--paper)', fontSize: '0.72rem' }}>{lastProof.txId.slice(0, 16)}…</code></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Network</span><span className="mono" style={{ color: 'var(--paper)', fontSize: '0.72rem' }}>{lastProof.network}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Block</span><span className="mono" style={{ color: 'var(--paper)' }}>{String(lastProof.blockHeight)}</span></div>
+                  </div>
+                  <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <Link to={`/audit?case=${lastProof.caseId}`} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>View audit details →</Link>
+                    <Link to="/cases" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>Back to cases</Link>
+                    <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={async () => { try { await navigator.clipboard.writeText(lastProof.txId); setMsg('✓ Proof ID copied'); } catch {} }}>Copy proof ID</button>
+                  </div>
+                  <div style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--line-ink)', fontSize: '0.74rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
+                    <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Private:</span> <span className="redacted redacted-sm">amount</span> stayed on device. <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Public:</span> <code className="mono">total</code> + <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> are now auditable at <Link to={`/audit?case=${lastProof.caseId}`}>/audit</Link>.
+                  </div>
                 </div>
               )}
             </div>

@@ -37,9 +37,9 @@ export default function Layout() {
         </div>
 
         <nav className="rail-nav" aria-label="Sections">
-          <NavLink to="/" end className={({ isActive }) => `rail-tab${isActive ? ' rail-tab-active' : ''}`}>
+          <NavLink to="/" end className={({ isActive }) => `rail-tab${isActive ? ' rail-tab-active' : ''}`} aria-label="Home — landing">
             <svg className="rail-icon" viewBox="0 0 16 16"><path d="M3 5.5h10v5H3z" /><path d="M3 3h4l1.5 1.5H13" /></svg>
-            Landing
+            Home
           </NavLink>
           <NavLink to="/dashboard" className={({ isActive }) => `rail-tab${isActive ? ' rail-tab-active' : ''}`}>
             <svg className="rail-icon" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="1" /><path d="M5 8h6M8 5v6" /></svg>

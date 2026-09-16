@@ -1,14 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { XProfileLink } from '../components/SocialLinks';
 import { GITHUB_URL } from '../config';
 
 export default function Landing() {
-  const { isDemo, enableDemo } = useDemo();
+  const { isDemo, enableDemo, mockCases, mockLedger, demoLogStep, demoDisclose } = useDemo();
   const navigate = useNavigate();
   const goDemo = () => { if (!isDemo) enableDemo(); navigate('/dashboard'); };
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
+  const [demoAmt, setDemoAmt] = useState('15');
+  const [demoMsg, setDemoMsg] = useState<string | null>(null);
+
+  // Landing IS demo — auto-enable mock ledger so reviewers see working app without wallet
+  useEffect(() => { if (!isDemo) enableDemo(); }, [isDemo, enableDemo]);
+
+  const demoCase = mockCases.find((c) => c.id.startsWith('demo-7')) ?? mockCases[0];
 
   return (
     <>
@@ -223,6 +230,54 @@ export default function Landing() {
               {faqOpen === i && <div style={{ padding: '0 14px 12px', fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.6 }}>{item.a}</div>}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* LIVE DEMO — landing IS demo (no wallet, no redirect needed) */}
+      <section className="ledger" style={{ borderColor: 'var(--verify-border)', overflow: 'hidden' }}>
+        <div className="ledger-head" style={{ background: 'var(--verify-soft)' }}>
+          <span className="ledger-title" style={{ display: 'flex', gap: 8, alignItems: 'center' }}><span className="stamp stamp-verify stamp-small" style={{ transform: 'none' }}>Demo</span> Live demo — no wallet · Case #07</span>
+          <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--verify)', fontWeight: 700 }}>aggregate {mockLedger.aggregate.toString()} · {mockCases.length} cases · mock ledger</span>
+        </div>
+        <div style={{ padding: '14px 14px', display: 'grid', gap: 12 }}>
+          <div className="wire" style={{ display: 'grid', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-ink)' }}>{demoCase.title} <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>· {demoCase.status} · {demoCase.receipts.length} receipts</span></span>
+              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>total {mockLedger.cases.find(c => c.caseId === 7n)?.total.toString() ?? '—'} · lastDisclosed {mockLedger.cases.find(c => c.caseId === 7n)?.lastDisclosed.toString() ?? '0'}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span className="redacted">████ {demoAmt || '—'}</span>
+              <span style={{ color: 'var(--muted)' }}>→</span>
+              <code className="mono" style={{ background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '2px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total&apos; = total + amount</code>
+              <span className="stamp stamp-verify stamp-small" style={{ transform: 'none' }}>Verified</span>
+            </div>
+            <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {demoCase.receipts.slice(-3).map(r => <span key={r.txId} title={r.txId}>{r.txId.slice(0,12)}… · {r.stepType} · block {r.blockHeight}</span>)}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input className="input" value={demoAmt} onChange={e => setDemoAmt(e.target.value.replace(/[^0-9]/g,''))} placeholder="amount" inputMode="numeric" style={{ maxWidth: 120 }} aria-label="Demo private amount" />
+            <button className="btn btn-primary" onClick={() => {
+              const n = BigInt(parseInt(demoAmt || '0', 10) || 0);
+              if (n <= 0n) { setDemoMsg('Enter amount > 0'); return; }
+              demoLogStep(7n, n, demoCase.id);
+              setDemoMsg(`Logged hidden ${n} → total updated (amount stays redacted) ✓`);
+              setTimeout(() => setDemoMsg(null), 2500);
+            }}>Log hidden step</button>
+            <button className="btn btn-cream" onClick={() => {
+              const n = BigInt(parseInt(demoAmt || '0', 10) || 0);
+              demoDisclose(7n, n || mockLedger.cases.find(c => c.caseId === 7n)?.total || 0n, demoCase.id);
+              setDemoMsg(`Disclosed ${n || 'total'} → lastDisclosed ✓`);
+              setTimeout(() => setDemoMsg(null), 2500);
+            }}>Disclose</button>
+            <Link to="/dashboard" className="btn btn-ghost">Open full dashboard →</Link>
+            <Link to="/cases" className="btn btn-ghost">Cases</Link>
+          </div>
+          {demoMsg && <div style={{ fontSize: '0.82rem', color: 'var(--verify)', fontWeight: 600 }}>{demoMsg}</div>}
+          <div style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.5 }}>
+            This is the real demo ledger (same mock ledger as <Link to="/dashboard" style={{ fontWeight: 600 }}>/dashboard</Link>). Amount is <span className="redacted redacted-sm">redacted</span> — never leaves the input, never on-chain. Verify wallet-free at <Link to="/audit" style={{ fontWeight: 600 }}>/audit</Link>. Refresh resets.
+          </div>
         </div>
       </section>
 

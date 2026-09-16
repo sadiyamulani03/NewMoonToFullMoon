@@ -160,7 +160,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | MVP live on Preprod | ✅ | `midnighttrace.compact` deployed at `c69ac004…` (see **Contract Address**); live dApp at `https://midnighttrace.vercel.app` |
 | Documentation | ✅ | This README, `docs/USAGE.md` (non-technical walkthrough), `docs/posts.md`, `PROPOSAL.md` |
 | CI/CD in place | ✅ | GitHub Actions badge below (contract + frontend jobs, both passing) |
-| Public product (X) profile | ✅ | [@Midnight__Trace](https://x.com/Midnight__Trace) + in-app pill (appeal-aware) + backups in `docs/posts.md`/GitHub/demo — see **Product X Profile** |
+| Public product (X) profile | ✅ | [@MidnightTraceAp](https://x.com/MidnightTraceAp) — live (3 posts 2100180…) — see **Product X Profile** |
 
 `contracts/midnighttrace.compact` replaces the single counter with a whole
 investigation desk, still private by default. Its five circuits:
@@ -213,7 +213,7 @@ Additional pages: **Audit** (`/audit`).
 | Requirement | Status | Evidence |
 |---|---|---|
 | Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
-| Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/Midnight__Trace` |
+| Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/MidnightTraceAp` |
 | 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: 50/50 Level 5 in `USERS.md` + 20/70 Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod1…` (verified 0 dupes). No Mainnet used; see `LAUNCH_USERS.md:1` |
 | Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.1` redeployed at `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (Uint32 scaling + metadataHash anchor, `2026-09-15T09:41`); v1.0 `c69ac004…` retained as legacy; Mainnet path in `PROPOSAL.md` |
 
@@ -467,12 +467,12 @@ See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 TOTAL combined (all 
 
 ## Product X Profile
 
-- **Profile:** https://x.com/Midnight__Trace (`@Midnight__Trace`) — if flagged, UI shows appeal badge + backup links below (no dead link)
-- **Launch post:** https://x.com/Midnight__Trace/status/2087846984195752357
-- **Privacy post:** https://x.com/Midnight__Trace/status/2087847565182341337
-- **Auditor post:** https://x.com/Midnight__Trace/status/2087848209230262538
+- **Profile:** https://x.com/MidnightTraceAp (`@MidnightTraceAp`) — live (replaces suspended `@Midnight__Trace`)
+- **Launch post:** https://x.com/MidnightTraceAp/status/2100180364551663645
+- **Privacy post:** https://x.com/MidnightTraceAp/status/2100181139386446113
+- **Auditor post:** https://x.com/MidnightTraceAp/status/2100181575581495456
 
-The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md). If X moderation flags the handle (currently “Account suspended” on fetch), the live UI at `/` and `/about` surfaces the handle with an **Appeal** pill plus 1-click backups: **GitHub** (`https://github.com/sadiyamulani03/NewMoonToFullMoon`) + **demo video** + `docs/posts.md`. The handle is centralized in `src/config.ts` (`VITE_X_PROFILE_URL` / `VITE_X_HANDLE`) so a replacement deploys without a code change.
+Previous handle `@Midnight__Trace` suspended — migrated to `@MidnightTraceAp` (see `src/config.ts:54` `X_HANDLE`). Full threads mirrored in [`docs/posts.md`](./docs/posts.md).
 
 ## Brand Assets
 

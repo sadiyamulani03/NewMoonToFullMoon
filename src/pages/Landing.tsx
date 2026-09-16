@@ -157,7 +157,7 @@ export default function Landing() {
       <section style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12, alignItems: 'start' }}>
         <div className="ledger" style={{ overflow: 'hidden' }}>
           <div className="ledger-head">
-            <span className="ledger-title">See it in 90 seconds</span>
+            <span className="ledger-title">See it live</span>
             <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Demo · Preprod live</span>
           </div>
           <div style={{ aspectRatio: '16/9', background: '#0F131A', display: 'grid', placeItems: 'center' }}>

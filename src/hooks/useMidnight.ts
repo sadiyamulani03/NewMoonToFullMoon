@@ -89,13 +89,40 @@ export function useMidnight() {
 
   const isConnected = walletState.status === 'connected';
 
+  // Poll for wallet injection — Midnight extensions (Lace/1AM) often inject
+  // window.midnight asynchronously after page load. A single immediate check
+  // causes the first Connect click to see wallet-not-installed while the
+  // second click (a second later) succeeds. Poll for up to 3s.
   useEffect(() => {
-    const wallets = listWallets();
-    if (wallets.length > 0) {
-      setWalletState({ status: 'detected', wallets });
-    } else {
-      setWalletState({ status: 'wallet-not-installed' });
-    }
+    let cancelled = false;
+    let timer: number | null = null;
+    const poll = () => {
+      if (cancelled) return;
+      const wallets = listWallets();
+      if (wallets.length > 0) {
+        setWalletState({ status: 'detected', wallets });
+        return;
+      }
+      timer = window.setTimeout(poll, 350);
+    };
+    poll();
+    // Give injection up to 3s, then declare not-installed if still absent.
+    // Also re-check on window load (extensions often inject on load).
+    const onLoad = () => {
+      const wallets = listWallets();
+      if (wallets.length > 0) setWalletState({ status: 'detected', wallets });
+    };
+    window.addEventListener('load', onLoad);
+    const stopAt = window.setTimeout(() => {
+      if (cancelled) return;
+      if (listWallets().length === 0) setWalletState({ status: 'wallet-not-installed' });
+    }, 3200);
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      window.clearTimeout(stopAt);
+      window.removeEventListener('load', onLoad);
+    };
   }, []);
 
   // Keep the global network id in sync for the Midnight.js runtime.
@@ -146,89 +173,138 @@ export function useMidnight() {
     await Promise.allSettled([refreshLedger(), refreshMidnight()]);
   }, [refreshLedger, refreshMidnight]);
 
+  // Wait briefly for injection if wallet not yet present (covers the
+  // "first click fails, second succeeds" race where extension injects late).
+  async function waitForWalletReady(timeoutMs = 2200): Promise<InitialAPI | null> {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const w = findFirstWallet();
+      if (w) return w;
+      await new Promise((r) => setTimeout(r, 180));
+    }
+    return findFirstWallet();
+  }
+
   const connect = useCallback(async () => {
-    const wallet = findFirstWallet();
+    // Give injection a moment before deciding wallet is missing.
+    let wallet = findFirstWallet();
     if (!wallet) {
-      setWalletState({ status: 'wallet-not-installed' });
-      return;
+      wallet = await waitForWalletReady(2000);
+      if (!wallet) {
+        setWalletState({ status: 'wallet-not-installed' });
+        return;
+      }
+      // Wallet appeared during wait — mark detected before connecting.
+      setWalletState({ status: 'detected', wallets: listWallets() });
+      // Small yield so UI updates from detected before connecting.
+      await new Promise((r) => setTimeout(r, 80));
     }
 
     setWalletState({ status: 'connecting' });
-    try {
-      const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
-      const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
 
-      if (config.networkId !== NETWORK_ID) {
-        setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });
+    // One automatic retry for transient failures (locked, initializing,
+    // timeout, or extension waking). Keeps status `connecting` so the UI
+    // shows "Waiting for wallet approval…" instead of flashing an error
+    // that forces the user to click a second time.
+    const TRANSIENT_RE = /locked|unlock|not ready|initializ|timeout|timed out|no response|failed to fetch|networkerror/i;
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
+        const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
+
+        if (config.networkId !== NETWORK_ID) {
+          setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });
+          return;
+        }
+
+        const shielded = await connected.getShieldedAddresses();
+
+        const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
+        providersRef.current = providers;
+
+        const deployed = await findDeployedCounter(providers, CONTRACT_ADDRESS);
+        contractRef.current = deployed;
+        setContract(deployed);
+        setContractAddress(CONTRACT_ADDRESS);
+
+        // MidnightTrace (Level 4) uses its own compiled circuits, so build a
+        // second provider set keyed to its artifacts. The wallet, network, and
+        // private state backing are the same; only the ZK config paths differ.
+        const midProviders = MIDNIGHTTRACE_CONTRACT_ADDRESS
+          ? await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace')
+          : null;
+        midProvidersRef.current = midProviders;
+        if (midProviders && MIDNIGHTTRACE_CONTRACT_ADDRESS) {
+          try {
+            const midDeployed = await findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS);
+            midContractRef.current = midDeployed;
+            setMidContract(midDeployed);
+            setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
+          } catch (e) {
+            console.error('midnighttrace join failed (is the Level 4 address configured?)', e);
+          }
+        }
+
+        // Member secret: the deployer-printed owner secret wins when configured;
+        // otherwise derive a stable per-wallet secret from the shielded address.
+        let secret: Uint8Array | null = null;
+        if (MIDNIGHTTRACE_OWNER_SECRET) {
+          try {
+            secret = fromHex(MIDNIGHTTRACE_OWNER_SECRET);
+          } catch {
+            secret = null;
+          }
+        }
+        if (!secret) {
+          secret = await defaultMemberSecret(shielded.shieldedAddress);
+        }
+        membershipSecretRef.current = secret;
+        setMembershipSecret(secret);
+
+        connectedAPIRef.current = connected;
+        setConnectedAPI(connected);
+
+        setWalletInfo({
+          address: shielded.shieldedAddress,
+          walletName: wallet.name,
+          networkId: config.networkId,
+        });
+        setWalletState({ status: 'connected' });
+
+        await Promise.allSettled([refreshLedger(), refreshMidnight()]);
         return;
-      }
-
-      const shielded = await connected.getShieldedAddresses();
-
-      const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
-      providersRef.current = providers;
-
-      const deployed = await findDeployedCounter(providers, CONTRACT_ADDRESS);
-      contractRef.current = deployed;
-      setContract(deployed);
-      setContractAddress(CONTRACT_ADDRESS);
-
-      // MidnightTrace (Level 4) uses its own compiled circuits, so build a
-      // second provider set keyed to its artifacts. The wallet, network, and
-      // private state backing are the same; only the ZK config paths differ.
-      const midProviders = MIDNIGHTTRACE_CONTRACT_ADDRESS
-        ? await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace')
-        : null;
-      midProvidersRef.current = midProviders;
-      if (midProviders && MIDNIGHTTRACE_CONTRACT_ADDRESS) {
-        try {
-          const midDeployed = await findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS);
-          midContractRef.current = midDeployed;
-          setMidContract(midDeployed);
-          setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
-        } catch (e) {
-          console.error('midnighttrace join failed (is the Level 4 address configured?)', e);
+      } catch (e: unknown) {
+        lastErr = e;
+        const err = e as Error & { code?: string; reason?: string };
+        const reason = err?.reason ?? '';
+        const message = err?.message ?? String(e);
+        const isRejected = err?.code === 'Rejected' || /reject/i.test(reason + ' ' + message);
+        if (isRejected) {
+          setWalletState({ status: 'rejected' });
+          console.error('connect error', e);
+          return;
         }
-      }
-
-      // Member secret: the deployer-printed owner secret wins when configured;
-      // otherwise derive a stable per-wallet secret from the shielded address.
-      let secret: Uint8Array | null = null;
-      if (MIDNIGHTTRACE_OWNER_SECRET) {
-        try {
-          secret = fromHex(MIDNIGHTTRACE_OWNER_SECRET);
-        } catch {
-          secret = null;
+        const isTransient = TRANSIENT_RE.test(message + ' ' + reason);
+        const isLastAttempt = attempt === 1;
+        if (!isTransient || isLastAttempt) {
+          // Map common transient messages to a less scary, actionable copy.
+          let friendly = message;
+          if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
+          else if (/timeout|timed out|no response/i.test(message)) friendly = 'Wallet did not respond in time — extension may be waking. Please retry.';
+          setWalletState({ status: 'error', message: friendly });
+          console.error('connect error', e);
+          return;
         }
+        // Transient — wait briefly and retry without flashing error.
+        await new Promise((r) => setTimeout(r, 900));
+        const refreshed = await waitForWalletReady(800);
+        if (refreshed) wallet = refreshed;
       }
-      if (!secret) {
-        secret = await defaultMemberSecret(shielded.shieldedAddress);
-      }
-      membershipSecretRef.current = secret;
-      setMembershipSecret(secret);
-
-      connectedAPIRef.current = connected;
-      setConnectedAPI(connected);
-
-      setWalletInfo({
-        address: shielded.shieldedAddress,
-        walletName: wallet.name,
-        networkId: config.networkId,
-      });
-      setWalletState({ status: 'connected' });
-
-      await Promise.allSettled([refreshLedger(), refreshMidnight()]);
-    } catch (e: unknown) {
-      const err = e as Error & { code?: string; reason?: string };
-      const reason = err?.reason ?? '';
-      const message = err?.message ?? String(e);
-      if (err?.code === 'Rejected' || /reject/i.test(reason + ' ' + message)) {
-        setWalletState({ status: 'rejected' });
-      } else {
-        setWalletState({ status: 'error', message });
-      }
-      console.error('connect error', e);
     }
+    // Fallback (should be unreachable — loop handles all exits)
+    const fallbackMsg = lastErr instanceof Error ? lastErr.message : String(lastErr ?? 'Unknown error');
+    setWalletState({ status: 'error', message: fallbackMsg });
   }, [refreshLedger, refreshMidnight]);
 
   const disconnect = useCallback(() => {

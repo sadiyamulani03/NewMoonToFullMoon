@@ -147,6 +147,14 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
   // matters because Docker Desktop (proof-server) is often stopped or WSL
   // integration is off (`wsl --list` shows docker-desktop Stopped),
   // surfacing as plain `Failed to fetch`. We surface an actionable message.
+  // On deployed hosts (Vercel, not localhost) a baked `http://localhost:6300`
+  // can never be reached from the user's browser — detect that and prefer
+  // wallet/Demo instead.
+  const isLocalHost =
+    typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  const effectiveConfiguredUri =
+    configuredProverUri && configuredProverUri === LOCAL_FALLBACK_URI && !isLocalHost ? undefined : configuredProverUri;
+
   function wrapWithFallback(primary: ProofProvider, label: string): ProofProvider {
     if (!provingProvider && !config.proverServerUri) return primary;
     return {
@@ -171,25 +179,28 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
               return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx as never);
             } catch {}
           }
-          // Try localhost fallback if different from configured
-          if (LOCAL_FALLBACK_URI !== configuredProverUri) {
+          // Try localhost fallback only when we are on localhost (Vercel can't reach user's localhost)
+          if (isLocalHost && LOCAL_FALLBACK_URI !== configuredProverUri) {
             try {
               return await httpClientProofProvider(LOCAL_FALLBACK_URI, zkConfigProvider).proveTx(unprovenTx as never);
             } catch {}
           }
-          const dockerHint =
-            `Docker Desktop is not reachable at ${label} (${msg}). ` +
-            `On Windows/WSL: 1) Start Docker Desktop, 2) Settings → Resources → WSL Integration → enable your distro (Ubuntu), 3) ` +
-            `docker compose up -d --wait proof-server, 4) keep VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env and restart npm run dev. ` +
-            `Preprod also works with Lace (in-wallet proving, no server) — or toggle Demo — no wallet in the header for a wallet-free mock ledger.`;
+          const dockerHint = isLocalHost
+            ? `Docker Desktop is not reachable at ${label} (${msg}). ` +
+              `On Windows/WSL: 1) Start Docker Desktop, 2) Settings → Resources → WSL Integration → enable your distro (Ubuntu), 3) ` +
+              `docker compose up -d --wait proof-server, 4) keep VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env and restart npm run dev. ` +
+              `Preprod also works with Lace (in-wallet proving, no server) — or toggle Demo — no wallet in the header for a wallet-free mock ledger.`
+            : `Proving station unreachable from this deployed site (${label} → ${msg}). ` +
+              `On Vercel/remote hosts http://localhost:6300 is your machine, not the server — use Lace wallet (in-wallet proving, no server needed) or toggle Demo — no wallet in the header for a wallet-free mock ledger. ` +
+              `For local dev, run the proof server locally: docker compose up -d --wait proof-server with VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI}.`;
           throw new Error(dockerHint, { cause: primaryErr });
         }
       },
     };
   }
 
-  const proofProvider: ProofProvider = configuredProverUri
-    ? wrapWithFallback(httpClientProofProvider(configuredProverUri, zkConfigProvider), configuredProverUri)
+  const proofProvider: ProofProvider = effectiveConfiguredUri
+    ? wrapWithFallback(httpClientProofProvider(effectiveConfiguredUri, zkConfigProvider), effectiveConfiguredUri)
     : provingProvider
       ? {
           async proveTx(unprovenTx: any) {
@@ -214,27 +225,29 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
                       // fall through to user-facing error
                     }
                   }
+                  const deployedHint = isLocalHost
+                    ? `Fix (local): docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev). ` +
+                      `Or switch to Lace (in-wallet proving) or Demo — no wallet.`
+                    : `Fix (deployed site): this host can't reach http://localhost:6300 — that is your browser's machine, not the server. Switch to Lace (in-wallet proving, no server) or toggle Demo — no wallet. For local dev, run proof server locally.`;
                   throw new Error(
-                    `Proving failed via wallet and its prover (${String(fallbackErr)}). ` +
-                      `Fix: run local proof server → docker compose up -d --wait proof-server, ` +
-                      `set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env, restart dev server. ` +
-                      `Or enable Demo — no wallet (header toggle) to bypass proving. Underlying: ${String(err)}`,
+                    `Proving failed via wallet and its prover (${String(fallbackErr)}). ${deployedHint} Underlying check: ${String(err)}`,
                     { cause: fallbackErr },
                   );
                 }
               }
               if (isNetworkError) {
-                try {
-                  return (await tryLocalFallback(unprovenTx, err)) as never;
-                } catch {
-                  // local fallback also unreachable
+                // Only try localhost fallback when on localhost (deployed Vercel shouldn't fetch user's localhost)
+                if (isLocalHost) {
+                  try {
+                    return (await tryLocalFallback(unprovenTx, err)) as never;
+                  } catch {
+                    // local fallback also unreachable
+                  }
                 }
-                throw new Error(
-                  `Wallet proving station unreachable (${String(err)}). ` +
-                    `Fix: docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev), ` +
-                    `or switch to Lace (in-wallet proving), or use Demo — no wallet.`,
-                  { cause: err },
-                );
+                const hint = isLocalHost
+                  ? `Wallet proving station unreachable (${String(err)}). Fix: docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev), or switch to Lace (in-wallet proving), or use Demo — no wallet.`
+                  : `Wallet proving station unreachable from deployed site (${String(err)}). Use Lace wallet (in-wallet proving) or toggle Demo — no wallet. http://localhost:6300 is only for local dev with Docker Desktop running.`;
+                throw new Error(hint, { cause: err });
               }
               throw err;
             }

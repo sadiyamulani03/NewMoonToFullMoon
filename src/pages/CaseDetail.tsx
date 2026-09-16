@@ -30,7 +30,7 @@ export default function CaseDetail() {
   const [lastProof, setLastProof] = useState<{ txId: string; blockHeight: number | bigint; caseId: string; network: string } | null>(null);
 
   const { isConnected, walletState, isMobile, midLedger, memberCommitmentHex, membershipStatus, applyOwnerSecret, callOpenCase, callGrantAccess, callLogStep, callDiscloseFinding, callCloseCase } = useMidnightContext();
-  const { isDemo, mockCases, mockLedger, demoLogStep, demoDisclose, demoClose, demoOpenCase, getDemoCase } = useDemo();
+  const { isDemo, mockCases, mockLedger, demoLogStep, demoDisclose, demoClose, demoOpenCase, getDemoCase, enableDemo } = useDemo();
   const ledger = isDemo ? mockLedger : midLedger;
 
   const reload = useCallback(() => {
@@ -284,6 +284,15 @@ export default function CaseDetail() {
               {msg && (
                 <div role="status" aria-live="polite" style={{ marginTop: 10, padding: '8px 10px', borderRadius: 4, fontSize: '0.86rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
                   {msg}
+                  {!msg.startsWith('✓') && /proof|Docker|Failed to fetch|unreachable/i.test(msg + ' ' + (msgTechnical ?? '')) && (
+                    <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — retry the action, no proof server needed.'); setMsgTechnical(null); } catch {} }}>
+                        Enable Demo — no wallet
+                      </button>
+                      <Link to="/audit" className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Try audit (no proof needed) →</Link>
+                      <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => void run()}>Retry proof</button>
+                    </div>
+                  )}
                   {msgTechnical && (
                     <div style={{ marginTop: 8 }}>
                       <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowTechnical((v) => !v)} aria-expanded={showTechnical}>

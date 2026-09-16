@@ -142,8 +142,54 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
     }
   }
 
+  // Resilient wrapper: configured URI gets first try, but falls back to
+  // wallet in-wallet prover + wallet-reported prover + localhost. This
+  // matters because Docker Desktop (proof-server) is often stopped or WSL
+  // integration is off (`wsl --list` shows docker-desktop Stopped),
+  // surfacing as plain `Failed to fetch`. We surface an actionable message.
+  function wrapWithFallback(primary: ProofProvider, label: string): ProofProvider {
+    if (!provingProvider && !config.proverServerUri) return primary;
+    return {
+      async proveTx(unprovenTx: any) {
+        try {
+          return await primary.proveTx(unprovenTx as never);
+        } catch (primaryErr: unknown) {
+          const msg = String((primaryErr as Error)?.message ?? primaryErr);
+          const isNetworkError =
+            primaryErr instanceof TypeError ||
+            /failed to fetch|networkerror|load failed|enotfound|econnreset|aborted|check.*returned an error/i.test(msg);
+          if (!isNetworkError) throw primaryErr;
+          // Try wallet in-wallet prover (Lace) if we started with a server
+          if (provingProvider) {
+            try {
+              return await unprovenTx.prove(provingProvider, costModel);
+            } catch {}
+          }
+          // Try wallet-reported prover URI (1AM cloud)
+          if (config.proverServerUri && config.proverServerUri !== configuredProverUri) {
+            try {
+              return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx as never);
+            } catch {}
+          }
+          // Try localhost fallback if different from configured
+          if (LOCAL_FALLBACK_URI !== configuredProverUri) {
+            try {
+              return await httpClientProofProvider(LOCAL_FALLBACK_URI, zkConfigProvider).proveTx(unprovenTx as never);
+            } catch {}
+          }
+          const dockerHint =
+            `Docker Desktop is not reachable at ${label} (${msg}). ` +
+            `On Windows/WSL: 1) Start Docker Desktop, 2) Settings → Resources → WSL Integration → enable your distro (Ubuntu), 3) ` +
+            `docker compose up -d --wait proof-server, 4) keep VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env and restart npm run dev. ` +
+            `Preprod also works with Lace (in-wallet proving, no server) — or toggle Demo — no wallet in the header for a wallet-free mock ledger.`;
+          throw new Error(dockerHint, { cause: primaryErr });
+        }
+      },
+    };
+  }
+
   const proofProvider: ProofProvider = configuredProverUri
-    ? httpClientProofProvider(configuredProverUri, zkConfigProvider)
+    ? wrapWithFallback(httpClientProofProvider(configuredProverUri, zkConfigProvider), configuredProverUri)
     : provingProvider
       ? {
           async proveTx(unprovenTx: any) {

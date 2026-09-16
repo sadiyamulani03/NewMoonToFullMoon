@@ -72,7 +72,7 @@ export default function Landing() {
             </div>
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
-            Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600 }}>Privacy model →</Link>
+            Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600, color: 'var(--blue)' }}>Privacy model →</Link>
           </div>
           <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link to="/audit" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Try /audit — no wallet →</Link>
@@ -182,7 +182,7 @@ export default function Landing() {
                 <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>— {a}</span>
               </div>
             ))}
-            <Link to="/about" style={{ fontSize: '0.82rem', fontWeight: 600 }}>Privacy model → full table on About</Link>
+            <Link to="/about" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--blue)' }}>Privacy model → full table on About</Link>
           </div>
         </div>
       </section>
@@ -293,7 +293,7 @@ export default function Landing() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="btn btn-primary">GitHub repo ↗</a>
             <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer" className="btn btn-secondary">Demo video ↗</a>
-            <Link to="/about" className="btn btn-ghost">Privacy model →</Link>
+            <Link to="/about" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Privacy model →</Link>
           </div>
           <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)', lineHeight: 1.6 }}>
             Verify via <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> + demo video + <code style={{ background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 3, border: '1px solid var(--line-ink)', color: 'var(--paper)' }}>docs/posts.md</code> — all CI-pinned.

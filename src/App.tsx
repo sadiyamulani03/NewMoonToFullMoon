@@ -12,6 +12,7 @@ import CreateCase from './pages/CreateCase';
 import Auditor from './pages/Auditor';
 import About from './pages/About';
 import Landing from './pages/Landing';
+import NotFound from './pages/NotFound';
 import './styles.css';
 
 export default function App() {
@@ -31,7 +32,9 @@ export default function App() {
                 <Route path="/new" element={<CreateCase />} />
                 <Route path="/audit" element={<Auditor />} />
                 <Route path="/about" element={<About />} />
+                <Route path="*" element={<NotFound />} />
               </Route>
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
         </MidnightProvider>

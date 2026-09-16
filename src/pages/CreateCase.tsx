@@ -47,22 +47,22 @@ export default function CreateCase() {
 
         <form onSubmit={onSubmit} style={{ marginTop: 16, display: 'grid', gap: 12 }}>
           <div>
-            <label className="field-label" htmlFor="case-title">Case title</label>
-            <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" />
+            <label className="field-label" htmlFor="case-title">Case title <span aria-hidden="true" style={{ color: 'var(--verify)' }}>*</span></label>
+            <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" required aria-required="true" autoFocus />
           </div>
           <div>
-            <label className="field-label" htmlFor="case-desc">Description</label>
-            <textarea id="case-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this case tracking? Only proofs are on-chain." style={{ resize: 'vertical' }} />
+            <label className="field-label" htmlFor="case-desc">Description <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--muted-ink)' }}>(off-chain, never on ledger)</span></label>
+            <textarea id="case-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this case tracking? Only the case number and proofs are on-chain." style={{ resize: 'vertical' }} />
           </div>
           <div>
-            <label className="field-label" htmlFor="case-owner">Owner (optional)</label>
+            <label className="field-label" htmlFor="case-owner">Owner (optional, off-chain)</label>
             <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs" />
           </div>
 
-          {error && <div style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
+          {error && <div role="alert" style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-            <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? 'Creating…' : 'Create case'}</button>
+            <button className="btn btn-primary" type="submit" disabled={busy} aria-busy={busy}>{busy ? 'Creating…' : 'Create case — new folder'}</button>
             <Link
               className="btn btn-secondary"
               to="/cases"
@@ -75,8 +75,9 @@ export default function CreateCase() {
             </Link>
           </div>
 
-          <div className="wire" style={{ marginTop: 4, fontSize: '0.76rem' }}>
-            After creation: open <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>Cases → #</span> → log a <span className="redacted redacted-sm">private amount</span> → ledger shows <code className="mono" style={{ fontSize: '0.76rem' }}>total</code> with <span style={{ color: 'var(--verify)', fontWeight: 700 }}>Verified</span>.
+          <div className="wire" style={{ marginTop: 4, fontSize: '0.76rem', lineHeight: 1.6 }}>
+            <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--verify)' }} /> Next steps</span><br />
+            After creation: <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>Cases → #</span> → <span className="redacted redacted-sm">private amount</span> → <code className="mono" style={{ fontSize: '0.76rem' }}>total</code> with <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span>. Nothing private ever appears on-chain.
           </div>
         </form>
       </section>

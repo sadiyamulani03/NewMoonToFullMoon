@@ -24,11 +24,11 @@ export default function MarketingLayout() {
             <NavLink to="/about" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>About</NavLink>
           </nav>
 
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+            <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }} aria-label={isDemo ? 'Exit demo mode' : 'Enable demo — no wallet needed'}>
               {isDemo ? '● Demo on' : 'Try demo — no wallet'}
             </button>
-            <Link to="/dashboard" className="btn btn-primary" style={{ padding: '7px 12px', fontSize: '0.82rem' }}>Launch app</Link>
+            <Link to="/dashboard" className="btn btn-primary" style={{ padding: '7px 14px', fontSize: '0.82rem', fontWeight: 700 }}>Enter MidnightTrace →</Link>
           </div>
         </div>
       </header>

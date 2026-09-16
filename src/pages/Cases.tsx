@@ -33,12 +33,13 @@ export default function Cases() {
     <>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
-          <h1 className="display" style={{ margin: 0, fontSize: '1.6rem', color: 'var(--paper)', lineHeight: 1 }}>Case files</h1>
-          <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.9rem' }}>
-            Folder inserts on ledger {isDemo && <span style={{ color: 'var(--verify)' }}>· Demo — not on-chain</span>} · amounts <span className="redacted redacted-sm">redacted</span> unless disclosed
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Cases · {isDemo ? 'Demo — not on-chain' : 'Preprod ledger · wallet-free audit at /audit'}</div>
+          <h1 className="display" style={{ margin: '4px 0 0', fontSize: '1.6rem', color: 'var(--paper)', lineHeight: 1 }}>Case files</h1>
+          <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.9rem', maxWidth: '60ch' }}>
+            Folder inserts on ledger {isDemo && <span style={{ color: 'var(--verify)' }}>· Demo — not on-chain</span>} · Private amounts <span className="redacted redacted-sm">redacted</span> unless you disclose · Each row is <span style={{ color: 'var(--verify)', fontWeight: 700 }}>Verified</span> by a ZK proof.
           </p>
         </div>
-        <Link to="/new" className="btn btn-primary">Open new case</Link>
+        <Link to="/new" className="btn btn-primary" aria-label="Open a new case">Open new case</Link>
       </div>
 
       <div className="ledger">
@@ -65,8 +66,20 @@ export default function Cases() {
           <span className="stamp stamp-pending stamp-small">Pending</span> not yet disclosed
         </div>
 
-        {error && <div style={{ padding: 14, color: '#ff8d7a', fontSize: '0.88rem' }}>{error}</div>}
-        {!cases && !error && <div style={{ padding: 18, color: 'var(--muted-ink)' }}>Loading folder…</div>}
+        {error && (
+          <div role="alert" style={{ padding: 14, color: '#ff8d7a', fontSize: '0.88rem', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,141,122,0.06)' }}>
+            We couldn’t load case files. <span style={{ color: 'var(--muted-ink)' }}>{error}</span>
+            <div style={{ marginTop: 8 }}><button className="btn btn-secondary" onClick={() => { setError(null); setCases(null); listCases().then(setCases).catch((e) => setError(String(e))); }} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Retry</button> <span style={{ color: 'var(--muted-ink)', fontSize: '0.78rem' }}>or enable Demo for seeded files</span></div>
+          </div>
+        )}
+        {!cases && !error && (
+          <div style={{ padding: 18, display: 'grid', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" aria-hidden="true" /><span className="mono" style={{ color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Loading evidence ledger…</span></div>
+            <div className="skeleton" style={{ height: 48 }} />
+            <div className="skeleton" style={{ height: 48, opacity: 0.7 }} />
+            <div className="skeleton" style={{ height: 48, opacity: 0.4 }} />
+          </div>
+        )}
 
         {cases && cases.length === 0 && (
           <div className="empty" style={{ margin: 12 }}>

@@ -53,20 +53,40 @@ export default function About() {
       {/* How ZK works — grounded in mechanic */}
       <section className="ledger">
         <div className="ledger-head">
-          <span className="ledger-title">How the wire works</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Private amount → public total</span>
+          <span className="ledger-title">How the wire works — PRIVATE → ZK → VERIFIABLE</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Judge-readable in 60 seconds</span>
         </div>
-        <div style={{ padding: 14, display: 'grid', gap: 12 }}>
-          <div className="wire" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center' }}>
-            <span>Your device: <span className="redacted">amount</span></span>
-            <span style={{ color: 'var(--blue)' }}>—ZK proof—›</span>
-            <span>Chain stores: <code className="mono" style={{ background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '2px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total</code></span>
-            <span className="stamp stamp-verify stamp-small">Verified</span>
+        <div style={{ padding: 14, display: 'grid', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', gap: 8, alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ border: '1px solid var(--line-ink)', borderRadius: 6, padding: '12px 10px', background: 'var(--redact)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--paper)', fontWeight: 700 }}>🔒 Private</div>
+              <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>Sensitive input<br /><span className="redacted redacted-sm">amount</span> · witness<br />Your device only</div>
+            </div>
+            <span style={{ color: 'var(--blue)', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
+            <div style={{ border: '1px solid var(--blue)', borderRadius: 6, padding: '12px 10px', background: 'var(--blue-soft)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--blue)', fontWeight: 700 }}>Midnight · ZK proof</div>
+              <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--paper)', lineHeight: 1.5 }}><code className="mono" style={{ fontSize: '0.76rem' }}>total&apos; = total + amount</code><br />Membership proved</div>
+            </div>
+            <span style={{ color: 'var(--verify)', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
+            <div style={{ border: '1px solid var(--verify-border)', borderRadius: 6, padding: '12px 10px', background: 'var(--verify-soft)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--verify)', fontWeight: 700 }}>✓ Verifiable</div>
+              <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}><code className="mono">total</code> · phase · aggregate<br />No secret revealed <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span></div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ border: '1px solid var(--line-ink)', borderRadius: 4, padding: '10px 12px', background: 'rgba(255,255,255,0.02)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--paper)', fontWeight: 700 }}>Private verification (default)</div>
+              <p style={{ margin: '6px 0 0', fontSize: '0.84rem', color: 'var(--muted-ink)', lineHeight: 1.6 }}>Sensitive value stays <span className="redacted redacted-sm">hidden</span>. Ledger shows only <code className="mono">total</code>. Anyone at <Link to="/audit">/audit</Link> sees <span style={{ color: 'var(--verify)', fontWeight: 700 }}>✓ Verified</span> without learning the amount.</p>
+            </div>
+            <div style={{ border: '1px solid var(--ochre-border)', borderRadius: 4, padding: '10px 12px', background: 'var(--ochre-soft)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ochre)', fontWeight: 700 }}>Selective disclosure (when you choose)</div>
+              <p style={{ margin: '6px 0 0', fontSize: '0.84rem', color: 'var(--muted-ink)', lineHeight: 1.6 }}>Same proof, plus <code className="mono">disclose()</code> publishes <code className="mono" style={{ color: 'var(--ochre)' }}>lastDisclosed</code>. That one total becomes public <span className="stamp stamp-pending stamp-small" style={{ verticalAlign: 'middle' }}>Disclosed</span> — all other amounts stay redacted.</p>
+            </div>
           </div>
           <ol style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 8, color: 'var(--muted-ink)', fontSize: '0.9rem', lineHeight: 1.6 }}>
             <li><strong style={{ color: 'var(--paper)' }}>You pick a private amount.</strong> It never leaves your wallet — it is <span className="redacted redacted-sm">redacted</span> on every screen.</li>
-            <li><strong style={{ color: 'var(--paper)' }}>Your wallet builds a proof.</strong> It proves <em>“new total = old total + my amount”</em> without leaking the amount. Wire color is <span style={{ color: 'var(--blue)', fontWeight: 700 }}>soft blue</span>.</li>
-            <li><strong style={{ color: 'var(--paper)' }}>Chain checks, then stores total.</strong> If the proof is green <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span>, the ledger accepts the new total. Black bars stay black.</li>
+            <li><strong style={{ color: 'var(--paper)' }}>Your wallet builds a proof.</strong> It proves <em>“new total = old total + my amount”</em> without leaking the amount.</li>
+            <li><strong style={{ color: 'var(--paper)' }}>Chain checks, then stores total.</strong> If the proof is <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span>, the ledger accepts the new total.</li>
             <li><strong style={{ color: 'var(--paper)' }}>Anyone verifies wallet-free at /audit.</strong> The checklist is public; the amounts stay redacted forever.</li>
           </ol>
         </div>

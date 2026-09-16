@@ -5,6 +5,7 @@ import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
 import WalletStatus from '../components/WalletStatus';
+import TxProgress from '../components/TxProgress';
 
 type Action = 'logStep' | 'discloseFinding' | 'closeCase';
 
@@ -18,7 +19,10 @@ export default function CaseDetail() {
   const [caseIndex, setCaseIndex] = useState('');
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
+  const [busyStage, setBusyStage] = useState<'proof' | 'submit'>('proof');
   const [msg, setMsg] = useState<string | null>(null);
+  const [msgTechnical, setMsgTechnical] = useState<string | null>(null);
+  const [showTechnical, setShowTechnical] = useState(false);
   const [memberSecret, setMemberSecret] = useState('');
   const [memberMsg, setMemberMsg] = useState<string | null>(null);
   const [onChainIdx, setOnChainIdx] = useState<bigint | null>(null);
@@ -65,44 +69,87 @@ export default function CaseDetail() {
     reload();
   }, [id, reload, resolveId, isDemo]);
 
+  const validateAmount = (raw: string): bigint | null => {
+    if (!raw.trim()) return null;
+    try {
+      const n = BigInt(raw.trim());
+      if (n < 0n) { setMsg('Amount must be 0 or more.'); setMsgTechnical(null); return null; }
+      if (n > 65535n) { setMsg('Amount too large — max 65,535 per step. Use multiple findings for larger totals.'); setMsgTechnical(null); return null; }
+      return n;
+    } catch { setMsg('Enter a valid number.'); setMsgTechnical(null); return null; }
+  };
+
   const run = async () => {
+    setMsgTechnical(null); setShowTechnical(false);
     if (isDemo && caseItem) {
       const cid = resolveId();
-      if (action === 'logStep') { const p = BigInt(amount || '0'); if (p < 0n) { setMsg('Amount cannot be negative'); return; } demoLogStep(cid, p, caseItem.id); setMsg('Demo: finding logged — redacted amount → public total updated.'); }
-      else if (action === 'discloseFinding') { const p = BigInt(amount || '0'); demoDisclose(cid, p, caseItem.id); setMsg('Demo: total disclosed — now public.'); }
-      else { demoClose(cid, caseItem.id); setMsg('Demo: case sealed — phase CLOSED.'); }
+      if (action === 'logStep') { const p = validateAmount(amount); if (p === null) return; demoLogStep(cid, p, caseItem.id); setMsg('✓ Demo: finding logged — redacted amount → public total updated.'); setMsgTechnical(null); }
+      else if (action === 'discloseFinding') { const p = validateAmount(amount); if (p === null) return; demoDisclose(cid, p, caseItem.id); setMsg('✓ Demo: total disclosed — now public.'); setMsgTechnical(null); }
+      else { demoClose(cid, caseItem.id); setMsg('✓ Demo: case sealed — phase CLOSED.'); setMsgTechnical(null); }
       setAmount(''); return;
     }
-    if (!isConnected) { setMsg('Connect wallet or enable Demo.'); return; }
-    if (membershipStatus !== 'member') { setMsg('Not on allowlist.'); return; }
-    setBusy(true); setMsg(null);
+    if (!isConnected) { setMsg('Connect wallet or enable Demo — no proof can be generated without a wallet.'); setMsgTechnical(null); return; }
+    if (membershipStatus !== 'member') { setMsg('Not on allowlist — this wallet cannot log findings for this ledger.'); setMsgTechnical('Membership check: allowlist.findPathForLeaf(commitment) returned nothing for this secret. Use the owner secret or ask a member to grant access.'); return; }
+    setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
     try {
       const cid = resolveId();
-      if (action === 'logStep') { const p = BigInt(amount || '0'); const r = await callLogStep(cid, p); await onLanded(r.txId, r.blockHeight, 'logStep'); }
-      else if (action === 'discloseFinding') { const p = BigInt(amount || '0'); const r = await callDiscloseFinding(cid, p); await onLanded(r.txId, r.blockHeight, 'discloseFinding', p); }
-      else { const r = await callCloseCase(cid); await onLanded(r.txId, r.blockHeight, 'closeCase'); }
-      setMsg('✓ Proof landed — receipt filed.');
-    } catch (e) { setMsg((e as Error).message ?? String(e)); } finally { setBusy(false); }
+      if (action === 'logStep') {
+        const p = validateAmount(amount); if (p === null) { setBusy(false); return; }
+        setBusyStage('proof');
+        const r = await callLogStep(cid, p);
+        setBusyStage('submit');
+        await onLanded(r.txId, r.blockHeight, 'logStep');
+      } else if (action === 'discloseFinding') {
+        const p = validateAmount(amount); if (p === null) { setBusy(false); return; }
+        setBusyStage('proof');
+        const r = await callDiscloseFinding(cid, p);
+        setBusyStage('submit');
+        await onLanded(r.txId, r.blockHeight, 'discloseFinding', p);
+      } else {
+        setBusyStage('proof');
+        const r = await callCloseCase(cid);
+        setBusyStage('submit');
+        await onLanded(r.txId, r.blockHeight, 'closeCase');
+      }
+      setMsg('✓ Proof verified — receipt filed on ledger.');
+      setMsgTechnical(null);
+      setAmount('');
+    } catch (e) {
+      const raw = (e as Error).message ?? String(e);
+      if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
+      else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) { setMsg('We couldn’t reach the proof service.'); setMsgTechnical(`${raw} — Try: docker compose up -d --wait proof-server or enable Demo in the header.`); }
+      else if (/timeout/i.test(raw)) { setMsg('Wallet didn’t respond in time.'); setMsgTechnical(raw); }
+      else { setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
+    } finally { setBusy(false); }
   };
 
   const open = async () => {
+    setMsgTechnical(null); setShowTechnical(false);
     if (isDemo) {
       const cid = resolveId();
-      if (caseItem) { demoLogStep(cid, 0n, caseItem.id); setMsg(`Demo: case #${cid} marked open.`); }
-      else { const nid = demoOpenCase(cid, `Case #${cid}`, ''); setMsg(`Demo: case #${cid} created ${nid}.`); }
+      if (caseItem) { demoLogStep(cid, 0n, caseItem.id); setMsg(`✓ Demo: case #${cid} marked open.`); setMsgTechnical(null); }
+      else { const nid = demoOpenCase(cid, `Case #${cid}`, ''); setMsg(`✓ Demo: case #${cid} created ${nid}.`); setMsgTechnical(null); }
       return;
     }
-    if (!isConnected) { setMsg('Connect wallet or enable Demo.'); return; }
-    if (membershipStatus !== 'member') { setMsg('Not on allowlist.'); return; }
-    setBusy(true); setMsg(null);
+    if (!isConnected) { setMsg('Connect wallet or enable Demo.'); setMsgTechnical(null); return; }
+    if (membershipStatus !== 'member') { setMsg('Not on allowlist — cannot open cases.'); setMsgTechnical('Requires allowlist membership proof for openCase.'); return; }
+    setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
     try {
       const cid = resolveId();
       const meta = `${caseItem?.title ?? ''}|${caseItem?.description ?? ''}|${String(cid)}`;
       const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(meta)));
+      setBusyStage('proof');
       const r = await callOpenCase(cid, hash);
+      setBusyStage('submit');
       await onLanded(r.txId, r.blockHeight, 'logStep', 0n);
-      setMsg(`Case #${cid} opened on-chain.`);
-    } catch (e) { setMsg((e as Error).message ?? String(e)); } finally { setBusy(false); }
+      setMsg(`✓ Case #${cid} opened on-chain — phase ACTIVE, total 0.`);
+      setMsgTechnical(null);
+    } catch (e) {
+      const raw = (e as Error).message ?? String(e);
+      if (/already exists/i.test(raw)) { setMsg(`Case #${resolveId()} already exists on ledger.`); setMsgTechnical(raw); }
+      else if (/reject/i.test(raw)) { setMsg('Wallet declined — case not opened.'); setMsgTechnical(raw); }
+      else { setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
+    } finally { setBusy(false); }
   };
 
   const grant = async () => {
@@ -144,8 +191,14 @@ export default function CaseDetail() {
         {isDemo && <span className="stamp stamp-verify stamp-small">Demo — not on-chain</span>}
       </div>
 
-      {!caseItem && !error && <div style={{ padding: 18, color: 'var(--muted-ink)' }}>Loading folder…</div>}
-      {error && <div style={{ color: '#ff8d7a', padding: 12, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4 }}>{error}</div>}
+      {!caseItem && !error && (
+        <div style={{ padding: 18, display: 'grid', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" aria-hidden="true" /><span className="mono" style={{ color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Loading evidence folder…</span></div>
+          <div className="skeleton" style={{ height: 120 }} />
+          <div className="skeleton" style={{ height: 200, opacity: 0.6 }} />
+        </div>
+      )}
+      {error && <div role="alert" style={{ color: '#ff8d7a', padding: 12, border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error} <span style={{ color: 'var(--muted-ink)', fontSize: '0.82rem' }}>— try refresh or enable Demo.</span></div>}
 
       {caseItem && (
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 0.95fr) minmax(360px, 1.05fr)', gap: 16, alignItems: 'start' }}>
@@ -200,20 +253,41 @@ export default function CaseDetail() {
 
               {action !== 'closeCase' && (
                 <>
-                  <label className="field-label" htmlFor="amt">{action === 'logStep' ? 'Step amount — stays redacted' : 'Running total to publish'}</label>
-                  <input id="amt" className="input" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9-]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18' : 'e.g. 42'} />
-                  {action === 'logStep' && <div style={{ fontSize: '0.74rem', color: 'var(--muted-ink)', marginTop: 4 }}><span className="redacted redacted-sm">amount</span> never leaves your device. Wire proves <code className="mono">total' = total + amount</code>.</div>}
+                  <label className="field-label" htmlFor="amt">
+                    {action === 'logStep' ? 'Step amount — stays redacted 🔒 PRIVATE' : 'Running total to publish — selective disclosure'}
+                  </label>
+                  <input id="amt" className="input" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18 (max 65535)' : 'e.g. 42'} maxLength={5} aria-describedby="amt-help" />
+                  <div id="amt-help" style={{ fontSize: '0.74rem', color: 'var(--muted-ink)', marginTop: 4, lineHeight: 1.5 }}>
+                    {action === 'logStep' ? (
+                      <><span className="redacted redacted-sm">amount</span> never leaves your device · Wire proves <code className="mono">total&apos; = total + amount</code> · Public sees only total + <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span></>
+                    ) : (
+                      <>This publishes <code className="mono">lastDisclosed</code> on-chain. All other step amounts stay <span className="redacted redacted-sm">redacted</span>.</>
+                    )}
+                  </div>
                 </>
               )}
 
               {!onChainCase ? (
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>Open case #{caseIndex || '—'} on ledger{isDemo ? ' (demo)' : ''}</button>
+                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>{busy ? 'Opening… check wallet' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
               ) : (
                 <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void run()} disabled={busy || (action !== 'closeCase' && !amount && !isDemo)}>
-                  {busy ? 'Proving…' : action === 'logStep' ? 'Log finding (redacted)' : action === 'discloseFinding' ? 'Disclose finding' : 'Seal case'}
+                  {busy ? (busyStage === 'proof' ? 'Generating proof… check wallet' : 'Submitting — awaiting finalization…') : action === 'logStep' ? 'Generate proof — log finding (private)' : action === 'discloseFinding' ? 'Generate proof — disclose finding' : 'Seal case — final attestation'}
                 </button>
               )}
-              {msg && <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 4, fontSize: '0.86rem', background: msg.startsWith('✓') || msg.startsWith('Demo') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') || msg.startsWith('Demo') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') || msg.startsWith('Demo') ? 'var(--verify)' : 'var(--ochre)' }}>{msg}</div>}
+              {busy && <div style={{ marginTop: 10 }}><TxProgress stage={busyStage} /></div>}
+              {msg && (
+                <div role="status" aria-live="polite" style={{ marginTop: 10, padding: '8px 10px', borderRadius: 4, fontSize: '0.86rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
+                  {msg}
+                  {msgTechnical && (
+                    <div style={{ marginTop: 8 }}>
+                      <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowTechnical((v) => !v)} aria-expanded={showTechnical}>
+                        {showTechnical ? 'Hide technical details' : 'Show technical details'}
+                      </button>
+                      {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 4, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>{msgTechnical}</pre>}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line-ink)' }}>

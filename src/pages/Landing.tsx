@@ -12,8 +12,13 @@ export default function Landing() {
   const [demoAmt, setDemoAmt] = useState('15');
   const [demoMsg, setDemoMsg] = useState<string | null>(null);
 
-  // Landing IS demo — auto-enable mock ledger so reviewers see working app without wallet
-  useEffect(() => { if (!isDemo) enableDemo(); }, [isDemo, enableDemo]);
+  // Landing IS demo — auto-enable on first visit only, respecting explicit Exit demo
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('midnighttrace-demo-enabled');
+      if (v === null && !isDemo) enableDemo();
+    } catch { if (!isDemo) enableDemo(); }
+  }, [isDemo, enableDemo]);
 
   const demoCase = mockCases.find((c) => c.id.startsWith('demo-7')) ?? mockCases[0];
   const [faucetOpen, setFaucetOpen] = useState(false);
@@ -31,19 +36,24 @@ export default function Landing() {
       <section className="ledger" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 0, overflow: 'hidden' }}>
         <div style={{ padding: '20px 18px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
-            Midnight Network · Preprod · Private by default · Verifiable without secrets
+            Built on Midnight Preprod · Privacy-preserving · Zero-knowledge verified
           </div>
           <h1 className="display" style={{ margin: 0, fontSize: 'clamp(2rem, 4vw, 2.9rem)', lineHeight: 0.96, letterSpacing: '-0.035em', color: 'var(--paper)' }}>
-            Prove a forensic<br />step without<br /><span style={{ color: 'var(--paper)', textDecoration: 'underline', textDecorationColor: '#F4C770', textDecorationThickness: 4, textUnderlineOffset: 6 }}>exposing the evidence.</span>
+            Verify sensitive<br />analysis.<br /><span style={{ color: '#F4C770' }}>Reveal only what</span><br /><span style={{ color: 'var(--paper)', textDecoration: 'underline', textDecorationColor: '#F4C770', textDecorationThickness: 4, textUnderlineOffset: 6 }}>needs to be known.</span>
           </h1>
-          <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.96rem', lineHeight: 1.6, maxWidth: '52ch' }}>
-            MidnightTrace is a folder of case files on <strong style={{ color: 'var(--paper)' }}>Midnight</strong>. Each finding is a <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount" style={{ borderBottom: '1px dotted var(--muted-ink)', cursor: 'help' }}>zero-knowledge proof</span> — the ledger shows you counted, not <em>what</em> you counted.
+          <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.98rem', lineHeight: 1.6, maxWidth: '54ch' }}>
+            MidnightTrace for <strong style={{ color: 'var(--paper)' }}>forensic analysts, auditors & compliance</strong> — use private evidence to produce{' '}
+            <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount" style={{ borderBottom: '1px dotted var(--muted-ink)', cursor: 'help' }}>zero-knowledge proofs</span>{' '}
+            without exposing the underlying data. The ledger shows you counted, not <em>what</em> you counted.
           </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-            <Link to="/dashboard" className="btn btn-primary">Launch app →</Link>
-            <button className="btn btn-secondary" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
-            <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ color: 'var(--blue)' }}>Setup wallet → faucet</button>
-            <Link to="/audit" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Verify — no login</Link>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 6, alignItems: 'center' }}>
+            <Link to="/dashboard" className="btn btn-primary" style={{ padding: '11px 22px', fontSize: '0.95rem', fontWeight: 700 }}>Enter MidnightTrace →</Link>
+            <button className="btn btn-secondary" onClick={goDemo} style={{ padding: '11px 16px' }}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 2 }}>
+            <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ color: 'var(--blue)', fontSize: '0.82rem', padding: '6px 0' }}>Setup wallet → faucet</button>
+            <span style={{ color: 'var(--line-ink)', alignSelf: 'center' }}>·</span>
+            <Link to="/audit" className="btn btn-ghost" style={{ color: 'var(--blue)', fontSize: '0.82rem', padding: '6px 0' }}>Verify — no login required →</Link>
           </div>
           <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
           <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted-ink)' }}>
@@ -72,7 +82,8 @@ export default function Landing() {
             </div>
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
-            Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600, color: 'var(--blue)' }}>Privacy model →</Link>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--paper)', color: 'var(--redact)', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: 3, fontWeight: 700 }}>🔒 PRIVATE</span>{' '}
+            Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600, color: 'var(--blue)' }}>How privacy works →</Link>
           </div>
           <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link to="/audit" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Try /audit — no wallet →</Link>
@@ -259,16 +270,18 @@ export default function Landing() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input className="input" value={demoAmt} onChange={e => setDemoAmt(e.target.value.replace(/[^0-9]/g,''))} placeholder="amount" inputMode="numeric" style={{ maxWidth: 120 }} aria-label="Demo private amount" />
+            <input className="input" value={demoAmt} onChange={e => setDemoAmt(e.target.value.replace(/[^0-9]/g,''))} placeholder="amount (max 65535)" inputMode="numeric" maxLength={5} style={{ maxWidth: 140 }} aria-label="Demo private amount — max 65535" />
             <button className="btn btn-primary" onClick={() => {
               const n = BigInt(parseInt(demoAmt || '0', 10) || 0);
               if (n <= 0n) { setDemoMsg('Enter amount > 0'); return; }
+              if (n > 65535n) { setDemoMsg('Max 65,535 per step'); return; }
               demoLogStep(7n, n, demoCase.id);
               setDemoMsg(`Logged hidden ${n} → total updated (amount stays redacted) ✓`);
               setTimeout(() => setDemoMsg(null), 2500);
             }}>Log hidden step</button>
             <button className="btn btn-secondary" onClick={() => {
               const n = BigInt(parseInt(demoAmt || '0', 10) || 0);
+              if (n > 65535n) { setDemoMsg('Max 65,535 per step'); return; }
               demoDisclose(7n, n || mockLedger.cases.find(c => c.caseId === 7n)?.total || 0n, demoCase.id);
               setDemoMsg(`Disclosed ${n || 'total'} → lastDisclosed ✓`);
               setTimeout(() => setDemoMsg(null), 2500);
@@ -276,7 +289,7 @@ export default function Landing() {
             <Link to="/dashboard" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Open full dashboard →</Link>
             <Link to="/cases" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Cases</Link>
           </div>
-          {demoMsg && <div style={{ fontSize: '0.82rem', color: 'var(--verify)', fontWeight: 600 }}>{demoMsg}</div>}
+          {demoMsg && <div role="status" aria-live="polite" style={{ fontSize: '0.82rem', color: demoMsg.startsWith('Max') || demoMsg.startsWith('Enter') ? 'var(--ochre)' : 'var(--verify)', fontWeight: 600 }}>{demoMsg}</div>}
           <div style={{ fontSize: '0.78rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
             This is the real demo ledger (same mock ledger as <Link to="/dashboard" style={{ fontWeight: 600 }}>/dashboard</Link>). Amount is <span className="redacted redacted-sm">redacted</span> — never leaves the input, never on-chain. Verify wallet-free at <Link to="/audit" style={{ fontWeight: 600 }}>/audit</Link>. Refresh resets.
           </div>

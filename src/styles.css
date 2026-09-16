@@ -151,6 +151,18 @@ a:hover { color: #3f6fb8; }
 .app-shell .input { background: #0F131A; border-color: var(--line-ink-strong); color: var(--text); }
 .app-shell .input::placeholder { color: rgba(255,255,255,0.38); }
 .input:focus { outline: 2px solid var(--blue); outline-offset: 0; border-color: var(--blue); }
+.input:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; }
+.btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.rail-tab:focus-visible, .marketing-nav-link:focus-visible { outline: 2px solid var(--blue); outline-offset: -1px; border-radius: 4px; }
+
+/* skeletons */
+.skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 37%, rgba(255,255,255,0.04) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: 4px; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.tx-progress-track { height: 4px; background: var(--line-ink); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+.tx-progress-bar { height: 100%; background: var(--verify); border-radius: 999px; transition: width 0.6s ease; }
+.loading-row { display: flex; gap: 10px; align-items: flex-start; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--line-ink-strong); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; margin-top: 2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ===== APP SHELL + FOLDER RAIL ===== */
 .app-shell {
@@ -728,7 +740,8 @@ a:hover { color: #3f6fb8; }
   .rail-tab-active::after { display: none; }
   .rail-toggle { display: none; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
-  .marketing-nav { display: none; }
+  .marketing-nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .marketing-nav::-webkit-scrollbar { display: none; }
   .lp-hero-title { font-size: clamp(1.9rem, 7vw, 2.6rem); }
 }
 

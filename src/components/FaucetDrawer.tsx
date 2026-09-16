@@ -1,7 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function FaucetDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    closeRef.current?.focus();
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
   if (!open) return null;
   const copyCmd = async () => {
     try { await navigator.clipboard.writeText('docker compose up -d --wait proof-server'); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
@@ -12,7 +20,7 @@ export default function FaucetDrawer({ open, onClose }: { open: boolean; onClose
       <div className="ledger" style={{ position: 'relative', maxWidth: 560, width: '100%', maxHeight: '90vh', overflow: 'auto', background: 'var(--ink-2)', borderColor: 'var(--line-ink-strong)' }}>
         <div className="ledger-head" style={{ position: 'sticky', top: 0 }}>
           <span className="ledger-title">Setup in 60s — wallet + tNIGHT</span>
-          <button className="btn btn-ghost" onClick={onClose} aria-label="Close">✕</button>
+          <button ref={closeRef} className="btn btn-ghost" onClick={onClose} aria-label="Close dialog">✕</button>
         </div>
         <div style={{ padding: 16, display: 'grid', gap: 14 }}>
           {[

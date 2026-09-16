@@ -40,23 +40,24 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* HERO */}
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
+        Dashboard · {isDemo ? 'Demo — not on-chain' : 'Midnight Preprod · Live ledger'}
+      </div>
+      {/* HERO — clear page definition */}
       <section className="ledger" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 0, overflow: 'hidden' }}>
         <div style={{ padding: '18px 18px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
-            Folder · Evidence ledger · {isDemo ? 'Demo — not on-chain' : 'Preprod · Live'}
-          </div>
           <h1 className="display" style={{ margin: 0, fontSize: 'clamp(1.6rem, 3vw, 2rem)', lineHeight: 0.98, letterSpacing: '-0.03em', color: 'var(--paper)' }}>
             Your findings.<br />Provably filed.
           </h1>
           <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.92rem', lineHeight: 1.6, maxWidth: '52ch' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--paper)', color: 'var(--redact)', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: 3, fontWeight: 700, verticalAlign: 'middle' }}>🔒 PRIVATE</span>{' '}
             Each insert is a <span className="redacted redacted-sm">private amount</span> → public <code className="mono" style={{ fontSize: '0.82rem', background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 3, border: '1px solid var(--line-ink)' }}>total</code> with a{' '}
-            <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp.
+            <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp. The amount never leaves your wallet.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link to="/new" className="btn btn-primary">Open a new case</Link>
             <Link to="/cases" className="btn btn-secondary">View cases</Link>
-            <Link to="/audit" className="btn btn-ghost">Audit — no wallet</Link>
+            <Link to="/audit" className="btn btn-ghost" aria-label="Open wallet-free audit">Audit — no wallet required</Link>
           </div>
           <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)' }}>
             <span>Aggregate <strong style={{ color: 'var(--paper)' }} className="mono">{aggregate}</strong></span>
@@ -66,20 +67,24 @@ export default function Dashboard() {
         </div>
 
         <div style={{ background: 'rgba(255,255,255,0.03)', borderLeft: '1px solid var(--line-ink)', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
-            Live ledger excerpt
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <span>Live ledger excerpt</span>
+            <span style={{ background: isDemo ? 'rgba(255,255,255,0.06)' : 'var(--verify-soft)', color: isDemo ? 'var(--muted-ink)' : 'var(--verify)', border: `1px solid ${isDemo ? 'var(--line-ink)' : 'var(--verify-border)'}`, padding: '2px 6px', borderRadius: 999, fontSize: '0.62rem', fontWeight: 700 }}>{isDemo ? 'Demo' : '● Preprod live'}</span>
           </div>
           <div className="wire" style={{ padding: 12, background: '#0F131A', borderColor: 'var(--line-ink)' }}>
             <div style={{ color: 'var(--muted-ink)', fontSize: '0.72rem' }}>case <span className="mono" style={{ color: 'var(--paper)' }}>#07</span> · total <span className="wire-total">42</span> · <span className="redacted redacted-sm">hidden</span> → proof <span style={{ color: 'var(--verify)' }}>✓</span></div>
-            <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
               <span className="redacted" style={{ minWidth: '7ch' }}>████</span>
               <span style={{ color: 'var(--muted-ink)' }}>→</span>
               <code className="mono" style={{ background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '2px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>= 42</code>
               <span className="stamp stamp-verify stamp-small" style={{ marginLeft: 'auto' }}>Verified</span>
             </div>
+            <div className="mono" style={{ marginTop: 8, fontSize: '0.66rem', color: 'var(--muted-ink)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <span>Midnight Preprod</span><span>·</span><span>aggregate {aggregate}</span><span>·</span><span>indexer-direct</span>
+            </div>
           </div>
           <div style={{ fontSize: '0.82rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
-            Amounts are black-bar redacted. The wire proves <code className="mono" style={{ fontSize: '0.78rem' }}>total' = total + amount</code> without revealing it.
+            <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Private:</span> <span className="redacted redacted-sm">amount</span> never leaves device. <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Verifiable:</span> <code className="mono" style={{ fontSize: '0.78rem' }}>total&apos; = total + amount</code> proven in ZK.
           </div>
           {!isDemo && (
             <div style={{ marginTop: 'auto' }}>
@@ -120,13 +125,17 @@ export default function Dashboard() {
           <Link to="/cases" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>View all →</Link>
         </div>
         {!displayCases ? (
-          <div style={{ padding: 18, color: 'var(--muted-ink)', fontSize: '0.9rem' }}>Loading ledger…</div>
+          <div style={{ padding: 18 }}>
+            <div className="ledger-row" style={{ opacity: 0.6 }}><span className="mono" style={{ color: 'var(--muted-ink)' }}>Loading ledger…</span><span className="stamp stamp-small" style={{ borderColor: 'var(--line-ink)', color: 'var(--muted-ink)' }}>Syncing</span></div>
+            <div className="ledger-row" style={{ opacity: 0.4 }}><span className="mono" style={{ color: 'var(--muted-ink)' }}>Fetching Preprod indexer…</span></div>
+          </div>
         ) : recent.length === 0 ? (
           <div className="empty" style={{ margin: 12 }}>
             <div className="empty-icon">📁</div>
-            <h3 className="empty-title">Folder empty</h3>
-            <p className="empty-text">No inserts yet. Open a case and log a hidden finding — the ledger will appear here with redacted amounts and verified stamps.</p>
+            <h3 className="empty-title">No investigations yet</h3>
+            <p className="empty-text">Create your first investigation to generate a privacy-preserving proof — the ledger will show a verifiable total while the amount stays <span className="redacted redacted-sm">redacted</span>.</p>
             <Link to="/new" className="btn btn-primary">Open first case</Link>
+            <p className="muted-text" style={{ marginTop: 10, fontSize: '0.78rem' }}>Or enable <strong>Demo — no wallet</strong> in the header to see seeded cases.</p>
           </div>
         ) : (
           <div>

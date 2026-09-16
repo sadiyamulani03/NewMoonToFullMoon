@@ -109,8 +109,12 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
         <div>
           <p className="error-text">No Midnight wallet found.</p>
           <p className="muted-text" style={{ marginTop: '6px' }}>
-            Install <a href="https://midnight.network" target="_blank" rel="noreferrer">1AM or Lace</a>, switch to{' '}
+            Install <a href="https://docs.midnight.network/1am" target="_blank" rel="noreferrer">1AM</a> or{' '}
+            <a href="https://www.lace.io/" target="_blank" rel="noreferrer">Lace</a>, switch to{' '}
             <strong>Preprod</strong>, and reload.
+          </p>
+          <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.82rem' }}>
+            Then fund with tNIGHT at <a href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer">faucet.preprod.midnight.network</a>.
           </p>
         </div>
       );

@@ -22,6 +22,8 @@ export default function Auditor() {
   const [caseId, setCaseId] = useState(() => search.get('case') ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorTechnical, setErrorTechnical] = useState<string | null>(null);
+  const [showErrorTechnical, setShowErrorTechnical] = useState(false);
   const [result, setResult] = useState<{ ledger: MidnightTraceLedgerView | null; checks: Check[]; fingerprint: string | null; auditedAt: string } | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
 
@@ -53,9 +55,9 @@ export default function Auditor() {
     }
 
     const trimmed = address.trim();
-    if (!/^[0-9a-f]+$/i.test(trimmed) || trimmed.length !== 64) { setError('Contract address must be 64 hex chars.'); return; }
-    if (caseId.trim() && !/^\d+$/.test(caseId.trim())) { setError('Case ID must be a number.'); return; }
-    setBusy(true); setError(null); setResult(null);
+    if (!/^[0-9a-f]+$/i.test(trimmed) || trimmed.length !== 64) { setError('Contract address must be 64 hex chars (Preprod).'); setErrorTechnical(trimmed.length ? `Got ${trimmed.length} chars — expected 64 hex.` : 'Address is empty.'); return; }
+    if (caseId.trim() && !/^\d+$/.test(caseId.trim())) { setError('Case ID must be a number.'); setErrorTechnical(null); return; }
+    setBusy(true); setError(null); setErrorTechnical(null); setShowErrorTechnical(false); setResult(null);
     const checks: Check[] = [];
     try {
       const provider = await buildPublicDataProvider(network);
@@ -89,7 +91,11 @@ export default function Auditor() {
       }
       const fp = await sha256Hex(JSON.stringify({ contractAddress: trimmed, aggregate: ledger.aggregate.toString(), memberCount: ledger.memberCount.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString(), c.lastDisclosed.toString(), c.eventCount.toString(), c.phase]) }));
       setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
-    } catch (e) { setError((e as Error).message ?? String(e)); } finally { setBusy(false); }
+    } catch (e) {
+      const raw = (e as Error).message ?? String(e);
+      if (/Failed to fetch|NetworkError|indexer/i.test(raw)) { setError('We couldn’t reach the Midnight indexer.'); setErrorTechnical(`${raw} — Check your connection and that the contract address is on ${network}.`); }
+      else { setError('We couldn’t complete the audit.'); setErrorTechnical(raw); }
+    } finally { setBusy(false); }
   }, [network, address, caseId, isDemo, mockLedger, mockCases]);
 
   const allPass = result?.checks.every((c) => c.ok) ?? false;
@@ -131,11 +137,23 @@ export default function Auditor() {
             {isDemo && <div style={{ fontSize: '0.76rem', color: 'var(--muted-ink)', marginTop: 4 }}>Demo uses in-memory ledger — real address ignored.</div>}
           </div>
 
-          {error && <div style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
+          {error && (
+            <div role="alert" style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>
+              {error}
+              {errorTechnical && (
+                <div style={{ marginTop: 8 }}>
+                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowErrorTechnical((v) => !v)} aria-expanded={showErrorTechnical}>
+                    {showErrorTechnical ? 'Hide technical details' : 'Show technical details'}
+                  </button>
+                  {showErrorTechnical && <pre className="mono" style={{ marginTop: 6, padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 4, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>{errorTechnical}</pre>}
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} style={{ flex: '1 1 auto', justifyContent: 'center' }}>
-              {busy ? 'Reading ledger…' : caseId ? `Verify case #${caseId}` : 'Run full-ledger check'}
+            <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} aria-busy={busy} style={{ flex: '1 1 auto', justifyContent: 'center' }}>
+              {busy ? 'Reading ledger — querying Midnight indexer…' : caseId ? `Verify case #${caseId}` : 'Run full-ledger check'}
             </button>
             <button className="btn btn-secondary" type="button" onClick={async () => {
               const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`;

@@ -10,220 +10,234 @@ export default function Landing() {
 
   return (
     <>
-      {/* ANNOUNCE BAR — full bleed */}
+      {/* Announce — same ink as dashboard rail */}
       <div className="lp-announce">
         <span className="lp-announce-pill">NEW</span>
-        <span>MidnightTrace v1.1 on Preprod · Uint32 + metadataHash · <span className="mono">df5e05…29501</span></span>
+        <span>MidnightTrace v1.1 on Preprod · <span className="mono">df5e05…29501</span> · Uint32 + metadataHash</span>
         <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X ↗</a>
       </div>
 
-      {/* HERO — dark ink, centered, full-bleed */}
-      <section className="lp-hero-dark">
-        <div className="lp-hero-dark-inner">
-          <div className="lp-hero-kicker">Midnight Network · Preprod · Private by default · Verifiable without secrets</div>
-          <h1 className="display lp-hero-dark-title">
-            Prove a forensic
-            <br />
-            step without
-            <br />
-            <span className="lp-hero-gold">exposing the evidence.</span>
+      {/* HERO — exact Dashboard ledger pattern, marketing copy */}
+      <section className="ledger" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '20px 18px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Midnight Network · Preprod · Private by default · Verifiable without secrets
+          </div>
+          <h1 className="display" style={{ margin: 0, fontSize: 'clamp(2rem, 4vw, 2.9rem)', lineHeight: 0.96, letterSpacing: '-0.035em', color: 'var(--text-ink)' }}>
+            Prove a forensic<br />step without<br /><span style={{ color: 'var(--ink)', textDecoration: 'underline', textDecorationColor: '#F4C770', textDecorationThickness: 4, textUnderlineOffset: 6 }}>exposing the evidence.</span>
           </h1>
-          <p className="lp-hero-dark-sub">
-            MidnightTrace is a <strong>private forensics desk on Midnight</strong>. Every finding is a{' '}
-            <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount">zero-knowledge proof</span> — the chain shows you counted, not <em>what</em> you counted.
+          <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.96rem', lineHeight: 1.6, maxWidth: '52ch' }}>
+            MidnightTrace is a folder of case files on <strong style={{ color: 'var(--text-ink)' }}>Midnight</strong>. Each finding is a <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount" style={{ borderBottom: '1px dotted var(--muted)', cursor: 'help' }}>zero-knowledge proof</span> — the ledger shows you counted, not <em>what</em> you counted.
           </p>
-
-          <div className="lp-hero-dark-ctas">
-            <Link to="/dashboard" className="btn lp-btn-gold">Launch app →</Link>
-            <button className="btn lp-btn-ghost-dark" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
-            <Link to="/audit" className="btn lp-btn-outline">Verify — no login</Link>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
+            <Link to="/dashboard" className="btn btn-primary">Launch app →</Link>
+            <button className="btn btn-cream" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+            <Link to="/audit" className="btn btn-ghost">Verify — no login</Link>
           </div>
-
-          <div className="lp-hero-dark-meta">
-            Don’t want to connect? <Link to="/audit">Verify publicly</Link> · <Link to="/about">Privacy model</Link> · 70 users · 4.5/5
+          <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted)' }}>
+            <span>Users <strong style={{ color: 'var(--text-ink)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span></span>
+            <span>Contract <strong style={{ color: 'var(--text-ink)' }} className="mono">df5e05…29501</strong></span>
+            <span style={{ color: 'var(--verify)', fontWeight: 700 }}>● Preprod live</span>
           </div>
         </div>
 
-        {/* Wide ledger showcase — bento-style, overlaps */}
-        <div className="lp-hero-showcase">
-          <div className="lp-showcase-card">
-            <div className="lp-showcase-head">
-              <span className="mono lp-showcase-kicker">LIVE EXHIBIT · CASE #07</span>
-              <span className="stamp stamp-verify stamp-small">Verified</span>
+        <div style={{ background: 'var(--paper-2)', borderLeft: '1px solid var(--line)', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+            <span>Live ledger excerpt · Case #07</span>
+            <span className="stamp stamp-verify stamp-small">Verified</span>
+          </div>
+          <div className="wire" style={{ padding: 12 }}>
+            <div style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>case <span className="mono" style={{ color: 'var(--text-ink)' }}>#07</span> · filed <span className="mono">2026-09-14</span> · block 412,320</div>
+            <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span className="redacted" style={{ minWidth: '7ch' }}>████ 42</span>
+              <span style={{ color: 'var(--muted)' }}>→</span>
+              <code className="mono" style={{ background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '2px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total = 42</code>
+              <span style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>(was 0 → now 42)</span>
+              <span className="stamp stamp-verify stamp-small" style={{ marginLeft: 'auto' }}>Verified</span>
             </div>
-            <div className="lp-showcase-grid">
-              <div className="lp-showcase-col">
-                <span className="ledger-label">Filed</span>
-                <span className="mono lp-showcase-val">2026-09-14 · block 412,320</span>
-                <span className="mono lp-showcase-muted">preprod · inbox → chain</span>
-              </div>
-              <div className="lp-showcase-col lp-showcase-col-center">
-                <span className="ledger-label">Finding</span>
-                <span>Hidden batch <span className="redacted">██ 42 ██</span> added</span>
-                <span className="mono lp-showcase-wire">ZK proof → <span className="redacted redacted-sm">amount</span> → <span className="wire-total">total&apos; = total + amount</span></span>
-              </div>
-              <div className="lp-showcase-col lp-showcase-col-right">
-                <span className="ledger-label">Public total</span>
-                <span><code className="mono lp-code-gold">42</code> <span className="lp-muted-sm">(0 → 42)</span></span>
-                <span className="mono lp-showcase-receipt">a3f1…9c02 · <span className="redacted redacted-sm">redacted</span> · <span className="lp-verify">✓ valid</span></span>
-              </div>
-            </div>
-            <div className="lp-showcase-foot">
-              <span className="mono">Wire: <span className="wire-proof">ZK proof</span> on device → chain stores only <code className="mono">total</code></span>
-              <span className="stamp stamp-verify lp-stamp-rotate">Proof confirmed</span>
+            <div className="mono" style={{ marginTop: 8, fontSize: '0.68rem', wordBreak: 'break-all', color: 'var(--muted)' }}>
+              a3f1…9c02 · <span className="redacted redacted-sm">amount redacted</span> · proof <span style={{ color: 'var(--verify)', fontWeight: 700 }}>✓ valid</span> · wire: <span className="wire-proof">ZK proof</span> → <span className="wire-total">total&apos; = total + amount</span>
             </div>
           </div>
-          <div className="lp-hero-glow" aria-hidden />
-        </div>
-      </section>
-
-      {/* STATS — dark ticker */}
-      <section className="lp-stats-dark" aria-label="Project stats">
-        <div className="lp-stats-dark-inner">
-          <div className="lp-stat-dark"><span className="lp-stat-dark-num">70</span><span className="lp-stat-dark-label">Preprod users<br />verified wallets</span></div>
-          <div className="lp-stat-dark"><span className="lp-stat-dark-num">4.5<span className="lp-stat-dark-small">/5</span></span><span className="lp-stat-dark-label">Avg rating<br />50 responses</span></div>
-          <div className="lp-stat-dark"><span className="lp-stat-dark-num">v1.1</span><span className="lp-stat-dark-label mono">df5e05…29501<br />03123e…49c1</span></div>
-          <div className="lp-stat-dark"><span className="lp-stat-dark-num"><span className="lp-verify">●</span> Live</span><span className="lp-stat-dark-label">Preprod indexed<br />SHA-256 receipt</span></div>
-        </div>
-      </section>
-
-      {/* BENTO FEATURES — completely different from triptych */}
-      <section className="lp-section">
-        <div className="lp-section-head-center">
-          <h2 className="display lp-h2">Selective disclosure, natively.</h2>
-          <p className="lp-section-sub">Publish everything vs. prove without surveillance. Midnight does the second.</p>
-        </div>
-        <div className="lp-bento">
-          <div className="lp-bento-card lp-bento-large">
-            <div className="lp-bento-icon">⬛</div>
-            <h3>Private by default</h3>
-            <p>Step <span className="redacted redacted-sm">amount</span> never leaves your wallet. The ledger holds only <code className="mono">total</code>. Same math, zero leak.</p>
-            <div className="lp-bento-foot mono">Witness never disclosed · Compact private witness</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.5 }}>
+            Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600 }}>Privacy model →</Link>
           </div>
-          <div className="lp-bento-card">
-            <div className="lp-bento-icon">◐</div>
-            <h3>Disclose when you choose</h3>
-            <p>Call <code className="mono">disclose()</code> to publish the running total. Otherwise it stays <span className="redacted redacted-sm">redacted</span> forever.</p>
-          </div>
-          <div className="lp-bento-card">
-            <div className="lp-bento-icon">⦿</div>
-            <h3>Audit without a wallet</h3>
-            <p>Anyone at <Link to="/audit">/audit</Link> checks aggregate, totals, phase, allowlist root — no secrets, no login.</p>
-          </div>
-          <div className="lp-bento-card lp-bento-wide">
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span className="mono lp-bento-kicker">WORKED EXAMPLE · CASE #07</span>
-              <Link to="/about" className="mono" style={{ fontSize: '0.72rem' }}>Full table →</Link>
-            </div>
-            <div className="lp-bento-table">
-              {[
-                ['Open #07', '—', 'ACTIVE · total 0'],
-                ['Batch 1', '████ a1', 'total = a1 → Verified'],
-                ['Batch 2', '████ a2', 'total = a1+a2 → Verified'],
-                ['Disclose', '(optional)', 'lastDisclosed = total'],
-                ['Close', '—', 'CLOSED → Sealed'],
-              ].map(([s, priv, pub]) => (
-                <div key={s} className="lp-bento-row">
-                  <strong>{s}</strong>
-                  <span>{priv.includes('████') ? <span className="redacted redacted-sm">{priv}</span> : <span className="lp-muted-sm">{priv}</span>}</span>
-                  <span className="mono">{pub}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mono lp-bento-note">Observer sees <code className="mono">total = 42</code> (example). Never <span className="redacted redacted-sm">a1</span> <span className="redacted redacted-sm">a2</span> or who logged them.</div>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link to="/audit" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Try /audit — no wallet →</Link>
+            <span style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>Anyone can verify · SHA-256 receipt</span>
           </div>
         </div>
       </section>
 
-      {/* TIMELINE — horizontal, connected */}
-      <section className="lp-section">
-        <h2 className="display lp-h2">How a case moves — 30 seconds</h2>
-        <div className="lp-timeline">
-          <div className="lp-timeline-line" aria-hidden />
+      {/* STATS — same stats-row as Dashboard */}
+      <section className="stats-row" aria-label="Launch stats">
+        <div className="stat-cell">
+          <span className="stat-label">Preprod users</span>
+          <strong className="stat-num">70</strong>
+          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>verified wallets</span>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-label">Avg rating</span>
+          <strong className="stat-num">4.5<span style={{ fontSize: '1rem', color: 'var(--muted)' }}>/5</span></strong>
+          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>50 responses · 0 × 1–2/5</span>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-label">Contract</span>
+          <strong className="stat-num" style={{ fontSize: '1.25rem' }}>v1.1</strong>
+          <span className="stat-label mono" style={{ textTransform: 'none', letterSpacing: 0 }}>df5e05…29501</span>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-label" style={{ color: 'var(--verify)' }}>● Preprod live</span>
+          <strong className="stat-num" style={{ color: 'var(--verify)' }}>Live</strong>
+          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>indexed · faucet ready</span>
+        </div>
+      </section>
+
+      {/* FEATURES — 3 ledgers like dashboard sections */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 12 }}>
+        {[
+          { k: 'PRIVATE BY DEFAULT', t: 'Witness never disclosed', d: 'Step amount stays in your wallet. Chain stores only total. Black bars are not a bug — they are the guarantee. Compact witness is private by default.' },
+          { k: 'SELECTIVE DISCLOSURE', t: 'Disclose when you choose', d: 'Same contract, two modes. Call disclose() to publish lastDisclosed. Otherwise it stays redacted forever. Deliberate, not leaky.' },
+          { k: 'WALLET-FREE AUDIT', t: 'Anyone at /audit', d: 'No wallet, no secrets. Indexer-direct check: aggregate == Σ totals, allowlist root, phase order, disclosure book. Share a case ID.' },
+        ].map((f) => (
+          <div key={f.k} className="ledger" style={{ padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)' }}>{f.k}</span>
+            <strong style={{ color: 'var(--text-ink)', fontSize: '0.98rem' }}>{f.t}</strong>
+            <span style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.5 }}>{f.d}</span>
+          </div>
+        ))}
+      </section>
+
+      {/* HOW IT MOVES — ledger timeline like Recent activity */}
+      <section className="ledger">
+        <div className="ledger-head">
+          <span className="ledger-title">How a case moves — 30 seconds</span>
+          <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Folder inserts → Verified</span>
+        </div>
+        <div>
           {[
-            { n: '01', t: 'Open', d: 'Pick a number. ID on-chain, title off-chain.' },
-            { n: '02', t: 'Log', d: 'Private amount. Wallet proves total\' = total + amount.' },
-            { n: '03', t: 'Disclose', d: 'Publish the total you choose. Else redacted.' },
-            { n: '04', t: 'Verify', d: 'Open /audit — no wallet — check the math.' },
+            { n: '01', t: 'Open case', d: 'Pick a number. ID on-chain; title stays off-chain.', meta: 'phase ACTIVE' },
+            { n: '02', t: 'Log finding', d: 'Enter a private amount. Wallet proves total\' = total + amount.', meta: 'wire ZK proof → redacted → total' },
+            { n: '03', t: 'Disclose', d: 'Publish only the running total you choose. Else it stays redacted.', meta: 'lastDisclosed (optional)' },
+            { n: '04', t: 'Verify', d: 'Anyone opens /audit — no wallet — and checks the math.', meta: 'aggregate, root, phase' },
           ].map((s) => (
-            <div key={s.n} className="lp-tl-step">
-              <span className="lp-tl-dot" aria-hidden />
-              <span className="mono lp-tl-n">{s.n}</span>
-              <strong className="lp-tl-t">{s.t}</strong>
-              <span className="lp-tl-d">{s.d}</span>
+            <div key={s.n} className="ledger-row">
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
+                <span className="mono" style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--blue)', minWidth: 22 }}>{s.n}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-ink)' }}>{s.t} <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 400 }}>· {s.meta}</span></span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{s.d}</span>
+                </div>
+              </div>
+              <span className="stamp stamp-verify stamp-small">Verified</span>
             </div>
           ))}
         </div>
-        <div className="lp-steps-foot">Each step is a folder insert: <span className="redacted redacted-sm">private amount</span> → public <code className="mono">total</code> <span className="stamp stamp-verify stamp-small lp-stamp-inline">Verified</span></div>
+        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line)', background: 'var(--paper-2)', fontSize: '0.78rem', color: 'var(--muted)' }}>
+          Each step is a folder insert: <span className="redacted redacted-sm">private amount</span> → public <code className="mono" style={{ fontSize: '0.78rem' }}>total</code> with a <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp.
+        </div>
       </section>
 
-      {/* SOCIAL PROOF — centered, different style */}
-      <section className="lp-proof">
-        <div className="lp-proof-grid">
-          <div className="lp-video-dark">
-            <div className="lp-video-dark-head">
-              <span className="display" style={{ fontSize: '1rem', color: 'var(--paper)' }}>See it in 90 seconds</span>
-              <span className="mono" style={{ fontSize: '0.66rem', color: 'var(--muted-ink)' }}>Demo · Preprod live</span>
-            </div>
-            <div className="lp-video-frame">
-              <iframe src="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/preview" title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" />
-            </div>
-            <div className="lp-video-foot-dark">
-              <a href="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/view?usp=sharing" target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', color: 'var(--paper)' }}>Open in Drive ↗</a>
-              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>Mock ledger in demo · Real proofs: Lace / 1AM + tNIGHT</span>
-            </div>
+      {/* PROOF — video + quotes as two ledgers */}
+      <section style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 12, alignItems: 'start' }}>
+        <div className="ledger" style={{ overflow: 'hidden' }}>
+          <div className="ledger-head">
+            <span className="ledger-title">See it in 90 seconds</span>
+            <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)' }}>Demo · Preprod live</span>
           </div>
-          <div className="lp-quotes-dark">
-            <h3 className="display" style={{ fontSize: '1.05rem', color: 'var(--text-ink)', margin: 0 }}>Auditors liked the verification</h3>
+          <div style={{ aspectRatio: '16/9', background: '#0F131A', display: 'grid', placeItems: 'center' }}>
+            <iframe src="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/preview" title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
+          </div>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line)', background: 'var(--paper-2)', display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <a href="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/view?usp=sharing" target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Open in Drive ↗</a>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Mock ledger in demo · Real proofs: Lace / 1AM + tNIGHT</span>
+          </div>
+        </div>
+
+        <div className="ledger" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="ledger-head">
+            <span className="ledger-title">Auditors liked</span>
+            <span className="mono" style={{ fontSize: '0.66rem', color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>5/5 · Very Easy</span>
+          </div>
+          <div style={{ padding: '10px 12px', display: 'grid', gap: 10 }}>
             {[
               ['Proving an investigation step without exposing underlying evidence.', 'Zeel Chauhan · 5/5'],
               ['Immutable forensic trail was the strongest part.', 'Samara · 5/5'],
               ['Audit page made verification easy to understand.', 'Rashi Achaliya · 5/5'],
             ].map(([q, a]) => (
-              <div key={q} className="lp-quote-dark">
-                <span className="lp-quote-mark" aria-hidden>“</span>
-                <p>{q}</p>
-                <span className="mono lp-quote-attr">— {a}</span>
+              <div key={q} style={{ border: '1px solid var(--line)', borderRadius: 4, padding: '10px 12px', background: 'var(--paper-2)' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '0.88rem', lineHeight: 1.5, color: 'var(--text-ink)', fontStyle: 'italic' }}>“{q}”</p>
+                <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>— {a}</span>
               </div>
             ))}
-            <Link to="/about" className="lp-link-strong">Privacy model →</Link>
+            <Link to="/about" style={{ fontSize: '0.82rem', fontWeight: 600 }}>Privacy model → full table on About</Link>
           </div>
         </div>
       </section>
 
-      {/* FAQ — new card style */}
-      <section className="lp-section">
-        <h2 className="display lp-h2">FAQ — what stays private</h2>
-        <div className="lp-faq">
+      {/* WORKED EXAMPLE — compact ledger table */}
+      <section className="ledger">
+        <div className="ledger-head">
+          <span className="ledger-title">Worked example — case #07</span>
+          <Link to="/about" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Full table on About →</Link>
+        </div>
+        <div style={{ padding: '12px 14px', display: 'grid', gap: 0 }}>
+          <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', paddingBottom: 8, borderBottom: '1px solid var(--line)' }}>Step · What you enter · What goes on-chain</div>
+          {[
+            ['Open #07', '—', 'ACTIVE · total 0'],
+            ['Batch 1', '████ a1', 'total = a1 → Verified'],
+            ['Batch 2', '████ a2', 'total = a1+a2 → Verified'],
+            ['Disclose', '(optional)', 'lastDisclosed = total'],
+            ['Close', '—', 'CLOSED → Sealed'],
+          ].map(([s, priv, pub]) => (
+            <div key={s} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 1fr', gap: 0, padding: '9px 0', borderBottom: '1px solid var(--line)', fontSize: '0.84rem', alignItems: 'center' }}>
+              <strong style={{ color: 'var(--text-ink)' }}>{s}</strong>
+              <span>{priv.includes('████') ? <span className="redacted redacted-sm">{priv}</span> : <span style={{ color: 'var(--muted)' }}>{priv}</span>}</span>
+              <span className="mono" style={{ fontSize: '0.8rem', color: 'var(--text-ink)' }}>{pub}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line)', background: 'var(--paper-2)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--muted)' }}>
+          Observer sees only <code className="mono">total = 42</code> (example). Never <span className="redacted redacted-sm">a1</span> <span className="redacted redacted-sm">a2</span> or who logged them.
+        </div>
+      </section>
+
+      {/* FAQ — ledger */}
+      <section className="ledger">
+        <div className="ledger-head"><span className="ledger-title">FAQ — what stays private</span></div>
+        <div>
           {[
             { q: 'What is public vs. redacted?', a: 'Public: per-case total, lastDisclosed (only if you disclose), phase, eventCount, aggregate, allowlist root. Private forever: every step amount and member secret — only persistentHash commitments are stored. ZK shows total\' = total + amount without revealing amount.' },
             { q: 'Do I need a wallet to verify?', a: 'No. /audit reads live Preprod state from the indexer and checks aggregate == Σ totals, root, phase order, and disclosure book. Share a case ID — anyone can verify.' },
             { q: 'Does demo touch the chain?', a: 'No — in-memory mock ledger, toggled in header. Refresh resets it. Real proofs need Lace/1AM on Preprod + tNIGHT from faucet.' },
             { q: 'What does “redacted” mean?', a: 'Black bar, not blur. Amount never leaves device, never lands on-chain, never renders in UI/API. Green Verified means proof checked out; amount stayed redacted.' },
           ].map((item, i) => (
-            <div key={item.q} className={`lp-faq-item ${faqOpen === i ? 'lp-faq-open' : ''}`}>
-              <button className="lp-faq-q" onClick={() => setFaqOpen(faqOpen === i ? null : i)} aria-expanded={faqOpen === i}>
+            <div key={item.q} style={{ borderBottom: '1px solid var(--line)' }}>
+              <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} aria-expanded={faqOpen === i} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '12px 14px', background: faqOpen === i ? 'var(--paper-2)' : 'white', border: 0, cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-ink)', textAlign: 'left' }}>
                 <span>{item.q}</span>
-                <span className="lp-faq-chevron">{faqOpen === i ? '−' : '+'}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{faqOpen === i ? '−' : '+'}</span>
               </button>
-              {faqOpen === i && <div className="lp-faq-a">{item.a}</div>}
+              {faqOpen === i && <div style={{ padding: '0 14px 12px', fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.6 }}>{item.a}</div>}
             </div>
           ))}
         </div>
       </section>
 
-      {/* FINAL CTA — gold on ink */}
-      <section className="lp-cta-gold">
+      {/* CTA — dark ledger like Dashboard but gold accent */}
+      <section className="ledger" style={{ background: 'var(--ink)', borderColor: 'var(--ink)', color: 'var(--paper)', padding: '18px 16px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <div>
-          <h3 className="display" style={{ margin: 0, fontSize: '1.4rem', color: 'var(--ink)' }}>Try it with zero setup.</h3>
-          <p style={{ margin: '6px 0 0', color: 'rgba(20,24,31,0.7)', fontSize: '0.92rem' }}>Mock ledger in demo, real proofs on Preprod with Lace / 1AM + tNIGHT.</p>
+          <h3 className="display" style={{ margin: 0, fontSize: '1.3rem', color: 'var(--paper)' }}>Try it with zero setup.</h3>
+          <p style={{ margin: '6px 0 0', color: 'rgba(237,231,216,0.82)', fontSize: '0.9rem' }}>Mock ledger in demo, real proofs on Preprod with Lace / 1AM + tNIGHT.</p>
         </div>
-        <div className="lp-cta-actions">
-          <button className="btn btn-primary" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
-          <Link to="/dashboard" className="btn btn-cream">Launch app</Link>
-          <a href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer" className="btn btn-ghost">Get tNIGHT ↗</a>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button className="btn" onClick={goDemo} style={{ background: 'var(--paper)', color: 'var(--ink)', borderColor: 'var(--paper)' }}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+          <Link to="/dashboard" className="btn" style={{ background: 'transparent', color: 'var(--paper)', borderColor: 'rgba(237,231,216,0.25)' }}>Launch app</Link>
+          <a href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer" className="btn" style={{ background: 'transparent', color: 'var(--paper)', borderColor: 'rgba(237,231,216,0.18)' }}>Get tNIGHT ↗</a>
         </div>
       </section>
+
+      <style>{`@media(max-width: 860px){ .ledger[style*="1.15fr"]{ grid-template-columns:1fr !important } .ledger[style*="1.15fr"] > div:nth-child(2){ border-left:none !important; border-top:1px solid var(--line) } section[style*="repeat(3"]{ grid-template-columns:1fr !important } section[style*="1.15fr 0.85fr"]{ grid-template-columns:1fr !important } }`}</style>
     </>
   );
 }

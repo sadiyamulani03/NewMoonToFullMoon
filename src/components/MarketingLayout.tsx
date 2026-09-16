@@ -43,8 +43,13 @@ export default function MarketingLayout() {
       </main>
 
       <footer className="footer">
-        <span className="mono" style={{ fontSize: '0.72rem' }}>MidnightTrace · Evidence ledger on Midnight · Private amounts stay redacted</span>
-        {' · '}<a href="/audit">Audit</a> · <a href="/about">Privacy model</a> · <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X</a>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 14px', alignItems: 'center' }}>
+          <span className="mono" style={{ fontSize: '0.72rem' }}>MidnightTrace · Evidence ledger on Midnight · Private amounts stay redacted</span>
+          <span className="mono" style={{ fontSize: '0.66rem', padding: '2px 7px', border: '1px solid var(--line)', borderRadius: 999, background: 'white' }}>v1.1 · Preprod · df5e05…29501</span>
+        </div>
+        <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, fontSize: '0.78rem' }}>
+          <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X</a> · <a href="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/view?usp=sharing" target="_blank" rel="noreferrer">Demo video</a>
+        </div>
       </footer>
     </div>
   );

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { XProfileLink } from '../components/SocialLinks';
 
 export default function About() {
   return (
@@ -138,6 +139,15 @@ export default function About() {
             <Link to="/audit" className="btn btn-secondary">Auditor — no wallet</Link>
           </div>
         </div>
+      </section>
+
+      <XProfileLink variant="card" />
+
+      <section className="ledger" style={{ padding: '14px 14px', display: 'grid', gap: 8 }}>
+        <div className="ledger-title" style={{ fontSize: '0.98rem' }}>Why the X badge says “Appeal”</div>
+        <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted-ink)', lineHeight: 1.6 }}>
+          X flagged <span className="mono">@Midnight__Trace</span> as suspended (automated moderation). This is common for new product handles posting builder threads. Appeal is filed — while pending, every claim on X is mirrored 1:1 in <code className="mono">docs/posts.md</code> + GitHub + the live demo, so reviewers never hit a dead link. Update the handle instantly via <code className="mono">VITE_X_PROFILE_URL</code> without a code change.
+        </p>
       </section>
 
       <section id="glossary" className="ledger">

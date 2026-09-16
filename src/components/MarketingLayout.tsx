@@ -1,5 +1,7 @@
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useDemo } from '../context/DemoContext';
+import { XProfileLink } from './SocialLinks';
+import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 
 export default function MarketingLayout() {
   const { isDemo, toggleDemo } = useDemo();
@@ -47,8 +49,11 @@ export default function MarketingLayout() {
           <span className="mono" style={{ fontSize: '0.72rem' }}>MidnightTrace · Evidence ledger on Midnight · Private amounts stay redacted</span>
           <span className="mono" style={{ fontSize: '0.66rem', padding: '2px 7px', border: '1px solid var(--line)', borderRadius: 999, background: 'white' }}>v1.1 · Preprod · df5e05…29501</span>
         </div>
-        <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, fontSize: '0.78rem' }}>
-          <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X</a> · <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer">Demo video</a>
+        <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, alignItems: 'center', fontSize: '0.78rem' }}>
+          <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> · <XProfileLink variant="pill" /> · <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer">Demo video</a>
+        </div>
+        <div className="mono" style={{ marginTop: 8, fontSize: '0.66rem', color: 'var(--muted)', maxWidth: 640, marginInline: 'auto', lineHeight: 1.5 }}>
+          X @Midnight__Trace — if flagged, backup: GitHub + docs/posts.md + demo (above). Update via VITE_X_PROFILE_URL.
         </div>
       </footer>
     </div>

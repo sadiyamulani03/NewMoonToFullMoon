@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
+import { XProfileLink } from './SocialLinks';
+import { GITHUB_URL } from '../config';
 
 function shortAddr(a: string): string {
   return a.length <= 18 ? a : `${a.slice(0, 10)}…${a.slice(-6)}`;
@@ -90,9 +92,13 @@ export default function Layout() {
           <Outlet />
         </div>
         <footer className="footer">
-          <span className="mono" style={{ fontSize: '0.72rem' }}>v1.1 · Preprod · MidnightTrace</span>
-          {' · '}<a href="/audit">Audit</a> · <a href="/about">How it works</a> · <a href="https://x.com/Midnight__Trace" target="_blank" rel="noreferrer">X</a> · <a href="https://github.com/sadiyamulani03/NewMoonToFullMoon" target="_blank" rel="noreferrer">GitHub</a>
-          {isDemo && <span style={{ color: 'var(--verify)', marginLeft: 8 }}>● Demo — not on-chain</span>}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px', alignItems: 'center' }}>
+            <span className="mono" style={{ fontSize: '0.72rem' }}>v1.1 · Preprod · MidnightTrace</span>
+            <span>·</span><a href="/audit">Audit</a> · <a href="/about">How it works</a> · <XProfileLink variant="pill" /> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+          <div className="mono" style={{ marginTop: 6, fontSize: '0.66rem', opacity: 0.85, lineHeight: 1.4 }}>
+            X @Midnight__Trace — appeal pending, backup via GitHub/docs. {isDemo && <span style={{ color: 'var(--verify)', marginLeft: 8 }}>● Demo — not on-chain</span>}
+          </div>
         </footer>
       </main>
     </div>

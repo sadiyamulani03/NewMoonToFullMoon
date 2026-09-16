@@ -330,6 +330,7 @@ a:hover { color: #3f6fb8; }
 }
 .marketing-rail-mark { background: var(--ink); color: var(--paper); }
 .marketing-nav { display: flex; gap: 6px; align-items: center; }
+.marketing-header-inner .btn { white-space: nowrap; }
 .marketing-nav-link {
   padding: 7px 12px;
   font-size: 0.82rem;
@@ -350,6 +351,39 @@ a:hover { color: #3f6fb8; }
   flex-direction: column;
   gap: 22px;
 }
+
+/* X pill — fixes invalid-link UX: handle visible, status explicit, backup disclosed */
+.x-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--text-ink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+.x-pill:hover { background: var(--paper-2); border-color: var(--line); transform: translateY(-1px); }
+.x-pill-ghost { background: transparent; }
+.x-pill-badge {
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--ochre-soft);
+  color: var(--ochre);
+  border: 1px solid var(--ochre-border);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.app-shell .x-pill { background: rgba(255,255,255,0.06); color: var(--paper); border-color: var(--line-ink-strong); }
+.app-shell .x-pill:hover { background: rgba(255,255,255,0.1); }
+.lp-announce .x-pill { background: white; color: var(--ink); border-color: rgba(255,255,255,0.9); padding: 4px 10px; }
+.lp-announce .x-pill:hover { background: var(--paper-2); }
 
 /* Footer */
 .footer { text-align: center; padding: 18px 16px 28px; font-size: 0.82rem; color: var(--muted); }

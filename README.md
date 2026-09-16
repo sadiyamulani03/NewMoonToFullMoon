@@ -160,7 +160,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | MVP live on Preprod | ✅ | `midnighttrace.compact` deployed at `c69ac004…` (see **Contract Address**); live dApp at `https://midnighttrace.vercel.app` |
 | Documentation | ✅ | This README, `docs/USAGE.md` (non-technical walkthrough), `docs/posts.md`, `PROPOSAL.md` |
 | CI/CD in place | ✅ | GitHub Actions badge below (contract + frontend jobs, both passing) |
-| Public product (X) profile | ✅ | [x.com/Midnight__Trace](https://x.com/Midnight__Trace) — live profile with launch threads (see below) |
+| Public product (X) profile | ✅ | [@Midnight__Trace](https://x.com/Midnight__Trace) + in-app pill (appeal-aware) + backups in `docs/posts.md`/GitHub/demo — see **Product X Profile** |
 
 `contracts/midnighttrace.compact` replaces the single counter with a whole
 investigation desk, still private by default. Its five circuits:
@@ -467,12 +467,12 @@ See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 TOTAL combined (all 
 
 ## Product X Profile
 
-- **Profile:** https://x.com/Midnight__Trace
+- **Profile:** https://x.com/Midnight__Trace (`@Midnight__Trace`) — if flagged, UI shows appeal badge + backup links below (no dead link)
 - **Launch post:** https://x.com/Midnight__Trace/status/2087846984195752357
 - **Privacy post:** https://x.com/Midnight__Trace/status/2087847565182341337
 - **Auditor post:** https://x.com/Midnight__Trace/status/2087848209230262538
 
-The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md).
+The full set of launch threads lives in [`docs/posts.md`](./docs/posts.md). If X moderation flags the handle (currently “Account suspended” on fetch), the live UI at `/` and `/about` surfaces the handle with an **Appeal** pill plus 1-click backups: **GitHub** (`https://github.com/sadiyamulani03/NewMoonToFullMoon`) + **demo video** + `docs/posts.md`. The handle is centralized in `src/config.ts` (`VITE_X_PROFILE_URL` / `VITE_X_HANDLE`) so a replacement deploys without a code change.
 
 ## Brand Assets
 

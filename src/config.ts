@@ -42,3 +42,20 @@ export const MIDNIGHTTRACE_PRIVATE_STATE_ID = 'midnighttracePrivateState';
 export const MIDNIGHTTRACE_OWNER_SECRET =
   import.meta.env.VITE_MIDNIGHTTRACE_OWNER_SECRET ??
   '281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04';
+
+/**
+ * Public product profile — X (Twitter).
+ * Centralized so reviewers never hit a stale hardcoded URL.
+ * If the primary handle is suspended/under appeal, set VITE_X_PROFILE_URL
+ * to the replacement handle (e.g. https://x.com/MidnightTrace_) and redeploy.
+ * The UI surfaces handle + direct link + backup (GitHub/docs) to avoid
+ * “invalid x profile link” rejections when X moderation flags the account.
+ */
+export const X_HANDLE = (import.meta.env.VITE_X_HANDLE as string | undefined) ?? 'Midnight__Trace';
+export const X_PROFILE_URL =
+  (import.meta.env.VITE_X_PROFILE_URL as string | undefined) ?? `https://x.com/${X_HANDLE}`;
+export const X_PROFILE_STATUS: 'live' | 'appeal' =
+  (import.meta.env.VITE_X_PROFILE_STATUS as 'live' | 'appeal' | undefined) ?? 'appeal';
+export const GITHUB_URL = 'https://github.com/sadiyamulani03/NewMoonToFullMoon';
+export const DEMO_VIDEO_URL =
+  'https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing';

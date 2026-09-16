@@ -9,6 +9,12 @@ import type { ProofProvider, AnyProvableCircuitId, MidnightProviders } from '@mi
 import { createWalletProvidersFromConnectedAPI } from './walletAdapter';
 import type { ShieldedAddress } from './walletAdapter';
 
+// Demo-only IndexedDB encryption for the browser's local private state (Level DB).
+// This is NOT authentication and NOT production key management. Each browser's
+// shielded state is encrypted at rest with this static demo password; the real
+// privacy guarantee comes from the ZK circuit (amount/secret never leave the
+// device nor land on-chain). Production would derive this from the wallet's
+// seed or a user-supplied passphrase. Never log or display this value.
 const PRIVATE_STATE_PASSWORD = 'MidnightTrace-demo-storage-password!';
 
 /**

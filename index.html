@@ -39,7 +39,19 @@
     </script>
   </head>
   <body>
+    <div id="initial-loader" style="display:grid;place-items:center;min-height:100vh;background:#14181F;color:#EDE7D8;font-family:IBM Plex Sans,system-ui,sans-serif;padding:24px;text-align:center;box-sizing:border-box">
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:420px;width:100%;box-sizing:border-box">
+        <div style="width:34px;height:34px;display:grid;place-items:center;background:#EDE7D8;color:#14181F;font-family:Fraunces,Georgia,serif;font-weight:700;border-radius:3px">M</div>
+        <div style="font-family:IBM Plex Mono,monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9AA3B5">MidnightTrace · Midnight Preprod</div>
+        <div style="display:flex;gap:8px;align-items:center;color:#9AA3B5;font-size:0.84rem"><span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.12);border-top-color:#5B7FBD;border-radius:50%;display:inline-block;animation:spin 0.7s linear infinite"></span> Loading Midnight ledger + ZK bundle… <span style="font-family:IBM Plex Mono,monospace;font-size:0.68rem">(~1.2s on fast link)</span></div>
+        <div style="height:3px;width:180px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:38%;background:#3FA772;border-radius:999px;animation:shimmer 1.4s ease infinite"></div></div>
+        <div style="font-size:0.74rem;color:rgba(237,231,216,0.62);line-height:1.5">Private amounts stay redacted · Proofs verified in zero-knowledge</div>
+      </div>
+    </div>
     <div id="root"></div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}</style>
+    <noscript><div style="color:#ff8d7a;text-align:center;padding:12px">JavaScript is required — enable it to use MidnightTrace.</div></noscript>
+    <script>addEventListener('DOMContentLoaded',function(){var r=document.getElementById('root');var l=document.getElementById('initial-loader');if(!r||!l)return;var obs=new MutationObserver(function(){if(r.children.length){l.style.display='none';obs.disconnect()}});obs.observe(r,{childList:true});setTimeout(function(){if(r.children.length) l.style.display='none'},8000)})</script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

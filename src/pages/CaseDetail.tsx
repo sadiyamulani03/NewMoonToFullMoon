@@ -4,6 +4,7 @@ import { addReceipt, exportCaseReceipts, getCase, setCaseStatus, type ForensicCa
 import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
+import { MIDNIGHTTRACE_OWNER_SECRET } from '../config';
 import WalletStatus from '../components/WalletStatus';
 import TxProgress from '../components/TxProgress';
 
@@ -92,7 +93,8 @@ export default function CaseDetail() {
       setAmount(''); return;
     }
     if (!isConnected) { setMsg('Connect wallet or enable Demo — no proof can be generated without a wallet.'); setMsgTechnical(null); return; }
-    if (membershipStatus !== 'member') { setMsg('Not on allowlist — this wallet cannot log findings for this ledger.'); setMsgTechnical('Membership check: allowlist.findPathForLeaf(commitment) returned nothing for this secret. Use the owner secret or ask a member to grant access.'); return; }
+    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry. If it persists, tap “Join as investigator” below or enable Demo.'); setMsgTechnical(`membershipStatus=unknown — ledger ${midLedger ? `has ${midLedger.cases.length} cases, root ${midLedger.allowlistRoot ? 'present' : 'empty'}` : 'not yet loaded'}; commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}…`); return; }
+    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet an authorized investigator for this Preprod ledger.'); setMsgTechnical(`Membership check: allowlist.findPathForLeaf(commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}…) returned nothing. Preprod demo sharing: all wallets use the same owner secret (commitment is one leaf), so this usually means the ledger hasn't finished loading or the configured VITE_MIDNIGHTTRACE_OWNER_SECRET doesn't match the deployed contract ${'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501'.slice(0,12)}…. Use “Join as investigator” to apply the baked owner secret, or enable Demo — no wallet.`); return; }
     setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
     try {
       const cid = resolveId();
@@ -122,7 +124,8 @@ export default function CaseDetail() {
       setAmount('');
     } catch (e) {
       const raw = (e as Error).message ?? String(e);
-      if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
+      if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” (applies owner secret ${'281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04'.slice(0,12)}…) then retry, or use Demo.`); }
+      else if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
       else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) { setMsg('We couldn’t reach the proof service.'); setMsgTechnical(`${raw} — Try: docker compose up -d --wait proof-server or enable Demo in the header.`); }
       else if (/timeout/i.test(raw)) { setMsg('Wallet didn’t respond in time.'); setMsgTechnical(raw); }
       else { setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
@@ -138,7 +141,8 @@ export default function CaseDetail() {
       return;
     }
     if (!isConnected) { setMsg('Connect wallet or enable Demo.'); setMsgTechnical(null); return; }
-    if (membershipStatus !== 'member') { setMsg('Not on allowlist — cannot open cases.'); setMsgTechnical('Requires allowlist membership proof for openCase.'); return; }
+    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry.'); setMsgTechnical(`membershipStatus=unknown — ledger ${midLedger ? `has ${midLedger.cases.length} cases` : 'not yet loaded'}; commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}… — tap “Join as investigator” if this persists.`); return; }
+    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet authorized. Tap “Join as investigator” below to apply the Preprod owner secret, or enable Demo.'); setMsgTechnical(`Requires allowlist membership proof for openCase. commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}… not found on ledger ${'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501'.slice(0,12)}…. Demo sharing uses one owner commitment; applying the baked owner secret joins instantly.`); return; }
     setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
     try {
       const cid = resolveId();
@@ -241,6 +245,24 @@ export default function CaseDetail() {
 
             {!isDemo && !isConnected && <div style={{ marginTop: 12 }}><WalletStatus walletState={walletState} isMobile={isMobile} /></div>}
 
+            {isConnected && !isDemo && membershipStatus === 'not-member' && (
+              <div style={{ marginTop: 14, padding: '10px 11px', borderRadius: 4, background: 'var(--ochre-soft)', border: '1px solid var(--ochre-border)', display: 'grid', gap: 8 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ochre)', fontWeight: 700 }}>● Not on allowlist — join required</div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>Preprod demo uses one shared owner commitment. Tap to apply the baked owner secret and retry instantly — no grant needed for judges.</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button className="btn btn-primary" style={{ padding: '7px 12px', fontSize: '0.82rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — commitment applied. Retry the action.'); setMsgTechnical(null); } catch (e) { setMsg('Join failed — paste secret manually below.'); setMsgTechnical(String(e)); } }}>
+                    Join as investigator
+                  </button>
+                  <button className="btn btn-secondary" style={{ padding: '7px 12px', fontSize: '0.82rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — no allowlist needed.'); setMsgTechnical(null); } catch {} }}>Enable Demo — no wallet</button>
+                </div>
+              </div>
+            )}
+            {isConnected && !isDemo && membershipStatus === 'unknown' && (
+              <div style={{ marginTop: 14, padding: '8px 10px', borderRadius: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--line-ink)', fontSize: '0.82rem', color: 'var(--muted-ink)', display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span className="spinner" aria-hidden="true" style={{ width: 12, height: 12 }} /> Checking allowlist membership…
+              </div>
+            )}
+
             <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line-ink)' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)', marginBottom: 8 }}>Primary actions — one folder, one ledger</div>
 
@@ -284,13 +306,19 @@ export default function CaseDetail() {
               {msg && (
                 <div role="status" aria-live="polite" style={{ marginTop: 10, padding: '8px 10px', borderRadius: 4, fontSize: '0.86rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
                   {msg}
-                  {!msg.startsWith('✓') && /proof|Docker|Failed to fetch|unreachable/i.test(msg + ' ' + (msgTechnical ?? '')) && (
+                  {!msg.startsWith('✓') && /proof|Docker|Failed to fetch|unreachable|allowlist|Authorized/i.test(msg + ' ' + (msgTechnical ?? '')) && (
                     <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — retry the action, no proof server needed.'); setMsgTechnical(null); } catch {} }}>
-                        Enable Demo — no wallet
-                      </button>
+                      {/allowlist|Authorized/.test(msg + ' ' + (msgTechnical ?? '')) ? (
+                        <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — retry the action.'); setMsgTechnical(null); } catch (e) { setMsgTechnical(String(e)); } }}>
+                          Join as investigator
+                        </button>
+                      ) : (
+                        <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — retry the action, no proof server needed.'); setMsgTechnical(null); } catch {} }}>
+                          Enable Demo — no wallet
+                        </button>
+                      )}
                       <Link to="/audit" className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Try audit (no proof needed) →</Link>
-                      <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => void run()}>Retry proof</button>
+                      <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { if (/allowlist|Authorized/.test(msg + ' ' + (msgTechnical ?? ''))) { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); } catch {} } void run(); }}>Retry</button>
                     </div>
                   )}
                   {msgTechnical && (

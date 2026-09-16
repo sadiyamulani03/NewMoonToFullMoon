@@ -147,10 +147,10 @@ export default function Landing() {
             <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)' }}>Demo · Preprod live</span>
           </div>
           <div style={{ aspectRatio: '16/9', background: '#0F131A', display: 'grid', placeItems: 'center' }}>
-            <iframe src="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/preview" title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
+            <iframe src="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/preview" title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
           </div>
           <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line)', background: 'var(--paper-2)', display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <a href="https://drive.google.com/file/d/1yyIYfEbgvMxYRE33vYNzR-WiedLoBbSf/view?usp=sharing" target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Open in Drive ↗</a>
+            <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Open in Drive ↗</a>
             <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Mock ledger in demo · Real proofs: Lace / 1AM + tNIGHT</span>
           </div>
         </div>

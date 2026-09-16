@@ -71,13 +71,14 @@ export default function CaseDetail() {
   }, [id, reload, resolveId, isDemo]);
 
   const validateAmount = (raw: string): bigint | null => {
-    if (!raw.trim()) return null;
+    if (!raw.trim()) { setMsg('Enter an amount — 1 to 65,535.'); setMsgTechnical(null); return null; }
     try {
       const n = BigInt(raw.trim());
       if (n < 0n) { setMsg('Amount must be 0 or more.'); setMsgTechnical(null); return null; }
       if (n > 65535n) { setMsg('Amount too large — max 65,535 per step. Use multiple findings for larger totals.'); setMsgTechnical(null); return null; }
+      if (n === 0n) { setMsg('Amount must be at least 1.'); setMsgTechnical(null); return null; }
       return n;
-    } catch { setMsg('Enter a valid number.'); setMsgTechnical(null); return null; }
+    } catch { setMsg('Enter a valid number — digits only.'); setMsgTechnical(null); return null; }
   };
 
   const run = async () => {
@@ -275,7 +276,7 @@ export default function CaseDetail() {
               {!onChainCase ? (
                 <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>{busy ? 'Opening… check wallet' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
               ) : (
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void run()} disabled={busy || (action !== 'closeCase' && !amount && !isDemo)}>
+                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void run()} disabled={busy}>
                   {busy ? (busyStage === 'proof' ? 'Generating proof… check wallet' : 'Submitting — awaiting finalization…') : action === 'logStep' ? 'Generate proof — log finding (private)' : action === 'discloseFinding' ? 'Generate proof — disclose finding' : 'Seal case — final attestation'}
                 </button>
               )}

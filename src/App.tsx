@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import { MidnightProvider } from './context/MidnightContext';
 import { DemoProvider } from './context/DemoContext';
@@ -16,6 +17,21 @@ import NotFound from './pages/NotFound';
 import './styles.css';
 
 export default function App() {
+  useEffect(() => {
+    const enhance = () =>
+      document.querySelectorAll('.redacted').forEach((el) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', 'private — redacted');
+          el.setAttribute('role', 'img');
+        }
+        if (!el.getAttribute('title')) el.setAttribute('title', 'Private — redacted, never on-chain');
+      });
+    enhance();
+    const obs = new MutationObserver(enhance);
+    obs.observe(document.body, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <BrowserRouter>
       <DemoProvider>
@@ -24,6 +40,7 @@ export default function App() {
             <Routes>
               <Route element={<MarketingLayout />}>
                 <Route path="/" element={<Landing />} />
+                <Route path="*" element={<NotFound />} />
               </Route>
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -34,7 +51,6 @@ export default function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
-              <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
         </MidnightProvider>

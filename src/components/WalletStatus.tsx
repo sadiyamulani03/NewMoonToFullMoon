@@ -94,14 +94,16 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
         return (
           <div>
             <p className="muted-text">
-              Wallet connection needs a desktop browser extension (1AM or Lace). On mobile, you can still verify
-              everything publicly.
+              Wallet connection needs a desktop browser extension (1AM or Lace). On mobile, try the full demo or verify publicly.
             </p>
-            <p className="wallet-actions">
-              <Link className="btn btn-primary" to="/audit">
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+              <Link className="btn btn-primary" to="/dashboard" onClick={() => { try { localStorage.setItem('midnighttrace-demo-enabled','1'); } catch {} }}>
+                Try demo — no wallet
+              </Link>
+              <Link className="btn btn-secondary" to="/audit">
                 Open Audit window
               </Link>
-            </p>
+            </div>
           </div>
         );
       }

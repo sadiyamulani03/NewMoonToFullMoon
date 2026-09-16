@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { GITHUB_URL } from '../config';
 import FaucetDrawer from '../components/FaucetDrawer';
@@ -11,14 +11,6 @@ export default function Landing() {
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const [demoAmt, setDemoAmt] = useState('15');
   const [demoMsg, setDemoMsg] = useState<string | null>(null);
-
-  // Landing IS demo — auto-enable on first visit only, respecting explicit Exit demo
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem('midnighttrace-demo-enabled');
-      if (v === null && !isDemo) enableDemo();
-    } catch { if (!isDemo) enableDemo(); }
-  }, [isDemo, enableDemo]);
 
   const demoCase = mockCases.find((c) => c.id.startsWith('demo-7')) ?? mockCases[0];
   const [faucetOpen, setFaucetOpen] = useState(false);
@@ -57,9 +49,9 @@ export default function Landing() {
           </div>
           <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
           <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted-ink)' }}>
-            <span>Users <strong style={{ color: 'var(--paper)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span></span>
+            <span>Early cohort <strong style={{ color: 'var(--paper)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span> <span style={{ fontSize: '0.62rem' }}>(local testers)</span></span>
             <span>Contract <strong style={{ color: 'var(--paper)' }} className="mono">df5e05…29501</strong></span>
-            <span style={{ color: 'var(--verify)', fontWeight: 700 }}>● Preprod live</span>
+            <span style={{ color: 'var(--verify)', fontWeight: 700 }}>● Preprod live · Midnight</span>
           </div>
         </div>
 
@@ -95,14 +87,14 @@ export default function Landing() {
       {/* STATS — same stats-row as Dashboard */}
       <section className="stats-row" aria-label="Launch stats">
         <div className="stat-cell">
-          <span className="stat-label">Preprod users</span>
+          <span className="stat-label">Early testers</span>
           <strong className="stat-num">70</strong>
-          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>verified wallets</span>
+          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>local cohort</span>
         </div>
         <div className="stat-cell">
           <span className="stat-label">Avg rating</span>
           <strong className="stat-num">4.5<span style={{ fontSize: '1rem', color: 'var(--muted)' }}>/5</span></strong>
-          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>50 responses · 0 × 1–2/5</span>
+          <span className="stat-label" style={{ textTransform: 'none', letterSpacing: 0 }}>50 responses · local</span>
         </div>
         <div className="stat-cell">
           <span className="stat-label">Contract</span>

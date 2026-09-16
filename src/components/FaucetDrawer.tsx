@@ -3,12 +3,24 @@ import { useState, useEffect, useRef } from 'react';
 export default function FaucetDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevFocus = useRef<HTMLElement | null>(null);
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    prevFocus.current = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'Tab' && containerRef.current) {
+        const focusable = containerRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        const first = focusable[0]; const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
     window.addEventListener('keydown', onKey);
-    closeRef.current?.focus();
-    return () => window.removeEventListener('keydown', onKey);
+    setTimeout(() => closeRef.current?.focus(), 0);
+    return () => { window.removeEventListener('keydown', onKey); prevFocus.current?.focus(); };
   }, [open, onClose]);
   if (!open) return null;
   const copyCmd = async () => {
@@ -17,7 +29,7 @@ export default function FaucetDrawer({ open, onClose }: { open: boolean; onClose
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'grid', placeItems: 'center', padding: 16 }} role="dialog" aria-modal="true" aria-label="Wallet setup">
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }} />
-      <div className="ledger" style={{ position: 'relative', maxWidth: 560, width: '100%', maxHeight: '90vh', overflow: 'auto', background: 'var(--ink-2)', borderColor: 'var(--line-ink-strong)' }}>
+      <div ref={containerRef} className="ledger" style={{ position: 'relative', maxWidth: 560, width: '100%', maxHeight: '90vh', overflow: 'auto', background: 'var(--ink-2)', borderColor: 'var(--line-ink-strong)' }}>
         <div className="ledger-head" style={{ position: 'sticky', top: 0 }}>
           <span className="ledger-title">Setup in 60s — wallet + tNIGHT</span>
           <button ref={closeRef} className="btn btn-ghost" onClick={onClose} aria-label="Close dialog">✕</button>

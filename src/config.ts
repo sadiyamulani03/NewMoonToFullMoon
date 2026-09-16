@@ -58,4 +58,4 @@ export const X_PROFILE_STATUS: 'live' | 'appeal' =
   (import.meta.env.VITE_X_PROFILE_STATUS as 'live' | 'appeal' | undefined) ?? 'live';
 export const GITHUB_URL = 'https://github.com/sadiyamulani03/NewMoonToFullMoon';
 export const DEMO_VIDEO_URL =
-  'https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing';
+  'https://drive.google.com/file/d/1yybyQj_qhYs_h35tz70ciE9clR9U5UGM/view?usp=sharing';

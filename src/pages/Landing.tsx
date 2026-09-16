@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useDemo } from '../context/DemoContext';
-import { GITHUB_URL } from '../config';
+import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 import FaucetDrawer from '../components/FaucetDrawer';
 
 export default function Landing() {
@@ -161,10 +161,10 @@ export default function Landing() {
             <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Demo · Preprod live</span>
           </div>
           <div style={{ aspectRatio: '16/9', background: '#0F131A', display: 'grid', placeItems: 'center' }}>
-            <iframe src="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/preview" title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
+            <iframe src={DEMO_VIDEO_URL.replace('/view?usp=sharing', '/preview')} title="MidnightTrace demo" allow="autoplay; encrypted-media" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
           </div>
           <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Open in Drive ↗</a>
+            <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Open in Drive ↗</a>
             <span style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>Mock ledger in demo · Real proofs: Lace / 1AM + tNIGHT</span>
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function Landing() {
         <div style={{ padding: '14px 14px', display: 'grid', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="btn btn-primary">GitHub repo ↗</a>
-            <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer" className="btn btn-secondary">Demo video ↗</a>
+            <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer" className="btn btn-secondary">Demo video ↗</a>
             <Link to="/about" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Privacy model →</Link>
           </div>
           <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)', lineHeight: 1.6 }}>

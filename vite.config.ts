@@ -45,6 +45,15 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@midnight-ntwrk') || id.includes('midnight_ledger_wasm') || id.includes('midnight_onchain_runtime')) return 'midnight';
+          if (id.includes('node_modules')) return 'vendor';
+        },
+      },
+    },
   },
   worker: {
     format: 'es',

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { GITHUB_URL } from '../config';
+import FaucetDrawer from '../components/FaucetDrawer';
 
 export default function Landing() {
   const { isDemo, enableDemo, mockCases, mockLedger, demoLogStep, demoDisclose } = useDemo();
@@ -15,6 +16,7 @@ export default function Landing() {
   useEffect(() => { if (!isDemo) enableDemo(); }, [isDemo, enableDemo]);
 
   const demoCase = mockCases.find((c) => c.id.startsWith('demo-7')) ?? mockCases[0];
+  const [faucetOpen, setFaucetOpen] = useState(false);
 
   return (
     <>
@@ -40,8 +42,10 @@ export default function Landing() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link to="/dashboard" className="btn btn-primary">Launch app →</Link>
             <button className="btn btn-secondary" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+            <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)}>Setup wallet → faucet</button>
             <Link to="/audit" className="btn btn-ghost">Verify — no login</Link>
           </div>
+          <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
           <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted-ink)' }}>
             <span>Users <strong style={{ color: 'var(--paper)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span></span>
             <span>Contract <strong style={{ color: 'var(--paper)' }} className="mono">df5e05…29501</strong></span>

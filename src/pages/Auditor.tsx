@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { buildPublicDataProvider } from '../lib/providers';
 import { readMidnightTraceLedger, type MidnightTraceLedgerView } from '../lib/ledger';
 import { listCases } from '../lib/api';
@@ -15,12 +16,20 @@ function hexField(field: bigint | undefined | null): string {
 
 export default function Auditor() {
   const { isDemo, mockLedger, mockCases } = useDemo();
+  const [search, setSearch] = useSearchParams();
   const [network, setNetwork] = useState((NETWORK_ID as string) === 'undeployed' ? 'preprod' : NETWORK_ID);
   const [address, setAddress] = useState(MIDNIGHTTRACE_CONTRACT_ADDRESS);
-  const [caseId, setCaseId] = useState('');
+  const [caseId, setCaseId] = useState(() => search.get('case') ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ ledger: MidnightTraceLedgerView | null; checks: Check[]; fingerprint: string | null; auditedAt: string } | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  useEffect(() => {
+    const q = search.get('case');
+    if (q && q !== caseId) setCaseId(q.replace(/[^0-9]/g, ''));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const run = useCallback(async () => {
     if (isDemo) {
@@ -124,9 +133,15 @@ export default function Auditor() {
 
           {error && <div style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
 
-          <button className="btn btn-primary" onClick={() => void run()} disabled={busy} style={{ justifyContent: 'center' }}>
-            {busy ? 'Reading ledger…' : caseId ? `Verify case #${caseId}` : 'Run full-ledger check'}
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} style={{ flex: '1 1 auto', justifyContent: 'center' }}>
+              {busy ? 'Reading ledger…' : caseId ? `Verify case #${caseId}` : 'Run full-ledger check'}
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={async () => {
+              const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`;
+              try { await navigator.clipboard.writeText(url); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {}
+            }}>{shareCopied ? 'Copied ✓' : 'Copy audit link'}</button>
+          </div>
 
           <div className="wire" style={{ fontSize: '0.76rem' }}>
             Wire: case <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: 3 }}>#{caseId || '—'}</span> · <span className="redacted redacted-sm">amount</span> → <span className="wire-total">total</span> · proof <span className="wire-proof">ZK</span> → stamp
@@ -143,7 +158,8 @@ export default function Auditor() {
             </div>
             <div style={{ padding: 10, display: 'flex', flexWrap: 'wrap', gap: 12, fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', borderBottom: '1px solid var(--line-ink)' }}>
               <span>Audited <span className="mono" style={{ color: 'var(--paper)' }}>{new Date(result.auditedAt).toLocaleString()}</span></span>
-              {result.fingerprint && <span>Fingerprint <span className="mono" style={{ color: 'var(--paper)' }}>{result.fingerprint.slice(0, 12)}…</span></span>}
+              {result.fingerprint && <span>Fingerprint <span className="mono" style={{ color: 'var(--paper)' }}>{result.fingerprint.slice(0, 12)}…</span> <button className="btn btn-ghost" style={{ padding: '2px 6px', fontSize: '0.68rem' }} onClick={async () => { try { await navigator.clipboard.writeText(result.fingerprint!); } catch {} }}>{'Copy'}</button></span>}
+              <a href={`${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`} target="_blank" rel="noreferrer" className="mono" style={{ fontSize: '0.68rem' }}>Shareable link ↗</a>
             </div>
             <ul className="checklist" style={{ padding: 12 }}>
               {result.checks.map((c, i) => (

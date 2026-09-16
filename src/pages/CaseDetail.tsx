@@ -121,9 +121,16 @@ export default function CaseDetail() {
 
   const onChainCase = onChainIdx != null && ledger ? ledger.cases.find((c) => c.caseId === onChainIdx) ?? null : null;
 
+  const [shareCopied, setShareCopied] = useState(false);
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/cases/${id}?audit=${onChainIdx?.toString() ?? caseIndex}`;
+  const copyShare = async () => {
+    try { await navigator.clipboard.writeText(shareUrl); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {}
+  };
   const exportJson = () => {
     if (!caseItem) return;
-    const blob = new Blob([exportCaseReceipts(caseItem)], { type: 'application/json' });
+    const withShare = JSON.parse(exportCaseReceipts(caseItem));
+    (withShare as Record<string, unknown>)._share = { auditUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/audit?case=${onChainIdx?.toString() ?? caseIndex}`, caseUrl: shareUrl, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(withShare, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `midnighttrace-${caseItem.id}.json`; a.click(); URL.revokeObjectURL(url);
   };
@@ -225,7 +232,11 @@ export default function CaseDetail() {
           <div className="ledger">
             <div className="ledger-head">
               <span className="ledger-title">Ledger history · Receipts</span>
-              <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Export JSON</button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button className="btn btn-ghost" onClick={copyShare} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>{shareCopied ? 'Copied ✓' : 'Copy share link'}</button>
+                <Link to={`/audit?case=${onChainIdx?.toString() ?? caseIndex}`} className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Audit this ↗</Link>
+                <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Export JSON</button>
+              </div>
             </div>
             <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.02)', fontSize: '0.82rem', color: 'var(--muted-ink)' }}>
               Inserts filed by block height. Private amounts show as <span className="redacted redacted-sm">redacted</span>. Public totals have a <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp.

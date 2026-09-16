@@ -308,7 +308,7 @@ export default function Landing() {
           <p style={{ margin: '6px 0 0', color: 'rgba(237,231,216,0.82)', fontSize: '0.9rem' }}>Mock ledger in demo, real proofs on Preprod with Lace / 1AM + tNIGHT.</p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button className="btn" onClick={goDemo} style={{ background: 'var(--paper)', color: 'var(--ink)', borderColor: 'var(--paper)' }}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+          <button className="btn" onClick={goDemo} style={{ background: '#F4C770', color: '#0B1020', borderColor: '#F4C770', fontWeight: 700 }}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
           <Link to="/dashboard" className="btn" style={{ background: 'transparent', color: 'var(--paper)', borderColor: 'rgba(237,231,216,0.25)' }}>Launch app</Link>
           <a href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer" className="btn" style={{ background: 'transparent', color: 'var(--paper)', borderColor: 'rgba(237,231,216,0.18)' }}>Get tNIGHT ↗</a>
         </div>

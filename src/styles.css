@@ -341,7 +341,7 @@ a:hover { color: #3f6fb8; }
   border: 1px solid transparent;
 }
 .marketing-nav-link:hover { background: rgba(255,255,255,0.06); color: var(--paper); }
-.marketing-nav-link-active { background: var(--paper) !important; color: var(--ink) !important; border-color: var(--paper); }
+.marketing-nav-link-active { background: rgba(244,199,112,0.14) !important; color: #F4C770 !important; border-color: rgba(244,199,112,0.28) !important; }
 /* Launch = Demo: ledger/stats in marketing shell use same dark forensic style as app */
 .marketing-shell .ledger { border-color: var(--line-ink-strong); background: var(--ink-2); }
 .marketing-shell .ledger-head { background: #151A22; border-bottom-color: var(--line-ink); }
@@ -355,6 +355,11 @@ a:hover { color: #3f6fb8; }
 .marketing-shell .wire { background: #0F131A; border-color: var(--line-ink); }
 .marketing-shell .footer { color: var(--muted-ink); border-top: 1px solid var(--line-ink); }
 .marketing-shell .demo-bar { background: rgba(255,255,255,0.03); border-color: var(--line-ink-strong); color: var(--muted-ink); }
+/* Launch: replace black font (ink/text-ink) with light suitable for dark bg */
+.marketing-shell .btn-primary { background: #F4C770; color: #0B1020; border-color: #F4C770; }
+.marketing-shell .btn-primary:hover { background: #eab75c; border-color: #eab75c; }
+.marketing-shell .btn-cream { background: rgba(255,255,255,0.06); color: var(--paper); border-color: var(--line-ink-strong); }
+.marketing-shell .btn-cream:hover { background: rgba(255,255,255,0.10); }
 .marketing-container {
   max-width: var(--max);
   margin: 0 auto;

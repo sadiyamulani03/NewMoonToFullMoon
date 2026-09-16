@@ -114,6 +114,28 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
   // connect flow never depends on a possibly-malformed wallet-reported URI.
   const configuredProverUri = (import.meta.env.VITE_PROOF_SERVER_URI as string | undefined)?.trim();
 
+  const LOCAL_FALLBACK_URI = 'http://localhost:6300';
+
+  async function tryLocalFallback(unprovenTx: unknown, priorErr: unknown): Promise<unknown> {
+    // Last resort: if wallet proving failed due to network, try local proof server
+    // even when VITE_PROOF_SERVER_URI is not set. This is the `docker compose up -d proof-server` path.
+    // We probe quickly with a short timeout so we don't hang if docker is not running.
+    if (configuredProverUri === LOCAL_FALLBACK_URI) return Promise.reject(priorErr);
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 1200);
+      await fetch(LOCAL_FALLBACK_URI, { method: 'GET', signal: controller.signal }).catch(() => {});
+      clearTimeout(t);
+    } catch {
+      // probe is best-effort only
+    }
+    try {
+      return await httpClientProofProvider(LOCAL_FALLBACK_URI, zkConfigProvider).proveTx(unprovenTx as never);
+    } catch (e) {
+      throw priorErr;
+    }
+  }
+
   const proofProvider: ProofProvider = configuredProverUri
     ? httpClientProofProvider(configuredProverUri, zkConfigProvider)
     : provingProvider
@@ -122,36 +144,43 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
             try {
               return await unprovenTx.prove(provingProvider, costModel);
             } catch (err) {
-              // Wallet-internal proving can fail when its proving station is
-              // unreachable (e.g. "Failed to fetch" on the wallet's `check`
-              // step). If the wallet reported a prover server URI, retry
-              // against it before giving up.
               const isNetworkError =
                 err instanceof TypeError ||
                 (err instanceof Error &&
                   /failed to fetch|networkerror|network error|load failed|enotfound|econnreset|aborted|check.*returned an error/i.test(
                     err.message ?? '',
                   ));
+              // 1) retry wallet-reported prover if available
               if (config.proverServerUri) {
                 try {
                   return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx);
                 } catch (fallbackErr) {
+                  if (isNetworkError) {
+                    try {
+                      return (await tryLocalFallback(unprovenTx, fallbackErr)) as never;
+                    } catch {
+                      // fall through to user-facing error
+                    }
+                  }
                   throw new Error(
-                    `The wallet could not reach its proving station (${String(err)}), and retrying ` +
-                      `against the wallet-reported prover also failed (${String(fallbackErr)}). Start the ` +
-                      `local proof server (npm run proof-server:start) and set ` +
-                      `VITE_PROOF_SERVER_URI=http://localhost:6300 in .env, then restart the dev ` +
-                      `server, or switch to a wallet that proves locally in the browser.`,
+                    `Proving failed via wallet and its prover (${String(fallbackErr)}). ` +
+                      `Fix: run local proof server → docker compose up -d --wait proof-server, ` +
+                      `set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env, restart dev server. ` +
+                      `Or enable Demo — no wallet (header toggle) to bypass proving. Underlying: ${String(err)}`,
                     { cause: fallbackErr },
                   );
                 }
               }
               if (isNetworkError) {
+                try {
+                  return (await tryLocalFallback(unprovenTx, err)) as never;
+                } catch {
+                  // local fallback also unreachable
+                }
                 throw new Error(
-                  `The wallet could not reach its proving station (${String(err)}). Start the local ` +
-                    `proof server (npm run proof-server:start) and set ` +
-                    `VITE_PROOF_SERVER_URI=http://localhost:6300 in .env, then restart the dev ` +
-                    `server, or switch to a wallet that proves locally in the browser.`,
+                  `Wallet proving station unreachable (${String(err)}). ` +
+                    `Fix: docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev), ` +
+                    `or switch to Lace (in-wallet proving), or use Demo — no wallet.`,
                   { cause: err },
                 );
               }
@@ -163,10 +192,9 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
         ? httpClientProofProvider(config.proverServerUri, zkConfigProvider)
         : (() => {
             throw new Error(
-              'No proving infrastructure available: the wallet exposed no in-wallet ' +
-                'proving provider and no prover server URI is configured. Set ' +
-                'VITE_PROOF_SERVER_URI (e.g. http://localhost:6300 for the local ' +
-                'proof server) or use a wallet that supports in-wallet proving.',
+              'No proving infrastructure: wallet has no in-wallet prover and no prover URI. ' +
+                `Start local proof server (docker compose up -d --wait proof-server) and set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env, ` +
+                'or use Demo — no wallet in the header.',
             );
           })();
 

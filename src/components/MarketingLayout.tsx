@@ -1,6 +1,5 @@
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useDemo } from '../context/DemoContext';
-import { XProfileLink } from './SocialLinks';
 import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 
 export default function MarketingLayout() {
@@ -50,10 +49,7 @@ export default function MarketingLayout() {
           <span className="mono" style={{ fontSize: '0.66rem', padding: '2px 7px', border: '1px solid var(--line)', borderRadius: 999, background: 'white' }}>v1.1 · Preprod · df5e05…29501</span>
         </div>
         <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, alignItems: 'center', fontSize: '0.78rem' }}>
-          <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> · <XProfileLink variant="pill" /> · <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer">Demo video</a>
-        </div>
-        <div className="mono" style={{ marginTop: 8, fontSize: '0.66rem', color: 'var(--muted-ink)', maxWidth: 640, marginInline: 'auto', lineHeight: 1.5 }}>
-          X @MidnightTraceAp — live · backup: GitHub + docs/posts.md + demo. Env: VITE_X_HANDLE.
+          <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> · <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer">Demo video</a>
         </div>
       </footer>
     </div>

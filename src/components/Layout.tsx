@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
-import { XProfileLink } from './SocialLinks';
 import { GITHUB_URL } from '../config';
 
 function shortAddr(a: string): string {
@@ -94,11 +93,9 @@ export default function Layout() {
         <footer className="footer">
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px', alignItems: 'center' }}>
             <span className="mono" style={{ fontSize: '0.72rem' }}>v1.1 · Preprod · MidnightTrace</span>
-            <span>·</span><a href="/audit">Audit</a> · <a href="/about">How it works</a> · <XProfileLink variant="pill" /> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+            <span>·</span><a href="/audit">Audit</a> · <a href="/about">How it works</a> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
           </div>
-          <div className="mono" style={{ marginTop: 6, fontSize: '0.66rem', opacity: 0.85, lineHeight: 1.4 }}>
-            X @Midnight__Trace — appeal pending, backup via GitHub/docs. {isDemo && <span style={{ color: 'var(--verify)', marginLeft: 8 }}>● Demo — not on-chain</span>}
-          </div>
+          {isDemo && <div className="mono" style={{ marginTop: 6, fontSize: '0.66rem', opacity: 0.85, lineHeight: 1.4, textAlign: 'center', color: 'var(--verify)' }}>● Demo — not on-chain</div>}
         </footer>
       </main>
     </div>

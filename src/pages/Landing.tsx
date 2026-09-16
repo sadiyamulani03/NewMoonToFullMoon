@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDemo } from '../context/DemoContext';
-import { XProfileLink } from '../components/SocialLinks';
 import { GITHUB_URL } from '../config';
 
 export default function Landing() {
@@ -19,12 +18,11 @@ export default function Landing() {
 
   return (
     <>
-      {/* Announce — same ink as dashboard rail — now shows verified X pill */}
+      {/* Announce — same ink as dashboard rail */}
       <div className="lp-announce">
         <span className="lp-announce-pill">NEW</span>
         <span>MidnightTrace v1.1 on Preprod · <span className="mono">df5e05…29501</span> · Uint32 + metadataHash</span>
         <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub ↗</a>
-        <XProfileLink variant="pill" />
       </div>
 
       {/* HERO — same forensic ledger as Dashboard (now launch=demo, dark ink) */}
@@ -285,17 +283,16 @@ export default function Landing() {
       <section className="ledger" style={{ padding: 0, overflow: 'hidden' }}>
         <div className="ledger-head">
           <span className="ledger-title">Product profile — verify in 10 seconds</span>
-          <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>GitHub · X · Demo</span>
+          <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>GitHub · Demo</span>
         </div>
         <div style={{ padding: '14px 14px', display: 'grid', gap: 12 }}>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="btn btn-primary">GitHub repo ↗</a>
-            <XProfileLink variant="pill" />
             <a href="https://drive.google.com/file/d/1tlD3U0O164p6D210Y_KyC3-TF1Ku_ZJA/view?usp=sharing" target="_blank" rel="noreferrer" className="btn btn-cream">Demo video ↗</a>
             <Link to="/about" className="btn btn-ghost">Privacy model →</Link>
           </div>
           <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            X: <XProfileLink variant="inline" /> · If X flags the handle (appeal pending), use GitHub + <code>docs/posts.md</code> + demo video as primary verifiable links — all three are CI-pinned.
+            Verify via <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> + demo video + <code>docs/posts.md</code> — all CI-pinned.
           </div>
         </div>
       </section>

@@ -27,54 +27,54 @@ export default function Landing() {
         <XProfileLink variant="pill" />
       </div>
 
-      {/* HERO — exact Dashboard ledger pattern, marketing copy */}
+      {/* HERO — same forensic ledger as Dashboard (now launch=demo, dark ink) */}
       <section className="ledger" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 0, overflow: 'hidden' }}>
         <div style={{ padding: '20px 18px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
             Midnight Network · Preprod · Private by default · Verifiable without secrets
           </div>
-          <h1 className="display" style={{ margin: 0, fontSize: 'clamp(2rem, 4vw, 2.9rem)', lineHeight: 0.96, letterSpacing: '-0.035em', color: 'var(--text-ink)' }}>
-            Prove a forensic<br />step without<br /><span style={{ color: 'var(--ink)', textDecoration: 'underline', textDecorationColor: '#F4C770', textDecorationThickness: 4, textUnderlineOffset: 6 }}>exposing the evidence.</span>
+          <h1 className="display" style={{ margin: 0, fontSize: 'clamp(2rem, 4vw, 2.9rem)', lineHeight: 0.96, letterSpacing: '-0.035em', color: 'var(--paper)' }}>
+            Prove a forensic<br />step without<br /><span style={{ color: 'var(--paper)', textDecoration: 'underline', textDecorationColor: '#F4C770', textDecorationThickness: 4, textUnderlineOffset: 6 }}>exposing the evidence.</span>
           </h1>
-          <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.96rem', lineHeight: 1.6, maxWidth: '52ch' }}>
-            MidnightTrace is a folder of case files on <strong style={{ color: 'var(--text-ink)' }}>Midnight</strong>. Each finding is a <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount" style={{ borderBottom: '1px dotted var(--muted)', cursor: 'help' }}>zero-knowledge proof</span> — the ledger shows you counted, not <em>what</em> you counted.
+          <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.96rem', lineHeight: 1.6, maxWidth: '52ch' }}>
+            MidnightTrace is a folder of case files on <strong style={{ color: 'var(--paper)' }}>Midnight</strong>. Each finding is a <span title="Zero-knowledge proof — proves total' = total + amount without revealing amount" style={{ borderBottom: '1px dotted var(--muted-ink)', cursor: 'help' }}>zero-knowledge proof</span> — the ledger shows you counted, not <em>what</em> you counted.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link to="/dashboard" className="btn btn-primary">Launch app →</Link>
-            <button className="btn btn-cream" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
+            <button className="btn btn-secondary" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
             <Link to="/audit" className="btn btn-ghost">Verify — no login</Link>
           </div>
-          <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted)' }}>
-            <span>Users <strong style={{ color: 'var(--text-ink)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span></span>
-            <span>Contract <strong style={{ color: 'var(--text-ink)' }} className="mono">df5e05…29501</strong></span>
+          <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted-ink)' }}>
+            <span>Users <strong style={{ color: 'var(--paper)' }} className="mono">70</strong> <span style={{ color: 'var(--verify)' }}>● 4.5/5</span></span>
+            <span>Contract <strong style={{ color: 'var(--paper)' }} className="mono">df5e05…29501</strong></span>
             <span style={{ color: 'var(--verify)', fontWeight: 700 }}>● Preprod live</span>
           </div>
         </div>
 
-        <div style={{ background: 'var(--paper-2)', borderLeft: '1px solid var(--line)', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+        <div style={{ background: 'rgba(255,255,255,0.03)', borderLeft: '1px solid var(--line-ink)', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
             <span>Live ledger excerpt · Case #07</span>
             <span className="stamp stamp-verify stamp-small">Verified</span>
           </div>
-          <div className="wire" style={{ padding: 12 }}>
-            <div style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>case <span className="mono" style={{ color: 'var(--text-ink)' }}>#07</span> · filed <span className="mono">2026-09-14</span> · block 412,320</div>
+          <div className="wire" style={{ padding: 12, background: '#0F131A' }}>
+            <div style={{ color: 'var(--muted-ink)', fontSize: '0.72rem' }}>case <span className="mono" style={{ color: 'var(--paper)' }}>#07</span> · filed <span className="mono">2026-09-14</span> · block 412,320</div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
               <span className="redacted" style={{ minWidth: '7ch' }}>████ 42</span>
-              <span style={{ color: 'var(--muted)' }}>→</span>
+              <span style={{ color: 'var(--muted-ink)' }}>→</span>
               <code className="mono" style={{ background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '2px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total = 42</code>
-              <span style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>(was 0 → now 42)</span>
+              <span style={{ color: 'var(--muted-ink)', fontSize: '0.72rem' }}>(was 0 → now 42)</span>
               <span className="stamp stamp-verify stamp-small" style={{ marginLeft: 'auto' }}>Verified</span>
             </div>
-            <div className="mono" style={{ marginTop: 8, fontSize: '0.68rem', wordBreak: 'break-all', color: 'var(--muted)' }}>
+            <div className="mono" style={{ marginTop: 8, fontSize: '0.68rem', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>
               a3f1…9c02 · <span className="redacted redacted-sm">amount redacted</span> · proof <span style={{ color: 'var(--verify)', fontWeight: 700 }}>✓ valid</span> · wire: <span className="wire-proof">ZK proof</span> → <span className="wire-total">total&apos; = total + amount</span>
             </div>
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
             Black bars are the feature. Amount never leaves your wallet, never lands on-chain, never renders in UI or API. <Link to="/about" style={{ fontWeight: 600 }}>Privacy model →</Link>
           </div>
           <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link to="/audit" className="mono" style={{ fontSize: '0.72rem', fontWeight: 600 }}>Try /audit — no wallet →</Link>
-            <span style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>Anyone can verify · SHA-256 receipt</span>
+            <span style={{ color: 'var(--muted-ink)', fontSize: '0.72rem' }}>Anyone can verify · SHA-256 receipt</span>
           </div>
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FEATURES — 3 ledgers like dashboard sections */}
+      {/* FEATURES — 3 ledgers like dashboard sections (dark forensic) */}
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 12 }}>
         {[
           { k: 'PRIVATE BY DEFAULT', t: 'Witness never disclosed', d: 'Step amount stays in your wallet. Chain stores only total. Black bars are not a bug — they are the guarantee. Compact witness is private by default.' },
@@ -111,9 +111,9 @@ export default function Landing() {
           { k: 'WALLET-FREE AUDIT', t: 'Anyone at /audit', d: 'No wallet, no secrets. Indexer-direct check: aggregate == Σ totals, allowlist root, phase order, disclosure book. Share a case ID.' },
         ].map((f) => (
           <div key={f.k} className="ledger" style={{ padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)' }}>{f.k}</span>
-            <strong style={{ color: 'var(--text-ink)', fontSize: '0.98rem' }}>{f.t}</strong>
-            <span style={{ fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.5 }}>{f.d}</span>
+            <span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>{f.k}</span>
+            <strong style={{ color: 'var(--paper)', fontSize: '0.98rem' }}>{f.t}</strong>
+            <span style={{ fontSize: '0.86rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>{f.d}</span>
           </div>
         ))}
       </section>

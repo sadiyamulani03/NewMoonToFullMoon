@@ -307,8 +307,8 @@ a:hover { color: #3f6fb8; }
 /* Marketing shell */
 .marketing-shell {
   min-height: 100vh;
-  background: var(--paper);
-  color: var(--text-ink);
+  background: var(--ink);
+  color: var(--text);
   display: flex;
   flex-direction: column;
 }
@@ -316,8 +316,8 @@ a:hover { color: #3f6fb8; }
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
+  background: #0F131A;
+  border-bottom: 1px solid var(--line-ink);
 }
 .marketing-header-inner {
   max-width: var(--max);
@@ -328,20 +328,33 @@ a:hover { color: #3f6fb8; }
   justify-content: space-between;
   gap: 16px;
 }
-.marketing-rail-mark { background: var(--ink); color: var(--paper); }
+.marketing-rail-mark { background: var(--paper); color: var(--ink); }
 .marketing-nav { display: flex; gap: 6px; align-items: center; }
 .marketing-header-inner .btn { white-space: nowrap; }
 .marketing-nav-link {
   padding: 7px 12px;
   font-size: 0.82rem;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--muted-ink);
   text-decoration: none;
   border-radius: 4px;
   border: 1px solid transparent;
 }
-.marketing-nav-link:hover { background: rgba(20,24,31,0.06); color: var(--ink); }
-.marketing-nav-link-active { background: var(--ink); color: var(--paper) !important; border-color: var(--ink); }
+.marketing-nav-link:hover { background: rgba(255,255,255,0.06); color: var(--paper); }
+.marketing-nav-link-active { background: var(--paper) !important; color: var(--ink) !important; border-color: var(--paper); }
+/* Launch = Demo: ledger/stats in marketing shell use same dark forensic style as app */
+.marketing-shell .ledger { border-color: var(--line-ink-strong); background: var(--ink-2); }
+.marketing-shell .ledger-head { background: #151A22; border-bottom-color: var(--line-ink); }
+.marketing-shell .ledger-title { color: var(--paper); }
+.marketing-shell .ledger-row { border-bottom-color: var(--line-ink); }
+.marketing-shell .ledger-row:hover { background: rgba(255,255,255,0.03); }
+.marketing-shell .stats-row { border-color: var(--line-ink-strong); background: var(--ink-2); }
+.marketing-shell .stat-cell { border-right-color: var(--line-ink); }
+.marketing-shell .stat-num { color: var(--paper); }
+.marketing-shell .stat-label { color: var(--muted-ink); }
+.marketing-shell .wire { background: #0F131A; border-color: var(--line-ink); }
+.marketing-shell .footer { color: var(--muted-ink); border-top: 1px solid var(--line-ink); }
+.marketing-shell .demo-bar { background: rgba(255,255,255,0.03); border-color: var(--line-ink-strong); color: var(--muted-ink); }
 .marketing-container {
   max-width: var(--max);
   margin: 0 auto;

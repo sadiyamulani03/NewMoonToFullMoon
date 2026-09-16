@@ -12,8 +12,8 @@ export default function MarketingLayout() {
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <div className="rail-mark marketing-rail-mark">M</div>
             <div>
-              <div className="rail-kicker" style={{ color: 'var(--muted)' }}>Midnight Network · Preprod</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-ink)', lineHeight: 1 }}>MidnightTrace</div>
+              <div className="rail-kicker" style={{ color: 'var(--muted-ink)' }}>Midnight Network · Preprod</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--paper)', lineHeight: 1 }}>MidnightTrace</div>
             </div>
           </Link>
 
@@ -36,9 +36,9 @@ export default function MarketingLayout() {
 
       <main className="marketing-container">
         {isDemo && (
-          <div className="demo-bar" style={{ background: 'white', borderStyle: 'dashed' }}>
-            <span><strong style={{ color: 'var(--verify)' }}>Demo — not on-chain</strong> <span style={{ color: 'var(--muted)' }}>Mock ledger in memory across all pages. Exit in header.</span></span>
-            <button className="btn btn-ghost" onClick={toggleDemo} style={{ padding: '6px 10px' }}>Exit demo</button>
+          <div className="demo-bar" style={{ borderStyle: 'dashed' }}>
+            <span><strong style={{ color: 'var(--verify)' }}>Demo — not on-chain</strong> <span style={{ color: 'var(--muted-ink)' }}>Mock ledger in memory across all pages. Exit in header.</span></span>
+            <button className="btn btn-secondary" onClick={toggleDemo} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Exit demo</button>
           </div>
         )}
         <Outlet />
@@ -52,8 +52,8 @@ export default function MarketingLayout() {
         <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, alignItems: 'center', fontSize: '0.78rem' }}>
           <a href="/audit">Audit — no wallet</a> · <a href="/about">Privacy model</a> · <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a> · <XProfileLink variant="pill" /> · <a href={DEMO_VIDEO_URL} target="_blank" rel="noreferrer">Demo video</a>
         </div>
-        <div className="mono" style={{ marginTop: 8, fontSize: '0.66rem', color: 'var(--muted)', maxWidth: 640, marginInline: 'auto', lineHeight: 1.5 }}>
-          X @Midnight__Trace — if flagged, backup: GitHub + docs/posts.md + demo (above). Update via VITE_X_PROFILE_URL.
+        <div className="mono" style={{ marginTop: 8, fontSize: '0.66rem', color: 'var(--muted-ink)', maxWidth: 640, marginInline: 'auto', lineHeight: 1.5 }}>
+          X @MidnightTraceAp — live · backup: GitHub + docs/posts.md + demo. Env: VITE_X_HANDLE.
         </div>
       </footer>
     </div>

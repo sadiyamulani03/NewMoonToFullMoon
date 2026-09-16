@@ -42,8 +42,8 @@ export default function Landing() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
             <Link to="/dashboard" className="btn btn-primary">Launch app →</Link>
             <button className="btn btn-secondary" onClick={goDemo}>{isDemo ? 'Open demo dashboard' : 'Try demo — no wallet'}</button>
-            <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)}>Setup wallet → faucet</button>
-            <Link to="/audit" className="btn btn-ghost">Verify — no login</Link>
+            <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ color: 'var(--blue)' }}>Setup wallet → faucet</button>
+            <Link to="/audit" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Verify — no login</Link>
           </div>
           <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
           <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 14, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted-ink)' }}>
@@ -273,8 +273,8 @@ export default function Landing() {
               setDemoMsg(`Disclosed ${n || 'total'} → lastDisclosed ✓`);
               setTimeout(() => setDemoMsg(null), 2500);
             }} style={{ borderColor: 'var(--line-ink-strong)' }}>Disclose</button>
-            <Link to="/dashboard" className="btn btn-ghost">Open full dashboard →</Link>
-            <Link to="/cases" className="btn btn-ghost">Cases</Link>
+            <Link to="/dashboard" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Open full dashboard →</Link>
+            <Link to="/cases" className="btn btn-ghost" style={{ color: 'var(--blue)' }}>Cases</Link>
           </div>
           {demoMsg && <div style={{ fontSize: '0.82rem', color: 'var(--verify)', fontWeight: 600 }}>{demoMsg}</div>}
           <div style={{ fontSize: '0.78rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>

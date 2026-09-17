@@ -184,6 +184,18 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
   const effectiveConfiguredUri =
     configuredProverUri && configuredProverUri === LOCAL_FALLBACK_URI && !isLocalHost ? undefined : configuredProverUri;
 
+  // Production validation: VITE_PROOF_SERVER_URI must be https:// in production
+  if (!isLocalHost && configuredProverUri) {
+    if (/^http:\/\/(localhost|127\.0\.0\.1)/i.test(configuredProverUri)) {
+      throw new Error(
+        `VITE_PROOF_SERVER_URI must be https:// in production, not ${configuredProverUri}. See docs/PROVER_PRODUCTION_DESIGN.md. localhost is only for local dev.`,
+      );
+    }
+    if (!/^https:\/\//i.test(configuredProverUri)) {
+      console.warn(`[MidnightTrace] VITE_PROOF_SERVER_URI should be https:// in production: ${configuredProverUri}`);
+    }
+  }
+
   async function tryLocalFallback(unprovenTx: unknown, priorErr: unknown): Promise<unknown> {
     // Last resort: if wallet proving failed due to network, try local proof server
     // even when VITE_PROOF_SERVER_URI is not set. This is the `docker compose up -d proof-server` path.
@@ -327,7 +339,39 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
           },
         }
       : config.proverServerUri
-        ? httpClientProofProvider(config.proverServerUri, zkConfigProvider)
+        ? (() => {
+            // IAM/1AM on production without hosted prover: the wallet-reported
+            // 1AM cloud prover (https://*.1am.xyz) is not browser-reachable
+            // without API key and will Failed to fetch. Production IAM
+            // requires a self-hosted HTTPS prover at VITE_PROOF_SERVER_URI.
+            // We wrap it to give a clear diagnostic instead of a raw fetch error.
+            const baseProver = httpClientProofProvider(config.proverServerUri, zkConfigProvider);
+            const isOneAmProver = /^https?:\/\/[^/]*\.1am\.xyz/i.test(config.proverServerUri);
+            if (!isLocalHost && isOneAmProver && !effectiveConfiguredUri) {
+              console.warn(
+                '[MidnightTrace] IAM/1AM wallet on production detected 1AM cloud prover which is not browser-reachable. Real transactions will require hosted prover at VITE_PROOF_SERVER_URI=https://... (see docs/PROVER_PRODUCTION_DESIGN.md) or use Lace/Demo.',
+              );
+            }
+            return {
+              async proveTx(unprovenTx: any) {
+                try {
+                  return await baseProver.proveTx(unprovenTx);
+                } catch (err) {
+                  const msg = String((err as Error)?.message ?? err);
+                  const isNetworkError =
+                    err instanceof TypeError ||
+                    /failed to fetch|networkerror|network error|load failed|enotfound|econnreset|aborted|check.*returned an error/i.test(msg);
+                  if (isNetworkError && !isLocalHost && isOneAmProver) {
+                    throw new Error(
+                      `IAM Wallet cloud prover not reachable in browser (${msg}). Production IAM requires a self-hosted HTTPS proof server at VITE_PROOF_SERVER_URI (see docs/PROVER_PRODUCTION_DESIGN.md). Vercel cannot reach localhost:6300 — use hosted prover or Lace (in-wallet) or Demo.`,
+                      { cause: err },
+                    );
+                  }
+                  throw err;
+                }
+              },
+            } as unknown as ProofProvider;
+          })()
         : (() => {
             throw new Error(
               'No proving infrastructure: wallet has no in-wallet prover and no prover URI. ' +

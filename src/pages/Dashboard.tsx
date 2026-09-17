@@ -8,9 +8,6 @@ import WalletStatus from '../components/WalletStatus';
 function fmtDateShort(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-}
 
 export default function Dashboard() {
   const { walletState, isMobile, midLedger, membershipStatus, isConnected, walletInfo, connect } = useMidnightContext();
@@ -24,10 +21,7 @@ export default function Dashboard() {
     getStats().catch(() => {});
     listCases().then(setCases).catch(() => setCases([]));
   }, [isDemo, mockCases]);
-
-  useEffect(() => {
-    if (isDemo) setCases(mockCases);
-  }, [isDemo, mockCases]);
+  useEffect(() => { if (isDemo) setCases(mockCases); }, [isDemo, mockCases]);
 
   const { open, findings, disclosed, verifiedWeek, recent, tableRows } = useMemo(() => {
     const all = displayCases ?? [];
@@ -37,7 +31,7 @@ export default function Dashboard() {
     const disclosed = allReceipts.filter((r) => r.stepType === 'discloseFinding').length;
     const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
     const verifiedWeek = allReceipts.filter((r) => new Date(r.createdAt).getTime() > weekAgo).length;
-    const recent = [...allReceipts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 6);
+    const recent = [...allReceipts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
     const tableRows = [...allReceipts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8);
     return { open, findings, disclosed, verifiedWeek, recent, tableRows };
   }, [displayCases]);
@@ -47,149 +41,137 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* HEADER */}
-      <div className="dash-header">
-        <div>
-          <div className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)', fontWeight: 700 }}>Dashboard · {isDemo ? 'Demo — not on-chain' : 'Midnight Preprod · Live ledger'}</div>
-          <h1 className="display" style={{ margin: '4px 0 6px', fontSize: 'clamp(1.5rem, 3vw, 1.9rem)', lineHeight: 1, letterSpacing: '-0.03em', color: 'var(--paper)' }}>Evidence overview</h1>
-          <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem', maxWidth: '60ch' }}>
-            Private amounts stay <span className="redacted redacted-sm">redacted</span>. Public totals carry a <span className="badge badge-verify" style={{ fontSize: '0.62rem' }}>Verified</span> stamp. Only totals are auditable.
-          </p>
-        </div>
-        <div className="dash-header-actions">
-          <div className="dash-wallet-pill">
-            {isConnected && walletInfo ? (
-              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--verify)', fontWeight: 700 }}>● {walletInfo.address.slice(0,8)}…{walletInfo.address.slice(-6)} · {walletInfo.networkId}</span>
-            ) : isDemo ? (
-              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--verify)' }}>● Demo — no wallet</span>
-            ) : walletState.status === 'connecting' ? (
-              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>Connecting…</span>
-            ) : (
-              <button className="btn btn-primary" onClick={() => void connect()} disabled={walletState.status==='idle'} style={{ padding: '7px 14px', fontSize: '0.82rem' }}>{walletState.status==='idle' ? 'Initializing…' : 'Connect Wallet'}</button>
-            )}
+      {/* COMMAND HEADER */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingBottom: 16, borderBottom: '1px solid var(--line-ink)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div>
+            <h1 className="display" style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 36px)', letterSpacing: '-0.03em', color: 'var(--paper)', lineHeight: 1 }}>Your Cases</h1>
+            <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.92rem', maxWidth: '52ch' }}>
+              Private evidence, publicly verifiable. No sensitive witness leaves your device.
+            </p>
           </div>
-          <Link to="/new" className="btn btn-primary" style={{ background: '#F4C770', color: '#0B1020', borderColor: '#F4C770', fontWeight: 700 }}>New evidence →</Link>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)', border: '1px solid var(--line-ink)', padding: '6px 10px', borderRadius: 999 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--verify)', display: 'inline-block' }} /> Midnight Preprod
+              <span style={{ opacity: 0.3 }}>·</span> {aggregate} aggregate
+            </div>
+            {isConnected && walletInfo ? (
+              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--verify)', border: '1px solid var(--verify-border)', background: 'var(--verify-soft)', padding: '7px 12px', borderRadius: 999, fontWeight: 700 }}>● {walletInfo.address.slice(0,6)}…</span>
+            ) : (
+              <button className="btn btn-primary" onClick={() => void connect()} disabled={walletState.status === 'idle' || walletState.status === 'connecting'} style={{ padding: '8px 16px', fontSize: '0.84rem' }}>{walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}</button>
+            )}
+            <Link to="/new" className="btn btn-primary" style={{ background: 'var(--ochre)', color: 'var(--ink)', borderColor: 'var(--ochre)', fontWeight: 700 }}>New case</Link>
+          </div>
         </div>
-      </div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: '0.72rem', color: 'var(--muted-ink)', fontFamily: 'var(--font-mono)' }}>
-        <span>Aggregate <strong style={{ color: 'var(--paper)' }}>{aggregate}</strong></span>
-        <span>· Members <strong style={{ color: 'var(--paper)' }}>{members}</strong></span>
-        <span>· {membershipStatus === 'member' || isDemo ? <span style={{ color: 'var(--verify)' }}>● Authorized</span> : <span style={{ color: 'var(--ochre)' }}>Not authorized</span>}</span>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)' }}>
+          <span>WALLET {isConnected ? 'Connected' : isDemo ? 'Demo' : 'Not connected'}</span>
+          <span>·</span>
+          <span>SYSTEM {membershipStatus === 'member' || isDemo ? 'Ready' : 'Not authorized'}</span>
+          <span>·</span>
+          <span>LEDGER {ledger ? `${ledger.cases.length} cases` : '—'}</span>
+        </div>
       </div>
 
-      {/* KPI ROW */}
-      <section className="dash-kpi-row" aria-label="Key metrics">
-        <div className="dash-kpi">
-          <span className="dash-kpi-label">Evidence records</span>
-          <strong className="dash-kpi-value">{displayCases ? findings : '—'}</strong>
-          <span className="dash-kpi-meta">private <span className="redacted redacted-sm" style={{ verticalAlign: 'middle' }}>amount</span> → proof</span>
+      {/* METRIC STRIP */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, border: '1px solid var(--line-ink)', borderRadius: '12px', overflow: 'hidden', background: '#121824' }}>
+        {[
+          { label: 'Cases', value: displayCases ? displayCases.length : '—', sub: `${open} open` },
+          { label: 'Evidence', value: displayCases ? findings : '—', sub: 'private → proof' },
+          { label: 'Verified', value: displayCases ? verifiedWeek : '—', sub: 'last 7 days', color: 'var(--verify)' },
+          { label: 'Open', value: displayCases ? open : '—', sub: `${disclosed} disclosed`, color: 'var(--ochre)' },
+        ].map((k) => (
+          <div key={k.label} style={{ padding: '16px 20px', borderRight: '1px solid var(--line-ink)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)', fontWeight: 700 }}>{k.label}</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.9rem', lineHeight: 1, color: (k as any).color || 'var(--paper)', fontWeight: 700 }}>{k.value}</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--muted-ink)' }}>{k.sub}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* MAIN TABLE */}
+      <section style={{ border: '1px solid var(--line-ink)', borderRadius: '16px', overflow: 'hidden', background: '#121824' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.01)' }}>
+          <h2 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1.05rem', color: 'var(--paper)' }}>Cases</h2>
+          <Link to="/cases" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 700, color: 'var(--blue)' }}>View all →</Link>
         </div>
-        <div className="dash-kpi">
-          <span className="dash-kpi-label" style={{ color: 'var(--verify)' }}>Verified</span>
-          <strong className="dash-kpi-value" style={{ color: 'var(--verify)' }}>{displayCases ? verifiedWeek : '—'}</strong>
-          <span className="dash-kpi-meta">last 7 days · ZK checked</span>
-        </div>
-        <div className="dash-kpi">
-          <span className="dash-kpi-label" style={{ color: 'var(--ochre)' }}>Pending</span>
-          <strong className="dash-kpi-value" style={{ color: 'var(--ochre)' }}>{displayCases ? open : '—'}</strong>
-          <span className="dash-kpi-meta">{displayCases ? `${disclosed} disclosed` : 'loading'}</span>
-        </div>
-        <div className="dash-kpi">
-          <span className="dash-kpi-label">Audited</span>
-          <strong className="dash-kpi-value">{displayCases ? displayCases.length : '—'}</strong>
-          <span className="dash-kpi-meta">cases · aggregate {aggregate}</span>
+        {!displayCases ? (
+          <div style={{ padding: 24, display: 'grid', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" /><span className="mono" style={{ color: 'var(--muted-ink)' }}>Loading cases…</span></div>
+            <div className="skeleton" style={{ height: 44 }} />
+            <div className="skeleton" style={{ height: 44, opacity: 0.6 }} />
+          </div>
+        ) : tableRows.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--line-ink)', display: 'grid', placeItems: 'center', margin: '0 auto', color: 'var(--muted-ink)' }}>◇</div>
+            <h3 style={{ margin: '12px 0 6px', fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>No cases yet</h3>
+            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem', maxWidth: '36ch', marginInline: 'auto' }}>Create your first case to begin building a verifiable evidence record.</p>
+            <Link to="/new" className="btn btn-primary" style={{ marginTop: 16 }}>Create case</Link>
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.01)' }}>
+                  <th style={{ padding: '10px 20px', fontWeight: 700 }}>Case</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 700 }}>Status</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 700 }}>Evidence</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 700 }}>Last activity</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 700 }}>Verification</th>
+                  <th style={{ padding: '10px 16px', fontWeight: 700 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((r) => (
+                  <tr key={r.txId} style={{ borderBottom: '1px solid var(--line-ink)' }}>
+                    <td style={{ padding: '12px 20px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--paper)', fontSize: '0.88rem' }}>{r.caseTitle}</div>
+                      <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>#{r.caseIndex ?? '—'} · {r.txId.slice(0, 8)}…</div>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>{r.stepType === 'closeCase' ? <span className="badge badge-pending">Sealed</span> : <span className="badge badge-verify">Verified</span>}</td>
+                    <td style={{ padding: '12px 16px' }}><span className="badge badge-private">Private</span></td>
+                    <td style={{ padding: '12px 16px' }}><span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>{fmtDateShort(r.createdAt)}</span></td>
+                    <td style={{ padding: '12px 16px' }}><span style={{ color: 'var(--verify)', fontWeight: 700, fontSize: '0.78rem' }}>✓ Valid</span></td>
+                    <td style={{ padding: '12px 16px' }}><Link to={`/cases/${r.caseIdStr}`} className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Open →</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.01)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)' }}>
+          <span><span className="badge badge-verify" style={{ fontSize: '0.62rem' }}>Verified</span> = ZK proof checked</span>
+          <span>Members {members} · Aggregate {aggregate}</span>
         </div>
       </section>
 
-      {/* MAIN: table + side */}
-      <div className="dash-main-grid">
-        {/* TABLE */}
-        <section className="ledger dash-table-card">
-          <div className="ledger-head">
-            <span className="ledger-title">Evidence records</span>
-            <Link to="/cases" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>View all →</Link>
-          </div>
-          {!displayCases ? (
-            <div style={{ padding: 18, display: 'grid', gap: 10 }}>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" /><span className="mono" style={{ color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Loading evidence ledger…</span></div>
-              <div className="skeleton" style={{ height: 48 }} />
-              <div className="skeleton" style={{ height: 48, opacity: 0.7 }} />
-            </div>
-          ) : tableRows.length === 0 ? (
-            <div className="empty" style={{ margin: 12 }}>
-              <div className="empty-icon">📁</div>
-              <h3 className="empty-title">No evidence yet</h3>
-              <p className="empty-text">Create your first investigation — the ledger will show a verifiable total while the amount stays <span className="redacted redacted-sm">redacted</span>.</p>
-              <Link to="/new" className="btn btn-primary">Open first case</Link>
-              <p className="muted-text" style={{ marginTop: 10, fontSize: '0.78rem' }}>Or enable <strong>Demo — no wallet</strong> in the header to see seeded cases.</p>
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="dash-table">
-                <thead>
-                  <tr><th>Evidence</th><th>Type</th><th>Status</th><th>Privacy</th><th>Timestamp</th><th>Action</th></tr>
-                </thead>
-                <tbody>
-                  {tableRows.map((r) => (
-                    <tr key={r.txId}>
-                      <td><div style={{ fontWeight: 600, color: 'var(--paper)', fontSize: '0.88rem' }}>{r.caseTitle}</div><div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>#{r.caseIndex ?? '—'} · {r.txId.slice(0,8)}…</div></td>
-                      <td><span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>{r.stepType === 'discloseFinding' ? 'Disclose' : r.stepType === 'closeCase' ? 'Seal' : 'Finding'}</span></td>
-                      <td>{r.stepType === 'closeCase' ? <span className="badge badge-pending">Sealed</span> : <span className="badge badge-verify">Verified</span>}</td>
-                      <td><span className="badge badge-private"><span className="redacted redacted-sm" style={{ marginRight: 4 }}>am</span> Private</span></td>
-                      <td><div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>{fmtDateShort(r.createdAt)}</div><div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>{fmtTime(r.createdAt)}</div></td>
-                      <td><Link to={`/cases/${r.caseIdStr}`} className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>View →</Link></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: '0.76rem', color: 'var(--muted-ink)' }}>
-            <span><span className="badge badge-verify" style={{ fontSize: '0.62rem' }}>Verified</span> = ZK proof checked · <span className="badge badge-private" style={{ fontSize: '0.62rem' }}>Private</span> = never on-chain</span>
-            <Link to="/cases" style={{ fontWeight: 700 }}>Browse all cases →</Link>
-          </div>
-        </section>
-
-        {/* SIDE: recent activity */}
-        <aside className="ledger dash-side">
-          <div className="ledger-head">
-            <span className="ledger-title">Recent activity</span>
-            <span className="mono" style={{ fontSize: '0.62rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Timeline</span>
-          </div>
-          {!displayCases ? (
-            <div style={{ padding: 14, color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Syncing ledger…</div>
-          ) : recent.length === 0 ? (
-            <div style={{ padding: 18, textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem' }}>◎</div>
-              <p style={{ color: 'var(--muted-ink)', fontSize: '0.86rem', margin: '6px 0 0' }}>No recent inserts.</p>
-              <Link to="/new" className="btn btn-primary" style={{ marginTop: 8, padding: '6px 10px', fontSize: '0.78rem' }}>New evidence</Link>
-            </div>
-          ) : (
-            <div className="timeline" style={{ padding: 0 }}>
-              {recent.map((r) => (
-                <div key={r.txId} className="timeline-item">
-                  <div className={`timeline-dot ${r.stepType === 'closeCase' ? 'timeline-dot-pending' : 'timeline-dot-verify'}`} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <strong style={{ color: 'var(--paper)', fontSize: '0.84rem' }}>{r.stepType === 'discloseFinding' ? 'Disclosed' : r.stepType === 'closeCase' ? 'Sealed' : 'Finding logged'}</strong>
-                      <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>{fmtDateShort(r.createdAt)}</span>
-                    </div>
-                    <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', marginTop: 2 }}>{r.caseTitle} · #{r.caseIndex ?? '—'}</div>
-                    <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', wordBreak: 'break-all' }}>{r.txId.slice(0,12)}… · block {r.blockHeight}</div>
-                  </div>
+      {/* RECENT ACTIVITY */}
+      <section style={{ border: '1px solid var(--line-ink)', borderRadius: '16px', overflow: 'hidden', background: '#121824' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-ink)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--paper)' }}>Recent activity</h3>
+          <span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Timeline</span>
+        </div>
+        {!displayCases ? (
+          <div style={{ padding: 20, color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Syncing ledger…</div>
+        ) : recent.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--muted-ink)', fontSize: '0.86rem' }}>No recent activity.</div>
+        ) : (
+          <div style={{ display: 'grid' }}>
+            {recent.map((r) => (
+              <div key={r.txId} style={{ display: 'grid', gridTemplateColumns: '16px 1fr auto', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--line-ink)', alignItems: 'center' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: r.stepType === 'closeCase' ? 'var(--ochre)' : 'var(--verify)', display: 'inline-block', marginTop: 2 }} />
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--paper)', fontSize: '0.86rem' }}>{r.stepType === 'discloseFinding' ? 'Disclosed' : r.stepType === 'closeCase' ? 'Sealed' : 'Finding logged'} <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)', fontWeight: 400 }}>· {r.caseTitle}</span></div>
+                  <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>{r.txId.slice(0, 10)}… · block {r.blockHeight}</div>
                 </div>
-              ))}
-            </div>
-          )}
-          <div style={{ padding: '10px 12px', borderTop: '1px solid var(--line-ink)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {!isDemo && <WalletStatus walletState={walletState} isMobile={isMobile} />}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Link to="/cases" className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Browse cases</Link>
-              <Link to="/audit" className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Audit</Link>
-            </div>
+                <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>{fmtDateShort(r.createdAt)}</span>
+              </div>
+            ))}
           </div>
-        </aside>
-      </div>
+        )}
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <WalletStatus walletState={walletState} isMobile={isMobile} />
+        </div>
+      </section>
     </>
   );
 }

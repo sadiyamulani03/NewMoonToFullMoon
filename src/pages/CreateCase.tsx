@@ -1,86 +1,122 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createCase } from '../lib/api';
 import { useDemo } from '../context/DemoContext';
 
 export default function CreateCase() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [owner, setOwner] = useState('acc-labs');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isDemo, demoOpenCase } = useDemo();
+  const [step, setStep] = useState(1);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [owner, setOwner] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function onSubmit(e: React.FormEvent) {
+  const canNext1 = title.trim().length >= 3;
+  const canNext2 = description.trim().length >= 10;
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) { setError('A case title is required.'); return; }
+    if (busy) return;
     setBusy(true); setError(null);
     try {
       if (isDemo) {
-        const nextIdx = Math.floor(Math.random() * 900) + 20;
-        const newId = demoOpenCase(BigInt(nextIdx), title.trim(), description.trim());
-        navigate(`/cases/${newId}`); return;
+        const cid = BigInt(Math.floor(Math.random() * 9000) + 10);
+        const id = demoOpenCase(cid, title.trim(), description.trim());
+        navigate(`/cases/${id}`);
+        return;
       }
-      const created = await createCase({ title: title.trim(), description: description.trim(), owner: owner.trim() || 'acc-labs' });
-      navigate(`/cases/${created.id}`);
-    } catch (err) { setError((err as Error).message); setBusy(false); }
-  }
+      const c = await createCase({ title: title.trim(), description: description.trim(), owner: owner.trim() || 'anonymous' });
+      navigate(`/cases/${c.id}`);
+    } catch (err: any) {
+      setError(String(err.message || err));
+    } finally { setBusy(false); }
+  };
 
   return (
-    <>
-      {isDemo && (
-        <div className="demo-bar">
-          <span><strong style={{ color: 'var(--verify)' }}>Demo — not on-chain</strong> <span style={{ color: 'var(--muted-ink)' }}>New folder is in-memory only — no wallet, no gas.</span></span>
-        </div>
-      )}
+    <div style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gap: 24 }}>
+      <div>
+        <Link to="/cases" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', textDecoration: 'none' }}>← Back to cases</Link>
+        <h1 className="display" style={{ margin: '8px 0 0', fontSize: 'clamp(28px, 4vw, 36px)', color: 'var(--paper)', lineHeight: 1 }}>Create a case</h1>
+        <p style={{ margin: '8px 0 0', color: 'var(--muted-ink)', fontSize: '0.92rem' }}>A focused workflow — private evidence stays on-device, only verification goes on-chain.</p>
+      </div>
 
-      <section className="inspect" style={{ maxWidth: 640 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>New folder</div>
-            <h1 className="display" style={{ margin: '4px 0 6px', fontSize: '1.35rem', color: 'var(--paper)', lineHeight: 1 }}>Open a new case</h1>
-            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.9rem', lineHeight: 1.5 }}>Pick a label. The number goes on-chain; details stay off-chain. Amounts you log later stay <span className="redacted redacted-sm">redacted</span>.</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+        {[
+          { n: '01', t: 'Case details' },
+          { n: '02', t: 'Private evidence' },
+          { n: '03', t: 'Review' },
+          { n: '04', t: 'Submit' },
+        ].map((s, i) => (
+          <div key={s.n} style={{ padding: '12px', borderRadius: '10px', border: step === i + 1 ? '1px solid var(--ochre-border)' : '1px solid var(--line-ink)', background: step === i + 1 ? 'var(--ochre-soft)' : 'rgba(255,255,255,0.01)', textAlign: 'center' }}>
+            <div className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', color: step === i + 1 ? 'var(--ochre)' : 'var(--muted-ink)', fontWeight: 700 }}>{s.n}</div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 600, color: step === i + 1 ? 'var(--paper)' : 'var(--muted-ink)', marginTop: 4 }}>{s.t}</div>
           </div>
-          <span className="stamp stamp-verify stamp-small" style={{ flexShrink: 0 }}>New file</span>
-        </div>
+        ))}
+      </div>
 
-        <form onSubmit={onSubmit} style={{ marginTop: 16, display: 'grid', gap: 12 }}>
-          <div>
-            <label className="field-label" htmlFor="case-title">Case title <span aria-hidden="true" style={{ color: 'var(--verify)' }}>*</span></label>
-            <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" required aria-required="true" autoFocus />
+      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 20, border: '1px solid var(--line-ink)', borderRadius: '16px', padding: '20px', background: '#121824' }}>
+        {step === 1 && (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Case details</h3>
+            <div>
+              <label className="field-label" htmlFor="case-title">Case title</label>
+              <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" required aria-required="true" autoFocus />
+              <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', marginTop: 4 }}>{title.length}/80 — concise, public</div>
+            </div>
+            <div>
+              <label className="field-label" htmlFor="case-desc">Description</label>
+              <textarea id="case-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this case tracking? Only the title/ID will be hashed on-chain." style={{ resize: 'vertical' }} />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="case-owner">Owner</label>
+              <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs" />
+              <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', marginTop: 4 }}>On-chain: only caseId + metadataHash</div>
+            </div>
+            <button type="button" className="btn btn-primary" onClick={() => canNext1 && setStep(2)} disabled={!canNext1} style={{ justifySelf: 'start' }}>Continue →</button>
           </div>
-          <div>
-            <label className="field-label" htmlFor="case-desc">Description <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--muted-ink)' }}>(off-chain, never on ledger)</span></label>
-            <textarea id="case-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this case tracking? Only the case number and proofs are on-chain." style={{ resize: 'vertical' }} />
+        )}
+        {step === 2 && (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Private evidence</h3>
+            <div style={{ padding: '12px', borderRadius: '10px', background: 'var(--redact)', border: '1px solid var(--line-ink)', color: 'var(--muted-ink)', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
+              <span className="redacted redacted-sm">████ amount</span> — this witness never leaves your device. You will prove <code className="mono">total' = total + amount</code> without revealing amount.
+            </div>
+            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem' }}>Evidence will be added after the case is created — in the case workspace, where you can log findings privately.</p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
+              <button type="button" className="btn btn-primary" onClick={() => canNext2 && setStep(3)} disabled={!canNext2}>Review →</button>
+            </div>
           </div>
-          <div>
-            <label className="field-label" htmlFor="case-owner">Owner (optional, off-chain)</label>
-            <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs" />
+        )}
+        {step === 3 && (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Review</h3>
+            <div style={{ display: 'grid', gap: 8, padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--line-ink)', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Title</span><strong style={{ color: 'var(--paper)' }}>{title || '—'}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Owner</span><span className="mono" style={{ color: 'var(--paper)' }}>{owner || 'anonymous'}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Privacy</span><span className="badge badge-private">Private witness</span></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
+              <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>Review case →</button>
+            </div>
           </div>
-
-          {error && <div role="alert" style={{ color: '#ff8d7a', fontSize: '0.88rem', padding: '8px 10px', border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error}</div>}
-
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-            <button className="btn btn-primary" type="submit" disabled={busy} aria-busy={busy}>{busy ? 'Creating…' : 'Create case — new folder'}</button>
-            <Link
-              className="btn btn-secondary"
-              to="/cases"
-              onClick={(e) => {
-                const hasContent = title.trim() !== '' || description.trim() !== '' || (owner.trim() !== '' && owner.trim() !== 'acc-labs');
-                if (hasContent && !window.confirm('Discard this case? Any text you entered will be lost.')) e.preventDefault();
-              }}
-            >
-              Cancel
-            </Link>
+        )}
+        {step === 4 && (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Submit securely</h3>
+            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem' }}>Case creation will be recorded on-chain as <code className="mono">caseId</code> + <code className="mono">metadataHash</code>. No sensitive amount yet.</p>
+            {error && <div role="alert" style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.18)', color: '#ff8d7a', fontSize: '0.84rem' }}>{error}</div>}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="btn btn-ghost" onClick={() => setStep(3)}>← Back</button>
+              <button type="submit" className="btn btn-primary" disabled={busy} style={{ flex: 1, justifyContent: 'center' }}>{busy ? 'Creating…' : 'Submit securely →'}</button>
+            </div>
+            <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', textAlign: 'center' }}>{isDemo ? 'Demo — not on-chain' : 'Midnight Preprod · proof required'}</div>
           </div>
-
-          <div className="wire" style={{ marginTop: 4, fontSize: '0.76rem', lineHeight: 1.6 }}>
-            <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--verify)' }} /> Next steps</span><br />
-            After creation: <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>Cases → #</span> → <span className="redacted redacted-sm">private amount</span> → <code className="mono" style={{ fontSize: '0.76rem' }}>total</code> with <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span>. Nothing private ever appears on-chain.
-          </div>
-        </form>
-      </section>
-    </>
+        )}
+      </form>
+    </div>
   );
 }

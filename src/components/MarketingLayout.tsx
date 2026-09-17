@@ -1,15 +1,21 @@
 import { NavLink, Outlet, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useDemo } from '../context/DemoContext';
+import { useMidnightContext } from '../context/MidnightContext';
 import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 import { BrandMark } from './BrandMark';
 
 export default function MarketingLayout() {
   const { isDemo, toggleDemo } = useDemo();
+  const { walletState, isConnected, walletInfo, connect } = useMidnightContext();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isConnecting = walletState.status === 'connecting';
+  const isIdle = walletState.status === 'idle';
   return (
     <div className="marketing-shell">
       <header className="marketing-header">
         <div className="marketing-header-inner">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
             <BrandMark size={36} />
             <div>
               <div className="rail-kicker" style={{ color: 'var(--muted-ink)' }}>Midnight Network · Preprod</div>
@@ -17,19 +23,31 @@ export default function MarketingLayout() {
             </div>
           </Link>
 
-          <nav className="marketing-nav" aria-label="Primary">
-            <NavLink to="/" end className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Home</NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Dashboard</NavLink>
-            <NavLink to="/cases" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Cases</NavLink>
-            <NavLink to="/audit" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>Auditor</NavLink>
-            <NavLink to="/about" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`}>About</NavLink>
+          <nav className={`marketing-nav ${menuOpen ? 'marketing-nav-open' : ''}`} aria-label="Primary">
+            <a href="/#how-it-works" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>How it works</a>
+            <a href="/#privacy" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>Privacy</a>
+            <a href="/#evidence" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>Evidence</a>
+            <NavLink to="/about" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>About</NavLink>
+            <NavLink to="/audit" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>Audit</NavLink>
+            <NavLink to="/dashboard" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>App</NavLink>
           </nav>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-            <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }} aria-label={isDemo ? 'Exit demo mode' : 'Enable demo — no wallet needed'}>
-              {isDemo ? '● Demo on' : 'Try demo — no wallet'}
+            <button className="marketing-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+              <span />
+              <span />
+              <span />
             </button>
-            <Link to="/dashboard" className="btn btn-primary" style={{ padding: '7px 14px', fontSize: '0.82rem', fontWeight: 700 }}>Enter MidnightTrace →</Link>
+            <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }} aria-label={isDemo ? 'Exit demo mode' : 'Enable demo — no wallet needed'}>
+              {isDemo ? '● Demo on' : 'Try demo'}
+            </button>
+            {isConnected && walletInfo ? (
+              <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--verify)', border: '1px solid var(--verify-border)', background: 'var(--verify-soft)', padding: '7px 10px', borderRadius: 999, fontWeight: 700 }}>● {walletInfo.address.slice(0,6)}…{walletInfo.address.slice(-4)}</span>
+            ) : (
+              <button className="btn btn-primary" onClick={() => void connect()} disabled={isConnecting || isIdle} style={{ padding: '7px 14px', fontSize: '0.82rem', fontWeight: 700, opacity: isIdle ? 0.6 : 1 }}>
+                {isConnecting ? 'Connecting…' : isIdle ? 'Initializing…' : 'Connect Wallet'}
+              </button>
+            )}
           </div>
         </div>
       </header>

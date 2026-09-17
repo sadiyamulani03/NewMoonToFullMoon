@@ -77,18 +77,32 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
           </button>
         </div>
       );
-    case 'error':
+    case 'error': {
+      const isSync = /sync/i.test(walletState.message);
       return (
         <div>
           <p className="error-text">Connection failed — {walletState.message}</p>
-          <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
-            Check the extension is unlocked and on Preprod, then retry. If it persists, reload the page.
-          </p>
+          {isSync ? (
+            <>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                <span className="spinner" aria-hidden="true" />
+                <span className="muted-text" style={{ fontSize: '0.88rem' }}>Wallet is syncing — this is normal on first launch. Keep 1AM open, it can take 20–40s.</span>
+              </div>
+              <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
+                The app auto-retried while the wallet was syncing. Wait a few seconds and try again — no need to reload yet.
+              </p>
+            </>
+          ) : (
+            <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
+              Check the extension is unlocked and on Preprod, then retry. If it persists, reload the page.
+            </p>
+          )}
           <button className="btn btn-primary" onClick={() => void connect()}>
             Retry
           </button>
         </div>
       );
+    }
     case 'wallet-not-installed':
       if (isMobile) {
         return (

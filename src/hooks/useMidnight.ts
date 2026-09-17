@@ -215,14 +215,15 @@ export function useMidnight() {
     isConnectingRef.current = true;
     setWalletState({ status: 'connecting' });
 
-    // One automatic retry for initialization failures (locked, initializing,
-    // timeout, or extension waking). Keeps status `connecting` so the UI
-    // shows "Waiting for wallet approval…" instead of flashing an error
-    // that forces the user to click a second time. For the first attempt,
-    // retry any non-rejection failure once — this is what fixes the
-    // "first click shows Retry, second succeeds" bug.
+    // Automatic retry for initialization failures (locked, initializing,
+    // wallet syncing, timeout, or extension waking). Keeps status
+    // `connecting` so the UI shows "Waiting for wallet approval…" instead
+    // of flashing an error that forces the user to click a second time.
+    // For syncing (1AM first launch) we allow up to 5 retries (~12s total)
+    // because the wallet can report "Wallet is syncing" for 20-40s.
     let lastErr: unknown = null;
-    for (let attempt = 0; attempt < 2; attempt++) {
+    const MAX_ATTEMPTS = 6;
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       try {
         const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
         const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
@@ -306,21 +307,24 @@ export function useMidnight() {
         if (/network/i.test(message + ' ' + reason) && /mismatch|expected|actual/i.test(message + ' ' + reason)) {
           // handled inside try as explicit network-mismatch; treat as non-retry here
         }
-        const isLastAttempt = attempt === 1;
+        const isSyncing = /sync/i.test(message + ' ' + reason);
+        const isLastAttempt = isSyncing ? attempt >= 5 : attempt >= 1;
         if (isLastAttempt) {
           // Map common transient messages to a less scary, actionable copy.
           let friendly = message;
-          if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
+          if (isSyncing) friendly = 'Wallet is syncing — open 1AM and wait for sync to finish (first sync can take 20–40s). Keep the tab open and retry in a few seconds.';
+          else if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
           else if (/timeout|timed out|no response/i.test(message)) friendly = 'Wallet did not respond in time — extension may be waking. Please retry.';
           isConnectingRef.current = false;
           setWalletState({ status: 'error', message: friendly });
           console.error('connect error', e);
           return;
         }
-        // First attempt failed with a non-rejection error — auto-retry once
-        // without flashing an error. This fixes the "Retry on second click" bug
-        // where the extension was still waking/initializing.
-        await new Promise((r) => setTimeout(r, 700));
+        // Transient failure — auto-retry without flashing an error. This fixes
+        // the "Retry on second click" bug where the extension was still
+        // waking/initializing. Syncing gets a longer backoff.
+        const backoffMs = isSyncing ? 2500 : 700;
+        await new Promise((r) => setTimeout(r, backoffMs));
         const refreshed = await waitForWalletReady(900);
         if (refreshed) wallet = refreshed;
       }

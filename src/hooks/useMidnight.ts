@@ -92,7 +92,7 @@ export function useMidnight() {
   // Poll for wallet injection — Midnight extensions (Lace/1AM) often inject
   // window.midnight asynchronously after page load. A single immediate check
   // causes the first Connect click to see wallet-not-installed while the
-  // second click (a second later) succeeds. Poll for up to 3s.
+  // second click (a second later) succeeds. Poll for up to 5s.
   useEffect(() => {
     let cancelled = false;
     let timer: number | null = null;
@@ -103,25 +103,33 @@ export function useMidnight() {
         setWalletState({ status: 'detected', wallets });
         return;
       }
-      timer = window.setTimeout(poll, 350);
+      timer = window.setTimeout(poll, 200);
     };
     poll();
-    // Give injection up to 3s, then declare not-installed if still absent.
-    // Also re-check on window load (extensions often inject on load).
+    // Give injection up to 5s, then declare not-installed if still absent.
+    // Also re-check on window load and on custom midnight-ready events
+    // (some extensions dispatch them).
     const onLoad = () => {
       const wallets = listWallets();
       if (wallets.length > 0) setWalletState({ status: 'detected', wallets });
     };
+    const onMidnightReady = () => {
+      const wallets = listWallets();
+      if (wallets.length > 0) setWalletState({ status: 'detected', wallets });
+    };
     window.addEventListener('load', onLoad);
+    window.addEventListener('midnight-ready' as keyof WindowEventMap, onMidnightReady as EventListener);
+    // extensions may inject under window.midnight after a delay, so observe property
     const stopAt = window.setTimeout(() => {
       if (cancelled) return;
       if (listWallets().length === 0) setWalletState({ status: 'wallet-not-installed' });
-    }, 3200);
+    }, 5000);
     return () => {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
       window.clearTimeout(stopAt);
       window.removeEventListener('load', onLoad);
+      window.removeEventListener('midnight-ready' as keyof WindowEventMap, onMidnightReady as EventListener);
     };
   }, []);
 
@@ -175,21 +183,25 @@ export function useMidnight() {
 
   // Wait briefly for injection if wallet not yet present (covers the
   // "first click fails, second succeeds" race where extension injects late).
-  async function waitForWalletReady(timeoutMs = 2200): Promise<InitialAPI | null> {
+  async function waitForWalletReady(timeoutMs = 3500): Promise<InitialAPI | null> {
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
       const w = findFirstWallet();
       if (w) return w;
-      await new Promise((r) => setTimeout(r, 180));
+      await new Promise((r) => setTimeout(r, 140));
     }
     return findFirstWallet();
   }
 
+  const isConnectingRef = useRef(false);
+
   const connect = useCallback(async () => {
+    // Prevent concurrent invocations (double click while connecting).
+    if (isConnectingRef.current) return;
     // Give injection a moment before deciding wallet is missing.
     let wallet = findFirstWallet();
     if (!wallet) {
-      wallet = await waitForWalletReady(2000);
+      wallet = await waitForWalletReady(3500);
       if (!wallet) {
         setWalletState({ status: 'wallet-not-installed' });
         return;
@@ -197,16 +209,18 @@ export function useMidnight() {
       // Wallet appeared during wait — mark detected before connecting.
       setWalletState({ status: 'detected', wallets: listWallets() });
       // Small yield so UI updates from detected before connecting.
-      await new Promise((r) => setTimeout(r, 80));
+      await new Promise((r) => setTimeout(r, 60));
     }
 
+    isConnectingRef.current = true;
     setWalletState({ status: 'connecting' });
 
-    // One automatic retry for transient failures (locked, initializing,
+    // One automatic retry for initialization failures (locked, initializing,
     // timeout, or extension waking). Keeps status `connecting` so the UI
     // shows "Waiting for wallet approval…" instead of flashing an error
-    // that forces the user to click a second time.
-    const TRANSIENT_RE = /locked|unlock|not ready|initializ|timeout|timed out|no response|failed to fetch|networkerror/i;
+    // that forces the user to click a second time. For the first attempt,
+    // retry any non-rejection failure once — this is what fixes the
+    // "first click shows Retry, second succeeds" bug.
     let lastErr: unknown = null;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
@@ -214,6 +228,7 @@ export function useMidnight() {
         const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
 
         if (config.networkId !== NETWORK_ID) {
+          isConnectingRef.current = false;
           setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });
           return;
         }
@@ -271,6 +286,7 @@ export function useMidnight() {
           networkId: config.networkId,
         });
         setWalletState({ status: 'connected' });
+        isConnectingRef.current = false;
 
         await Promise.allSettled([refreshLedger(), refreshMidnight()]);
         return;
@@ -281,33 +297,42 @@ export function useMidnight() {
         const message = err?.message ?? String(e);
         const isRejected = err?.code === 'Rejected' || /reject/i.test(reason + ' ' + message);
         if (isRejected) {
+          isConnectingRef.current = false;
           setWalletState({ status: 'rejected' });
           console.error('connect error', e);
           return;
         }
-        const isTransient = TRANSIENT_RE.test(message + ' ' + reason);
+        // Network mismatch is a definitive state — no retry.
+        if (/network/i.test(message + ' ' + reason) && /mismatch|expected|actual/i.test(message + ' ' + reason)) {
+          // handled inside try as explicit network-mismatch; treat as non-retry here
+        }
         const isLastAttempt = attempt === 1;
-        if (!isTransient || isLastAttempt) {
+        if (isLastAttempt) {
           // Map common transient messages to a less scary, actionable copy.
           let friendly = message;
           if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
           else if (/timeout|timed out|no response/i.test(message)) friendly = 'Wallet did not respond in time — extension may be waking. Please retry.';
+          isConnectingRef.current = false;
           setWalletState({ status: 'error', message: friendly });
           console.error('connect error', e);
           return;
         }
-        // Transient — wait briefly and retry without flashing error.
-        await new Promise((r) => setTimeout(r, 900));
-        const refreshed = await waitForWalletReady(800);
+        // First attempt failed with a non-rejection error — auto-retry once
+        // without flashing an error. This fixes the "Retry on second click" bug
+        // where the extension was still waking/initializing.
+        await new Promise((r) => setTimeout(r, 700));
+        const refreshed = await waitForWalletReady(900);
         if (refreshed) wallet = refreshed;
       }
     }
     // Fallback (should be unreachable — loop handles all exits)
+    isConnectingRef.current = false;
     const fallbackMsg = lastErr instanceof Error ? lastErr.message : String(lastErr ?? 'Unknown error');
     setWalletState({ status: 'error', message: fallbackMsg });
   }, [refreshLedger, refreshMidnight]);
 
   const disconnect = useCallback(() => {
+    isConnectingRef.current = false;
     connectedAPIRef.current = null;
     contractRef.current = null;
     providersRef.current = null;

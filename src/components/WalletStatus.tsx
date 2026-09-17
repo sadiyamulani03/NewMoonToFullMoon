@@ -124,10 +124,16 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
     default:
       return (
         <div>
-          <p className="muted-text">Wallet not connected yet.</p>
-          <button className="btn btn-secondary" style={{ marginTop: '8px' }} onClick={() => void connect()}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'var(--muted)' }}>
+            <span className="spinner" aria-hidden="true" />
+            <span className="muted-text" style={{ fontSize: '0.88rem' }}>Initializing wallet… detecting Midnight extension</span>
+          </div>
+          <button className="btn btn-secondary" style={{ marginTop: '8px', opacity: 0.6 }} disabled aria-disabled="true">
             Connect wallet
           </button>
+          <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.82rem' }}>
+            Please wait a moment — the extension injects after page load.
+          </p>
         </div>
       );
   }

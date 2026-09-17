@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useDemo } from '../context/DemoContext';
 import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
+import { BrandMark } from './BrandMark';
 
 export default function MarketingLayout() {
   const { isDemo, toggleDemo } = useDemo();
@@ -9,7 +10,7 @@ export default function MarketingLayout() {
       <header className="marketing-header">
         <div className="marketing-header-inner">
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div className="rail-mark marketing-rail-mark">M</div>
+            <BrandMark size={36} />
             <div>
               <div className="rail-kicker" style={{ color: 'var(--muted-ink)' }}>Midnight Network · Preprod</div>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--paper)', lineHeight: 1 }}>MidnightTrace</div>

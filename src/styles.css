@@ -1,31 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
-/* ===== TOKENS — evidence ledger ===== */
+/* ===== TOKENS — evidence ledger =====
+   Refined Sep 2026 from Pinterest (Gestalt) + Dribbble security-SaaS research:
+   - 8px base grid, 64px section rhythm, 16px card padding (Pinterest)
+   - Two-radius system: 10px md / 14px lg / pill (modern SaaS, not 4px)
+   - Single amber accent for primary CTA only; verify green for success only
+   - Steep display scale: 70→44→28→16 tight-tracked, mono for data values
+   - Warm-cream on dark: ink #0B1020 primary, no heavy shadows — flat tonal bands
+*/
 :root {
-  --ink: #14181F;
-  --ink-2: #1A1E26;
-  --ink-3: #21262F;
-  --paper: #EDE7D8;
-  --paper-2: #F5F0E6;
+  --ink: #0B1020;
+  --ink-2: #14181F;
+  --ink-3: #1A2335;
+  --paper: #F5EFE8;
+  --paper-2: #EDE7D8;
   --paper-3: #E8E0CB;
-  --redact: #0D0F12;
+  --redact: #070A12;
   --verify: #3FA772;
   --verify-soft: rgba(63,167,114,0.12);
-  --verify-border: rgba(63,167,114,0.35);
-  --ochre: #C98A3E;
-  --ochre-soft: rgba(201,138,62,0.13);
-  --ochre-border: rgba(201,138,62,0.32);
-  --blue: #5B7FBD;
-  --blue-soft: rgba(91,127,189,0.12);
-  --line: rgba(20,24,31,0.12);
-  --line-ink: rgba(255,255,255,0.08);
-  --line-ink-strong: rgba(255,255,255,0.13);
+  --verify-border: rgba(63,167,114,0.32);
+  --ochre: #F4C770;
+  --ochre-soft: rgba(244,199,112,0.13);
+  --ochre-border: rgba(244,199,112,0.30);
+  --blue: #7AA1E0;
+  --blue-soft: rgba(122,161,224,0.12);
+  --line: rgba(20,24,31,0.10);
+  --line-ink: rgba(255,255,255,0.07);
+  --line-ink-strong: rgba(255,255,255,0.12);
   --muted: #6B7280;
   --muted-ink: #9AA3B5;
-  --text: #EDE7D8;
-  --text-ink: #14181F;
-  --radius: 4px;
-  --radius-lg: 6px;
+  --text: #F5EFE8;
+  --text-ink: #0B1020;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 9999px;
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -35,7 +43,8 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
-  --max: 1120px;
+  --space-section: 64px;
+  --max: 1180px;
 }
 
 * { box-sizing: border-box; }
@@ -192,16 +201,18 @@ a:hover { color: #3f6fb8; }
   gap: 10px;
 }
 .rail-mark {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
-  background: var(--paper);
-  color: var(--ink);
+  background: #0B1020;
+  color: #F8D78D;
   font-family: var(--font-display);
   font-weight: 700;
-  border-radius: 3px;
-  font-size: 1.05rem;
+  border-radius: 9px;
+  font-size: 1.1rem;
+  border: 1.2px solid rgba(244,199,112,0.42);
+  position: relative;
 }
 .rail-title { font-family: var(--font-display); font-size: 1.02rem; line-height: 1; color: var(--paper); }
 .rail-kicker { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-ink); display: block; margin-bottom: 2px; }
@@ -422,7 +433,7 @@ a:hover { color: #3f6fb8; }
 /* ===== LEDGER ===== */
 .ledger {
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
   background: white;
   overflow: hidden;
 }

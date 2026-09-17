@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="48" viewBox="0 0 360 48" role="img" aria-label="MidnightTrace logo">
+  <title>MidnightTrace</title>
+  <!-- Mark: rounded square with M + verified notch -->
+  <g>
+    <rect x="0" y="4" width="40" height="40" rx="9" fill="#0B1020" stroke="#F4C770" stroke-opacity="0.42" stroke-width="1.2"/>
+    <rect x="0" y="4" width="40" height="40" rx="9" fill="none" stroke="white" stroke-opacity="0.06"/>
+    <!-- M letterform -->
+    <text x="20" y="28.5" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces, Georgia, serif" font-size="22" font-weight="700" fill="#F8D78D" letter-spacing="-0.02em">M</text>
+    <!-- subtle verified dot -->
+    <circle cx="34.5" cy="9.5" r="5.2" fill="#3FA772" stroke="#0B1020" stroke-width="1.6"/>
+    <path d="M32.2 9.6l1.6 1.6 2.8-2.9" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Wordmark -->
+  <g transform="translate(52,0)">
+    <text x="0" y="26" font-family="Fraunces, Georgia, serif" font-size="22" font-weight="700" fill="#0B1020" letter-spacing="-0.035em">Midnight<tspan font-weight="600" fill="#1A2A44">Trace</tspan></text>
+    <text x="0" y="38.5" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="7.2" font-weight="500" fill="#6B7280" letter-spacing="0.14em">PRIVATE FORENSICS  •  MIDNIGHT PREPROD</text>
+  </g>
+</svg>

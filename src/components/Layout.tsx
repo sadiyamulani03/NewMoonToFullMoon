@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
 import { GITHUB_URL } from '../config';
+import { BrandMark } from './BrandMark';
 
 function shortAddr(a: string): string {
   return a.length <= 18 ? a : `${a.slice(0, 10)}…${a.slice(-6)}`;
@@ -15,7 +16,7 @@ export default function Layout() {
     <div className="app-shell">
       <aside className="rail" aria-label="Primary">
         <div className="rail-head">
-          <div className="rail-mark">M</div>
+          <BrandMark size={36} />
           <div>
             <span className="rail-kicker">Midnight Network · Preprod</span>
             <div className="rail-title">MidnightTrace</div>

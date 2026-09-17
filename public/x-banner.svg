@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500" role="img" aria-label="MidnightTrace X banner">
+  <title>MidnightTrace — Private forensics on Midnight</title>
+  <defs>
+    <radialGradient id="amber" cx="88%" cy="0%" r="62%">
+      <stop offset="0%" stop-color="#F4C770" stop-opacity="0.20"/>
+      <stop offset="55%" stop-color="#F4C770" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#0B1020" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1020"/>
+      <stop offset="100%" stop-color="#141E32"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 H 0 V 32" fill="none" stroke="white" stroke-opacity="0.03" stroke-width="0.7"/>
+    </pattern>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="1500" height="500" fill="url(#bg)"/>
+  <rect width="1500" height="500" fill="url(#amber)"/>
+  <rect width="1500" height="500" fill="url(#grid)"/>
+  <!-- Left safe zone note: X profile (133px circle) sits at ~ 60px from left, centered vertically ~ 280px on desktop.
+       Keep critical text right of x=340 or above y=120. Bottom 60px can be cropped on mobile. -->
+  <!-- Left: Brand lockup (safe: x 360+) -->
+  <g transform="translate(360,48)">
+    <!-- Mark -->
+    <rect width="52" height="52" rx="13" fill="#14233A" stroke="#F4C770" stroke-opacity="0.42" stroke-width="1.2"/>
+    <text x="26" y="31.5" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces, Georgia, serif" font-size="26" font-weight="700" fill="#F8D78D">M</text>
+    <circle cx="46.5" cy="6.5" r="7.2" fill="#3FA772" stroke="#0B1020" stroke-width="1.8"/>
+    <path d="M43.6 6.7l2 2 3.5-3.6" fill="none" stroke="white" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Wordmark -->
+    <text x="68" y="22" font-family="Fraunces, Georgia, serif" font-size="26" font-weight="700" fill="#F5EFE8" letter-spacing="-0.035em">Midnight<tspan font-weight="600" fill="#F4C770">Trace</tspan></text>
+    <text x="68" y="38" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="8.5" font-weight="600" fill="#8EA0BE" letter-spacing="0.16em">MIDNIGHT NETWORK  •  PREPROD LIVE</text>
+  </g>
+  <!-- Center-left: Headline (stays left of center, never under profile) -->
+  <g transform="translate(360,142)">
+    <text font-family="Fraunces, Georgia, serif" font-size="46" font-weight="700" fill="#FFF9EF" letter-spacing="-0.035em">Prove work happened.</text>
+    <text y="52" font-family="Fraunces, Georgia, serif" font-size="46" font-weight="700" fill="#F4C770" letter-spacing="-0.035em">Keep evidence private.</text>
+    <text y="86" font-family="IBM Plex Sans, Inter, sans-serif" font-size="15.5" fill="#B8C6E2" letter-spacing="0.01em">Zero-knowledge proofs on Midnight  •  Public audit, private amounts  •  Selective disclosure</text>
+    <!-- pills -->
+    <g transform="translate(0,112)">
+      <rect width="148" height="26" rx="999" fill="white" fill-opacity="0.07" stroke="white" stroke-opacity="0.12"/>
+      <text x="74" y="17" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.8" font-weight="600" fill="#E8EDF8" letter-spacing="0.08em">SELECTIVE DISCLOSURE</text>
+      <g transform="translate(158,0)">
+        <rect width="132" height="26" rx="999" fill="white" fill-opacity="0.07" stroke="white" stroke-opacity="0.12"/>
+        <text x="66" y="17" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.8" font-weight="600" fill="#E8EDF8" letter-spacing="0.08em">PRIVATE ALLOWLIST</text>
+      </g>
+      <g transform="translate(300,0)">
+        <rect width="112" height="26" rx="999" fill="#3FA772" fill-opacity="0.14" stroke="#3FA772" stroke-opacity="0.28"/>
+        <text x="56" y="17" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.8" font-weight="700" fill="#CFEEE0" letter-spacing="0.08em">✓ PUBLIC AUDIT</text>
+      </g>
+    </g>
+  </g>
+  <!-- Right: Ledger card stack (visual, not text-critical) -->
+  <g transform="translate(1060,62)" filter="url(#cardShadow)">
+    <!-- card 1 -->
+    <rect width="360" height="92" rx="16" fill="white" fill-opacity="0.08" stroke="white" stroke-opacity="0.10"/>
+    <rect x="16" y="16" width="36" height="36" rx="9" fill="#F4C770" fill-opacity="0.14" stroke="#F4C770" stroke-opacity="0.28"/>
+    <text x="34" y="38" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" fill="#F8D78D">✓</text>
+    <text x="64" y="28" font-family="IBM Plex Mono, monospace" font-size="8.2" fill="#F4DBA2" letter-spacing="0.1em">ZK PROOF</text>
+    <text x="64" y="42" font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="700" fill="#FFF9EF">total' = total + amount</text>
+    <text x="64" y="56" font-family="IBM Plex Sans, sans-serif" font-size="8.6" fill="#B7C3DF">verified on-chain  •  amount stays private</text>
+    <!-- card 2 — slightly offset -->
+    <g transform="translate(0,104)">
+      <rect width="360" height="78" rx="16" fill="white" fill-opacity="0.06" stroke="white" stroke-opacity="0.08"/>
+      <g transform="translate(16,18)">
+        <rect width="156" height="22" rx="999" fill="#8BE0AF" fill-opacity="0.12" stroke="#8BE0AF" stroke-opacity="0.20"/>
+        <text x="78" y="14.5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.6" fill="#CFEEE0" letter-spacing="0.07em">PUBLIC: TOTAL + PHASE</text>
+      </g>
+      <g transform="translate(180,18)">
+        <rect width="162" height="22" rx="999" fill="#F4C770" fill-opacity="0.12" stroke="#F4C770" stroke-opacity="0.20"/>
+        <text x="81" y="14.5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.6" fill="#F4DBA2" letter-spacing="0.07em">PRIVATE: AMOUNT</text>
+      </g>
+      <text x="16" y="62" font-family="IBM Plex Mono, monospace" font-size="8.2" fill="#8EA0BE" letter-spacing="0.06em">●  PREPROD  •  df5e05…29501  •  INDEXER-DIRECT</text>
+    </g>
+    <!-- card 3 -->
+    <g transform="translate(0,194)">
+      <rect width="360" height="72" rx="16" fill="white" fill-opacity="0.05" stroke="white" stroke-opacity="0.06"/>
+      <text x="16" y="28" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#EDF3FF">midnighttrace.vercel.app</text>
+      <text x="16" y="45" font-family="IBM Plex Mono, monospace" font-size="8" fill="#8BE0AF" letter-spacing="0.06em">●  AUDIT WITHOUT WALLET  •  /audit?case=7</text>
+      <rect x="16" y="54" width="328" height="4" rx="999" fill="white" fill-opacity="0.08"/>
+      <rect x="16" y="54" width="214" height="4" rx="999" fill="#F4C770"/>
+    </g>
+  </g>
+  <!-- Bottom amber bar — value prop (kept above mobile crop) -->
+  <rect y="430" width="1500" height="70" fill="#F4C770"/>
+  <text x="750" y="460" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15.5" font-weight="700" fill="#1C150B" letter-spacing="-0.01em">Private forensics on Midnight  —  midnighttrace.vercel.app  •  @MidnightTraceAp  •  Preprod live</text>
+  <text x="750" y="478" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.2" fill="#4A3410" letter-spacing="0.12em">PROVE WITHOUT SURVEILLANCE  •  ZK • SELECTIVE DISCLOSURE • WALLET-FREE AUDIT</text>
+  <!-- subtle safe-area guides (invisible in export, for reference) -->
+</svg>

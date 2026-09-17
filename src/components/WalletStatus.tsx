@@ -79,10 +79,25 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
       );
     case 'error': {
       const isSync = /sync/i.test(walletState.message);
+      const isPrivateState = /private-state/i.test(walletState.message);
       return (
         <div>
           <p className="error-text">Connection failed — {walletState.message}</p>
-          {isSync ? (
+          {isPrivateState ? (
+            <>
+              <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
+                Private-state encryption needs your wallet to sign a deterministic message (no seed exposed, no funds at risk). Approve the signature to enable private evidence, or use Demo mode which does not require it.
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+                <button className="btn btn-primary" onClick={() => void connect()}>
+                  Retry — approve signature
+                </button>
+                <Link className="btn btn-secondary" to="/dashboard" onClick={() => { try { localStorage.setItem('midnighttrace-demo-enabled','1'); } catch {} }}>
+                  Use Demo — no signature
+                </Link>
+              </div>
+            </>
+          ) : isSync ? (
             <>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
                 <span className="spinner" aria-hidden="true" />
@@ -91,15 +106,20 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
               <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
                 The app auto-retried while the wallet was syncing. Wait a few seconds and try again — no need to reload yet.
               </p>
+              <button className="btn btn-primary" onClick={() => void connect()}>
+                Retry
+              </button>
             </>
           ) : (
-            <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
-              Check the extension is unlocked and on Preprod, then retry. If it persists, reload the page.
-            </p>
+            <>
+              <p className="muted-text" style={{ marginTop: '6px', fontSize: '0.88rem' }}>
+                Check the extension is unlocked and on Preprod, then retry. If it persists, reload the page.
+              </p>
+              <button className="btn btn-primary" onClick={() => void connect()}>
+                Retry
+              </button>
+            </>
           )}
-          <button className="btn btn-primary" onClick={() => void connect()}>
-            Retry
-          </button>
         </div>
       );
     }

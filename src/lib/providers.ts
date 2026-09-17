@@ -9,13 +9,18 @@ import type { ProofProvider, AnyProvableCircuitId, MidnightProviders } from '@mi
 import { createWalletProvidersFromConnectedAPI } from './walletAdapter';
 import type { ShieldedAddress } from './walletAdapter';
 
-// Demo-only IndexedDB encryption for the browser's local private state (Level DB).
-// This is NOT authentication and NOT production key management. Each browser's
-// shielded state is encrypted at rest with this static demo password; the real
-// privacy guarantee comes from the ZK circuit (amount/secret never leave the
-// device nor land on-chain). Production would derive this from the wallet's
-// seed or a user-supplied passphrase. Never log or display this value.
-const PRIVATE_STATE_PASSWORD = 'MidnightTrace-demo-storage-password!';
+// Private-state encryption: production uses wallet-derived password via
+// signData (no seed extraction), demo retains static password.
+// The static value is kept ONLY for Demo mode and for migration detection
+// (existing users may have DB encrypted with it). Production path never
+// uses it — it derives a per-wallet, per-account password by asking the
+// wallet to sign a deterministic message (signData, keyType: unshielded).
+// See docs/STARTUP_READINESS_PLAN.md Phase B for full design and
+// recovery semantics.
+export const DEMO_PRIVATE_STATE_PASSWORD = 'MidnightTrace-demo-storage-password!';
+// Production derivation is implemented in `createPrivateStatePasswordProvider`
+// below — it uses `connectedAPI.signData` so the seed never leaves the wallet.
+// Never log or display the derived value.
 
 /**
  * Public Midnight indexer endpoints per network. Some wallets (notably the
@@ -83,6 +88,56 @@ function resolveIndexerUris(config: { networkId: string; indexerUri: string; ind
  * wallet does not expose a proving provider, we fall back to the wallet's
  * configured proof server URI.
  */
+/**
+ * Create a private-state password provider that derives a stable, per-wallet
+ * password via wallet `signData` (no seed extraction). The wallet signs a
+ * deterministic message `MidnightTrace private-state v1:<shieldedAddress>:<networkId>`
+ * with `keyType: unshielded` (deterministic for the wallet's unshielded key).
+ * The signature hex is hashed (SHA-256) and formatted to satisfy
+ * `validatePassword` (≥16 chars, 3 classes, no 3 identical, no sequential).
+ * Cached in-memory for the session so we prompt only once; never persisted.
+ * If `signData` is rejected/unsupported, we throw with a clear message — the
+ * caller (`useMidnight`) surfaces it and offers Demo fallback.
+ */
+export async function createPrivateStatePasswordProvider(
+  connectedAPI: ConnectedAPI,
+  shieldedAddress: string,
+  networkId: string,
+): Promise<() => Promise<string>> {
+  let cached: string | null = null;
+  return async () => {
+    if (cached) return cached;
+    const message = `MidnightTrace private-state v1:${shieldedAddress}:${networkId}`;
+    try {
+      // Hint wallet that signData will be used (lets it pre-request permission)
+      await connectedAPI.hintUsage(['signData']).catch(() => {});
+      const sig = await connectedAPI.signData(message, { encoding: 'text', keyType: 'unshielded' });
+      const sigHex: string = (sig as unknown as { signature: string }).signature ?? String(sig);
+      // Hash signature to get uniform 32-byte hex, then format to pass validatePassword
+      const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sigHex));
+      const hashHex = Array.from(new Uint8Array(hashBuf))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      // Construct: Mt + 8 lower + - + 6 upper + !A1 + 6 lower + xQ => 16+ chars, 3+ classes
+      // Example: Mt a3f9c2d1-4B8E2F!A1b9e4c7xQ (mixed case, digits, - and !)
+      let pwd = `Mt${hashHex.slice(0, 8)}-${hashHex.slice(8, 14).toUpperCase()}!A1${hashHex.slice(14, 20)}xQ`;
+      // Defensive: if somehow fails policy (extremely unlikely — hash is random), fallback
+      try {
+        const { validatePassword } = await import('@midnight-ntwrk/midnight-js-utils');
+        validatePassword(pwd);
+      } catch {
+        pwd = `MidnightTrace-${hashHex.slice(0, 12)}!A1b2${hashHex.slice(12, 16).toUpperCase()}`;
+      }
+      cached = pwd;
+      return pwd;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/reject/i.test(msg)) throw new Error(`Private-state key derivation was cancelled — signature rejected. You can use Demo mode or try again and approve the signature (no funds at risk).`);
+      throw new Error(`Wallet does not support private-state signing (${msg}). Use Demo mode or a wallet that supports signData (Lace/IAM).`);
+    }
+  };
+}
+
 export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvableCircuitId>(
   connectedAPI: ConnectedAPI,
   contractName: string,
@@ -288,8 +343,16 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
     shieldedAddress,
   );
 
+  // Production private-state: wallet-derived via signData (per-user, per-account,
+  // deterministic, never leaves device). Demo mode retains static password — see
+  // docs/STARTUP_READINESS_PLAN.md Phase B.
+  const privateStatePasswordProvider = await createPrivateStatePasswordProvider(
+    connectedAPI,
+    shieldedAddress.shieldedAddress,
+    config.networkId,
+  );
   const privateStateProvider = levelPrivateStateProvider({
-    privateStoragePasswordProvider: () => PRIVATE_STATE_PASSWORD,
+    privateStoragePasswordProvider: privateStatePasswordProvider,
     accountId: shieldedAddress.shieldedAddress,
   });
 

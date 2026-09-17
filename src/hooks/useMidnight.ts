@@ -308,7 +308,16 @@ export function useMidnight() {
           // handled inside try as explicit network-mismatch; treat as non-retry here
         }
         const isSyncing = /sync/i.test(message + ' ' + reason);
+        const isPrivateState = /private-state/i.test(message);
         const isLastAttempt = isSyncing ? attempt >= 5 : attempt >= 1;
+        if (isPrivateState) {
+          // Private-state derivation requires explicit user approval of a signature.
+          // Do not auto-retry a rejection — surface the wallet's message and offer Demo.
+          isConnectingRef.current = false;
+          setWalletState({ status: 'error', message: message });
+          console.error('private-state connect error', e);
+          return;
+        }
         if (isLastAttempt) {
           // Map common transient messages to a less scary, actionable copy.
           let friendly = message;

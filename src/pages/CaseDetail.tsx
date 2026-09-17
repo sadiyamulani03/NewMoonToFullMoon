@@ -7,10 +7,27 @@ import { commitmentForSecret, toHex } from '../lib/membership';
 import { MIDNIGHTTRACE_OWNER_SECRET } from '../config';
 import WalletStatus from '../components/WalletStatus';
 import TxProgress from '../components/TxProgress';
+import { logTx } from '../lib/auditLog';
 
 type Action = 'logStep' | 'discloseFinding' | 'closeCase';
+type TxState = 'idle' | 'preparing' | 'awaiting_wallet' | 'proving' | 'submitting' | 'confirming' | 'success' | 'cancelled' | 'failed' | 'timeout';
 
 function fmtTime(iso: string): string { return new Date(iso).toLocaleString(); }
+
+function txStateLabel(s: TxState): string {
+  switch (s) {
+    case 'preparing': return 'Preparing secure proof…';
+    case 'awaiting_wallet': return 'Waiting for wallet approval…';
+    case 'proving': return 'Generating proof… check wallet popup';
+    case 'submitting': return 'Submitting transaction…';
+    case 'confirming': return 'Waiting for Preprod confirmation…';
+    case 'success': return 'Transaction confirmed.';
+    case 'cancelled': return 'Cancelled — wallet declined.';
+    case 'failed': return 'Failed.';
+    case 'timeout': return 'Timed out.';
+    default: return '';
+  }
+}
 
 export default function CaseDetail() {
   const { id = '' } = useParams();
@@ -21,6 +38,7 @@ export default function CaseDetail() {
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
   const [busyStage, setBusyStage] = useState<'proof' | 'submit'>('proof');
+  const [txState, setTxState] = useState<TxState>('idle');
   const [msg, setMsg] = useState<string | null>(null);
   const [msgTechnical, setMsgTechnical] = useState<string | null>(null);
   const [showTechnical, setShowTechnical] = useState(false);
@@ -82,51 +100,82 @@ export default function CaseDetail() {
     } catch { setMsg('Enter a valid number — digits only.'); setMsgTechnical(null); return null; }
   };
 
+  // Recovery: if a tx was submitted but confirmation was lost (refresh), check via audit
+  useEffect(() => {
+    if (!caseItem || isDemo) return;
+    try {
+      const pendingRaw = sessionStorage.getItem(`midnighttrace:lastTx:${id}`);
+      if (!pendingRaw) return;
+      const pending = JSON.parse(pendingRaw) as { txId: string; caseId: string; ts: number };
+      // If pending tx is recent (< 5 min) and we have receipts, check if it landed
+      if (Date.now() - pending.ts < 5 * 60 * 1000 && !caseItem.receipts.some((r) => r.txId === pending.txId)) {
+        setMsg(`Previous transaction ${pending.txId.slice(0, 8)}… may still be confirming — check /audit?case=${pending.caseId}`);
+      }
+    } catch {}
+  }, [caseItem, id, isDemo]);
+
   const run = async () => {
+    if (busy) return; // duplicate-click protection
     setMsgTechnical(null); setShowTechnical(false); setLastProof(null);
     if (isDemo && caseItem) {
       const cid = resolveId();
       const mockTx = Array.from({ length: 12 }, () => Math.floor(Math.random()*16).toString(16)).join('') + '…';
-      if (action === 'logStep') { const p = validateAmount(amount); if (p === null) return; demoLogStep(cid, p, caseItem.id); setMsg('✓ Demo: finding logged — redacted amount → public total updated.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500123, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
-      else if (action === 'discloseFinding') { const p = validateAmount(amount); if (p === null) return; demoDisclose(cid, p, caseItem.id); setMsg('✓ Demo: total disclosed — now public.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500124, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
-      else { demoClose(cid, caseItem.id); setMsg('✓ Demo: case sealed — phase CLOSED.'); setMsgTechnical(null); setLastProof({ txId: mockTx, blockHeight: 500125, caseId: cid.toString(), network: 'Demo — not on-chain' }); }
-      setAmount(''); return;
+      const start = Date.now();
+      setBusy(true); setTxState('proving'); setBusyStage('proof');
+      if (action === 'logStep') { const p = validateAmount(amount); if (p === null) { setBusy(false); setTxState('idle'); return; } demoLogStep(cid, p, caseItem.id); setMsg('✓ Demo: finding logged — redacted amount → public total updated.'); setLastProof({ txId: mockTx, blockHeight: 500123, caseId: cid.toString(), network: 'Demo — not on-chain' }); logTx({ op: 'logStep', caseId: cid.toString(), txId: mockTx, outcome: 'success', latencyMs: Date.now()-start }); }
+      else if (action === 'discloseFinding') { const p = validateAmount(amount); if (p === null) { setBusy(false); setTxState('idle'); return; } demoDisclose(cid, p, caseItem.id); setMsg('✓ Demo: total disclosed — now public.'); setLastProof({ txId: mockTx, blockHeight: 500124, caseId: cid.toString(), network: 'Demo — not on-chain' }); logTx({ op: 'discloseFinding', caseId: cid.toString(), txId: mockTx, outcome: 'success', latencyMs: Date.now()-start }); }
+      else { demoClose(cid, caseItem.id); setMsg('✓ Demo: case sealed — phase CLOSED.'); setLastProof({ txId: mockTx, blockHeight: 500125, caseId: cid.toString(), network: 'Demo — not on-chain' }); logTx({ op: 'closeCase', caseId: cid.toString(), txId: mockTx, outcome: 'success', latencyMs: Date.now()-start }); }
+      setTxState('success'); setBusy(false); setAmount(''); return;
     }
-    if (!isConnected) { setMsg('Connect wallet or enable Demo — no proof can be generated without a wallet.'); setMsgTechnical(null); return; }
-    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry. If it persists, tap “Join as investigator” below or enable Demo.'); setMsgTechnical(`membershipStatus=unknown — ledger ${midLedger ? `has ${midLedger.cases.length} cases, root ${midLedger.allowlistRoot ? 'present' : 'empty'}` : 'not yet loaded'}; commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}…`); return; }
-    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet an authorized investigator for this Preprod ledger.'); setMsgTechnical(`Membership check: allowlist.findPathForLeaf(commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}…) returned nothing. Preprod demo sharing: all wallets use the same owner secret (commitment is one leaf), so this usually means the ledger hasn't finished loading or the configured VITE_MIDNIGHTTRACE_OWNER_SECRET doesn't match the deployed contract ${'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501'.slice(0,12)}…. Use “Join as investigator” to apply the baked owner secret, or enable Demo — no wallet.`); return; }
-    setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
+    if (!isConnected) { setMsg('Connect wallet or enable Demo — no proof can be generated without a wallet.'); setTxState('failed'); return; }
+    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry. If it persists, tap “Join as investigator” below or enable Demo.'); setTxState('failed'); return; }
+    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet an authorized investigator for this Preprod ledger.'); setTxState('failed'); return; }
+    setBusy(true); setTxState('preparing'); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
+    const start = Date.now();
     try {
       const cid = resolveId();
+      let r: { txId: string; blockHeight: number | bigint } | null = null;
+      let op: 'logStep' | 'discloseFinding' | 'closeCase' = action;
       if (action === 'logStep') {
-        const p = validateAmount(amount); if (p === null) { setBusy(false); return; }
-        setBusyStage('proof');
-        const r = await callLogStep(cid, p);
-        setBusyStage('submit');
+        const p = validateAmount(amount); if (p === null) { setBusy(false); setTxState('idle'); return; }
+        setTxState('proving'); setBusyStage('proof');
+        r = await callLogStep(cid, p);
+        setTxState('submitting'); setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'logStep');
+        setTxState('confirming');
+        try { sessionStorage.setItem(`midnighttrace:lastTx:${id}`, JSON.stringify({ txId: r.txId, caseId: cid.toString(), ts: Date.now() })); } catch {}
+        logTx({ op, caseId: cid.toString(), txId: r.txId, network: 'preprod', latencyMs: Date.now()-start, outcome: 'success' });
         setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       } else if (action === 'discloseFinding') {
-        const p = validateAmount(amount); if (p === null) { setBusy(false); return; }
-        setBusyStage('proof');
-        const r = await callDiscloseFinding(cid, p);
-        setBusyStage('submit');
+        const p = validateAmount(amount); if (p === null) { setBusy(false); setTxState('idle'); return; }
+        setTxState('proving'); setBusyStage('proof');
+        r = await callDiscloseFinding(cid, p);
+        setTxState('submitting'); setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'discloseFinding', p);
+        setTxState('confirming');
+        try { sessionStorage.setItem(`midnighttrace:lastTx:${id}`, JSON.stringify({ txId: r.txId, caseId: cid.toString(), ts: Date.now() })); } catch {}
+        logTx({ op, caseId: cid.toString(), txId: r.txId, network: 'preprod', latencyMs: Date.now()-start, outcome: 'success' });
         setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       } else {
-        setBusyStage('proof');
-        const r = await callCloseCase(cid);
-        setBusyStage('submit');
+        setTxState('proving'); setBusyStage('proof');
+        r = await callCloseCase(cid);
+        setTxState('submitting'); setBusyStage('submit');
         await onLanded(r.txId, r.blockHeight, 'closeCase');
+        setTxState('confirming');
+        try { sessionStorage.setItem(`midnighttrace:lastTx:${id}`, JSON.stringify({ txId: r.txId, caseId: cid.toString(), ts: Date.now() })); } catch {}
+        logTx({ op, caseId: cid.toString(), txId: r.txId, network: 'preprod', latencyMs: Date.now()-start, outcome: 'success' });
         setLastProof({ txId: r.txId, blockHeight: r.blockHeight, caseId: cid.toString(), network: 'Midnight Preprod' });
       }
-      setMsg('✓ Proof verified — receipt filed on ledger.');
+      setTxState('success'); setMsg('✓ Proof verified — receipt filed on ledger.');
       setMsgTechnical(null);
       setAmount('');
     } catch (e) {
       const raw = (e as Error).message ?? String(e);
-      if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” (applies owner secret ${'281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04'.slice(0,12)}…) then retry, or use Demo.`); }
-      else if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
+      const latency = Date.now()-start;
+      if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setTxState('failed'); logTx({ op: action, caseId: resolveId().toString(), outcome: 'failed', errorCategory: 'circuit_rejected', latencyMs: latency }); setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” (applies owner secret ${'281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04'.slice(0,12)}…) then retry, or use Demo.`); }
+      else if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setTxState('cancelled'); logTx({ op: action, outcome: 'cancelled', errorCategory: 'wallet_rejected', latencyMs: latency }); setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
       else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) {
+        setTxState('failed'); logTx({ op: action, outcome: 'failed', errorCategory: 'prover_unavailable', latencyMs: latency });
         const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         const isLocalhostErr = /localhost:6300/.test(raw);
         if (!isLocalHost && isLocalhostErr) {
@@ -136,38 +185,47 @@ export default function CaseDetail() {
         }
         setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet (in-wallet proving) or enable Demo — no wallet in the header.'}`);
       }
-      else if (/timeout/i.test(raw)) { setMsg('Wallet didn’t respond in time.'); setMsgTechnical(raw); }
-      else { setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
+      else if (/timeout/i.test(raw)) { setTxState('timeout'); logTx({ op: action, outcome: 'timeout', errorCategory: 'prover_timeout', latencyMs: latency }); setMsg('Proof generation timed out. No transaction was submitted.'); setMsgTechnical(raw); }
+      else { setTxState('failed'); logTx({ op: action, outcome: 'failed', errorCategory: 'unknown', latencyMs: latency }); setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }
   };
 
   const open = async () => {
+    if (busy) return;
     setMsgTechnical(null); setShowTechnical(false);
     if (isDemo) {
       const cid = resolveId();
-      if (caseItem) { demoLogStep(cid, 0n, caseItem.id); setMsg(`✓ Demo: case #${cid} marked open.`); setMsgTechnical(null); }
-      else { const nid = demoOpenCase(cid, `Case #${cid}`, ''); setMsg(`✓ Demo: case #${cid} created ${nid}.`); setMsgTechnical(null); }
-      return;
+      const start = Date.now();
+      setBusy(true); setTxState('proving'); setBusyStage('proof');
+      if (caseItem) { demoLogStep(cid, 0n, caseItem.id); setMsg(`✓ Demo: case #${cid} marked open.`); logTx({ op: 'openCase', caseId: cid.toString(), txId: `demo-${cid}`, outcome: 'success', latencyMs: Date.now()-start }); }
+      else { const nid = demoOpenCase(cid, `Case #${cid}`, ''); setMsg(`✓ Demo: case #${cid} created ${nid}.`); logTx({ op: 'openCase', caseId: cid.toString(), txId: nid, outcome: 'success', latencyMs: Date.now()-start }); }
+      setTxState('success'); setBusy(false); return;
     }
-    if (!isConnected) { setMsg('Connect wallet or enable Demo.'); setMsgTechnical(null); return; }
-    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry.'); setMsgTechnical(`membershipStatus=unknown — ledger ${midLedger ? `has ${midLedger.cases.length} cases` : 'not yet loaded'}; commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}… — tap “Join as investigator” if this persists.`); return; }
-    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet authorized. Tap “Join as investigator” below to apply the Preprod owner secret, or enable Demo.'); setMsgTechnical(`Requires allowlist membership proof for openCase. commitment ${memberCommitmentHex?.slice(0,12) ?? '—'}… not found on ledger ${'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501'.slice(0,12)}…. Demo sharing uses one owner commitment; applying the baked owner secret joins instantly.`); return; }
-    setBusy(true); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
+    if (!isConnected) { setMsg('Connect wallet or enable Demo.'); setTxState('failed'); return; }
+    if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry.'); setTxState('failed'); return; }
+    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet authorized. Tap “Join as investigator” below to apply the Preprod owner secret, or enable Demo.'); setTxState('failed'); return; }
+    setBusy(true); setTxState('preparing'); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
+    const start = Date.now();
     try {
       const cid = resolveId();
       const meta = `${caseItem?.title ?? ''}|${caseItem?.description ?? ''}|${String(cid)}`;
       const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(meta)));
-      setBusyStage('proof');
+      setTxState('proving'); setBusyStage('proof');
       const r = await callOpenCase(cid, hash);
-      setBusyStage('submit');
+      setTxState('submitting'); setBusyStage('submit');
       await onLanded(r.txId, r.blockHeight, 'logStep', 0n);
-      setMsg(`✓ Case #${cid} opened on-chain — phase ACTIVE, total 0.`);
+      setTxState('confirming');
+      try { sessionStorage.setItem(`midnighttrace:lastTx:${id}`, JSON.stringify({ txId: r.txId, caseId: cid.toString(), ts: Date.now() })); } catch {}
+      logTx({ op: 'openCase', caseId: cid.toString(), txId: r.txId, network: 'preprod', latencyMs: Date.now()-start, outcome: 'success' });
+      setTxState('success'); setMsg(`✓ Case #${cid} opened on-chain — phase ACTIVE, total 0.`);
       setMsgTechnical(null);
     } catch (e) {
       const raw = (e as Error).message ?? String(e);
-      if (/already exists/i.test(raw)) { setMsg(`Case #${resolveId()} already exists on ledger.`); setMsgTechnical(raw); }
-      else if (/reject/i.test(raw)) { setMsg('Wallet declined — case not opened.'); setMsgTechnical(raw); }
+      const latency = Date.now()-start;
+      if (/already exists/i.test(raw)) { setTxState('failed'); logTx({ op: 'openCase', caseId: resolveId().toString(), outcome: 'failed', errorCategory: 'case_exists', latencyMs: latency }); setMsg(`Case #${resolveId()} already exists on ledger.`); setMsgTechnical(raw); }
+      else if (/reject/i.test(raw)) { setTxState('cancelled'); logTx({ op: 'openCase', outcome: 'cancelled', errorCategory: 'wallet_rejected', latencyMs: latency }); setMsg('Wallet declined — case not opened.'); setMsgTechnical(raw); }
       else if (/Failed to fetch|NetworkError|proof server|localhost:6300/i.test(raw)) {
+        setTxState('failed'); logTx({ op: 'openCase', outcome: 'failed', errorCategory: 'prover_unavailable', latencyMs: latency });
         const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         const isLocalhostErr = /localhost:6300/.test(raw);
         if (!isLocalHost && isLocalhostErr) {
@@ -177,7 +235,7 @@ export default function CaseDetail() {
         }
         setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet or Demo — no wallet.'}`);
       }
-      else { setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
+      else { setTxState('failed'); logTx({ op: 'openCase', outcome: 'failed', errorCategory: 'unknown', latencyMs: latency }); setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }
   };
 
@@ -315,10 +373,10 @@ export default function CaseDetail() {
               )}
 
               {!onChainCase ? (
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>{busy ? 'Opening… check wallet' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
+                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>{busy ? txStateLabel(txState) || 'Opening… check wallet' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
               ) : (
                 <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void run()} disabled={busy}>
-                  {busy ? (busyStage === 'proof' ? 'Generating proof… check wallet' : 'Submitting — awaiting finalization…') : action === 'logStep' ? 'Generate proof — log finding (private)' : action === 'discloseFinding' ? 'Generate proof — disclose finding' : 'Seal case — final attestation'}
+                  {busy ? txStateLabel(txState) || (busyStage === 'proof' ? 'Generating proof… check wallet' : 'Submitting — awaiting finalization…') : action === 'logStep' ? 'Generate proof — log finding (private)' : action === 'discloseFinding' ? 'Generate proof — disclose finding' : 'Seal case — final attestation'}
                 </button>
               )}
               {busy && <div style={{ marginTop: 10 }}><TxProgress stage={busyStage} /></div>}

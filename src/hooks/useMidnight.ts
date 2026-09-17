@@ -369,6 +369,36 @@ export function useMidnight() {
     }
   }, []);
 
+  // Wallet lifecycle: detect account/network change while connected.
+  // If shielded address or networkId changes, the private state for the
+  // previous account must not be reused (per-user isolation). We poll
+  // getShieldedAddresses / getConfiguration every 5s and disconnect if changed.
+  useEffect(() => {
+    if (!isConnected || !connectedAPIRef.current) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        const api = connectedAPIRef.current;
+        if (!api) return;
+        const [shielded, cfg] = await Promise.all([
+          api.getShieldedAddresses().catch(() => null),
+          api.getConfiguration().catch(() => null),
+        ]);
+        if (cancelled) return;
+        if (shielded && walletInfo && shielded.shieldedAddress !== walletInfo.address) {
+          console.info('[wallet] account changed, disconnecting stale session');
+          disconnect();
+        } else if (cfg && cfg.networkId !== NETWORK_ID) {
+          isConnectingRef.current = false;
+          setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: cfg.networkId });
+        }
+      } catch {}
+    };
+    const id = window.setInterval(tick, 5000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [isConnected, walletInfo, disconnect]);
+
   const callCircuit = useCallback(async () => {
     const deployed = contractRef.current;
     if (!deployed) {

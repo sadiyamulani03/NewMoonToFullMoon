@@ -203,6 +203,20 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
     };
   }
 
+  // Safe debug logging (dev only) — helps trace which prover is selected and
+  // whether localhost is being used. Never logs private keys/secrets.
+  if (typeof window !== 'undefined' && (import.meta.env.DEV || (import.meta.env.VITE_DEBUG as string | undefined))) {
+    console.debug('[MidnightTrace] prover selection', {
+      isLocalHost,
+      walletProverUri: config.proverServerUri ?? null,
+      configuredProverUri: configuredProverUri ?? null,
+      effectiveConfiguredUri: effectiveConfiguredUri ?? null,
+      hasInWalletProver: !!provingProvider,
+      selectedBranch: effectiveConfiguredUri ? 'configuredUri' : provingProvider ? 'inWalletProver' : config.proverServerUri ? 'walletReportedProver' : 'none',
+      willUseLocalhostFallback: isLocalHost,
+    });
+  }
+
   const proofProvider: ProofProvider = effectiveConfiguredUri
     ? wrapWithFallback(httpClientProofProvider(effectiveConfiguredUri, zkConfigProvider), effectiveConfiguredUri)
     : provingProvider

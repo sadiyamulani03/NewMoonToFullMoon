@@ -24,12 +24,10 @@ export default function MarketingLayout() {
           </Link>
 
           <nav className={`marketing-nav ${menuOpen ? 'marketing-nav-open' : ''}`} aria-label="Primary">
+            <a href="/#evidence" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>Product</a>
             <a href="/#how-it-works" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>How it works</a>
             <a href="/#privacy" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>Privacy</a>
             <a href="/#evidence" className="marketing-nav-link" onClick={() => setMenuOpen(false)}>Evidence</a>
-            <NavLink to="/about" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>About</NavLink>
-            <NavLink to="/audit" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>Audit</NavLink>
-            <NavLink to="/dashboard" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)}>App</NavLink>
           </nav>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
@@ -38,6 +36,7 @@ export default function MarketingLayout() {
               <span />
               <span />
             </button>
+            <NavLink to="/audit" className={({ isActive }) => `marketing-nav-link${isActive ? ' marketing-nav-link-active' : ''}`} onClick={() => setMenuOpen(false)} style={{ padding: '7px 12px' } as React.CSSProperties}>Audit</NavLink>
             <button className={`btn ${isDemo ? 'btn-verify' : 'btn-cream'}`} onClick={toggleDemo} style={{ padding: '7px 12px', fontSize: '0.82rem' }} aria-label={isDemo ? 'Exit demo mode' : 'Enable demo — no wallet needed'}>
               {isDemo ? '● Demo on' : 'Try demo'}
             </button>
@@ -45,7 +44,7 @@ export default function MarketingLayout() {
               <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--verify)', border: '1px solid var(--verify-border)', background: 'var(--verify-soft)', padding: '7px 10px', borderRadius: 999, fontWeight: 700 }}>● {walletInfo.address.slice(0,6)}…{walletInfo.address.slice(-4)}</span>
             ) : (
               <button className="btn btn-primary" onClick={() => void connect()} disabled={isConnecting || isIdle} style={{ padding: '7px 14px', fontSize: '0.82rem', fontWeight: 700, opacity: isIdle ? 0.6 : 1 }}>
-                {isConnecting ? 'Connecting…' : isIdle ? 'Initializing…' : 'Connect Wallet'}
+                {isConnecting ? 'Connecting to Lace…' : isIdle ? 'Initializing…' : 'Connect Wallet'}
               </button>
             )}
           </div>

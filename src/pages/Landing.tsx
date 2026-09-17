@@ -32,18 +32,14 @@ export default function Landing() {
       {/* HERO — two column: left headline + CTAs, right live evidence ledger */}
       <section className="lp-hero-v2" aria-label="Hero">
         <div className="lp-hero-v2-left">
-          <div className="lp-hero-kicker"><span className="lp-kicker-dot" /> Built on Midnight Preprod · Privacy-preserving · ZK verified</div>
+          <div className="lp-hero-kicker"><span className="lp-kicker-dot" /> PRIVATE EVIDENCE INFRASTRUCTURE</div>
           <h1 className="display lp-hero-v2-title">Prove work happened.<br /><span style={{ color: '#F4C770' }}>Keep evidence private.</span></h1>
           <p className="lp-hero-v2-sub">
-            MidnightTrace turns sensitive evidence into <strong>zero-knowledge proofs</strong>. The chain verifies that you counted — without ever seeing <em>what</em> you counted. For forensic analysts, auditors and compliance teams.
+            MidnightTrace is a private evidence and verification platform on Midnight Preprod. Capture sensitive evidence, prove it in zero-knowledge, and let anyone verify — without exposing what was proven.
           </p>
           <div className="lp-hero-ctas">
-            <button className="btn btn-primary lp-cta-primary" onClick={goExplore}>Explore MidnightTrace →</button>
-            {isConnected ? (
-              <Link to="/dashboard" className="btn btn-secondary">Open dashboard</Link>
-            ) : (
-              <button className="btn btn-secondary" onClick={handleConnect} disabled={isConnecting || isIdle}>{isConnecting ? 'Connecting…' : isIdle ? 'Initializing…' : 'Connect Wallet'}</button>
-            )}
+            <button className="btn btn-primary lp-cta-primary" onClick={goExplore}>Explore Evidence →</button>
+            <a href="#how-it-works" className="btn btn-secondary" style={{ padding: '11px 18px' }}>How it works</a>
           </div>
           <div className="lp-hero-meta">
             <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ color: 'var(--blue)', fontSize: '0.82rem', padding: '6px 0' }}>Setup wallet → faucet</button>
@@ -110,32 +106,32 @@ export default function Landing() {
 
       {/* TRUST STRIP */}
       <section className="lp-trust-strip" aria-label="Capabilities">
-        <div className="lp-trust-item"><span className="lp-trust-icon">🔒</span><div><strong>Private</strong><span>Amounts stay in wallet, never on-chain</span></div></div>
-        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'var(--verify-soft)', borderColor: 'var(--verify-border)', color: 'var(--verify)' }}>✓</span><div><strong>Verifiable</strong><span>ZK proof for every step</span></div></div>
-        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'rgba(122,161,224,0.12)', borderColor: 'rgba(122,161,224,0.3)', color: 'var(--blue)' }}>◎</span><div><strong>Auditable</strong><span>Wallet-free /audit in seconds</span></div></div>
-        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'rgba(244,199,112,0.13)', borderColor: 'rgba(244,199,112,0.3)', color: '#C98A3E' }}>◈</span><div><strong>Built on Midnight</strong><span>Preprod · df5e05…29501</span></div></div>
+        <div className="lp-trust-item"><span className="lp-trust-icon">🔒</span><div><strong>Private</strong><span>Sensitive evidence stays protected</span></div></div>
+        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'var(--verify-soft)', borderColor: 'var(--verify-border)', color: 'var(--verify)' }}>✓</span><div><strong>Verifiable</strong><span>Claims can be cryptographically verified</span></div></div>
+        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'rgba(122,161,224,0.12)', borderColor: 'rgba(122,161,224,0.3)', color: 'var(--blue)' }}>◎</span><div><strong>Traceable</strong><span>Evidence has a clear provenance</span></div></div>
+        <div className="lp-trust-item"><span className="lp-trust-icon" style={{ background: 'rgba(244,199,112,0.13)', borderColor: 'rgba(244,199,112,0.3)', color: '#C98A3E' }}>◈</span><div><strong>Auditable</strong><span>Authorized reviewers can inspect records</span></div></div>
       </section>
 
       {/* PROBLEM → SOLUTION */}
       <section id="evidence" className="lp-compare">
         <div className="lp-compare-card lp-compare-problem">
-          <div className="lp-compare-head"><span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>Traditional evidence</span><span className="badge badge-fail">Fragile</span></div>
-          <h3>Fragmented, exposed, hard to verify</h3>
+          <div className="lp-compare-head"><span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>Evidence today</span><span className="badge badge-fail">Fragile</span></div>
+          <h3>Evidence today</h3>
           <ul>
-            <li><span className="li-dot li-dot-fail" /> Evidence scattered across files & chats</li>
-            <li><span className="li-dot li-dot-fail" /> Difficult to verify without exposing data</li>
-            <li><span className="li-dot li-dot-fail" /> Information leaks on every share</li>
-            <li><span className="li-dot li-dot-fail" /> Unclear provenance and chain of custody</li>
+            <li><span className="li-dot li-dot-fail" /> fragmented records</li>
+            <li><span className="li-dot li-dot-fail" /> exposed information</li>
+            <li><span className="li-dot li-dot-fail" /> difficult verification</li>
+            <li><span className="li-dot li-dot-fail" /> unclear provenance</li>
           </ul>
         </div>
         <div className="lp-compare-card lp-compare-solution">
-          <div className="lp-compare-head"><span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--verify)', fontWeight: 700 }}>MidnightTrace</span><span className="badge badge-verify">Verified</span></div>
-          <h3>Private proofs, clear provenance</h3>
+          <div className="lp-compare-head"><span className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--verify)', fontWeight: 700 }}>With MidnightTrace</span><span className="badge badge-verify">Verified</span></div>
+          <h3>With MidnightTrace</h3>
           <ul>
-            <li><span className="li-dot li-dot-verify" /> Private amounts → public totals via ZK</li>
-            <li><span className="li-dot li-dot-verify" /> Verifiable evidence without disclosure</li>
-            <li><span className="li-dot li-dot-verify" /> Clear provenance and audit trail</li>
-            <li><span className="li-dot li-dot-verify" /> Audit-ready records for anyone</li>
+            <li><span className="li-dot li-dot-verify" /> private evidence</li>
+            <li><span className="li-dot li-dot-verify" /> verifiable proofs</li>
+            <li><span className="li-dot li-dot-verify" /> structured records</li>
+            <li><span className="li-dot li-dot-verify" /> audit trail</li>
           </ul>
         </div>
       </section>
@@ -148,17 +144,17 @@ export default function Landing() {
         </div>
         <div className="lp-steps-grid">
           {[
-            { n: '01', t: 'Capture', d: 'Pick a private amount. It is redacted everywhere — only you see it.', icon: '◧' },
-            { n: '02', t: 'Prove', d: 'Wallet proves total\' = total + amount in zero-knowledge. Amount stays hidden.', icon: '⬢' },
-            { n: '03', t: 'Verify', d: 'Chain checks the proof and stores only the new total + Verified stamp.', icon: '✓' },
-            { n: '04', t: 'Audit', d: 'Anyone opens /audit — no wallet — and checks aggregate, root and phase.', icon: '◎' },
+            { n: '01', t: 'CAPTURE', d: 'Capture private evidence', icon: '◧' },
+            { n: '02', t: 'PROVE', d: 'Prove in zero-knowledge', icon: '⬢' },
+            { n: '03', t: 'VERIFY', d: 'Verify without disclosure', icon: '✓' },
+            { n: '04', t: 'AUDIT', d: 'Audit with clear provenance', icon: '◎' },
           ].map((s, i) => (
             <div key={s.n} className="lp-step-v2">
               <div className="lp-step-num">{s.n}</div>
               <div className="lp-step-icon">{s.icon}</div>
               <strong>{s.t}</strong>
               <span>{s.d}</span>
-              {i < 3 && <div className="lp-step-connector" aria-hidden="true">→</div>}
+              {i < 3 && <div className="lp-step-connector" aria-hidden="true">↓</div>}
             </div>
           ))}
         </div>

@@ -193,9 +193,9 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
             ? `Docker Desktop is not reachable at ${label} (${msg}). ` +
               `On Windows/WSL: 1) Start Docker Desktop, 2) Settings → Resources → WSL Integration → enable your distro (Ubuntu), 3) ` +
               `docker compose up -d --wait proof-server, 4) keep VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env and restart npm run dev. ` +
-              `Preprod also works with Lace (in-wallet proving, no server) — or toggle Demo — no wallet in the header for a wallet-free mock ledger.`
+              `Preprod also works with your Midnight wallet (in-wallet proving, no server) — or toggle Demo — no wallet in the header for a wallet-free mock ledger.`
             : `Proving station unreachable from this deployed site (${label} → ${msg}). ` +
-              `On Vercel/remote hosts http://localhost:6300 is your machine, not the server — use Lace wallet (in-wallet proving, no server needed) or toggle Demo — no wallet in the header for a wallet-free mock ledger. ` +
+              `On Vercel/remote hosts http://localhost:6300 is your machine, not the server — use your supported Midnight wallet (in-wallet proving, no server needed) or toggle Demo — no wallet in the header for a wallet-free mock ledger. ` +
               `For local dev, run the proof server locally: docker compose up -d --wait proof-server with VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI}.`;
           throw new Error(dockerHint, { cause: primaryErr });
         }
@@ -245,8 +245,8 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
                   }
                   const deployedHint = isLocalHost
                     ? `Fix (local): docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev). ` +
-                      `Or switch to Lace (in-wallet proving) or Demo — no wallet.`
-                    : `Fix (deployed site): this host can't reach http://localhost:6300 — that is your browser's machine, not the server. Switch to Lace (in-wallet proving, no server) or toggle Demo — no wallet. For local dev, run proof server locally.`;
+                      `Or use your supported Midnight wallet (in-wallet proving) or Demo — no wallet.`
+                    : `Fix (deployed site): this host can't reach http://localhost:6300 — that is your browser's machine, not the server. Use your supported Midnight wallet (in-wallet proving, no server) or toggle Demo — no wallet. For local dev, run proof server locally.`;
                   throw new Error(
                     `Proving failed via wallet and its prover (${String(fallbackErr)}). ${deployedHint} Underlying check: ${String(err)}`,
                     { cause: fallbackErr },
@@ -263,8 +263,8 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
                   }
                 }
                 const hint = isLocalHost
-                  ? `Wallet proving station unreachable (${String(err)}). Fix: docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev), or switch to Lace (in-wallet proving), or use Demo — no wallet.`
-                  : `Wallet proving station unreachable from deployed site (${String(err)}). Use Lace wallet (in-wallet proving) or toggle Demo — no wallet. http://localhost:6300 is only for local dev with Docker Desktop running.`;
+                  ? `Wallet proving station unreachable (${String(err)}). Fix: docker compose up -d --wait proof-server && set VITE_PROOF_SERVER_URI=${LOCAL_FALLBACK_URI} in .env then restart (npm run dev), or use your supported Midnight wallet (in-wallet proving), or use Demo — no wallet.`
+                  : `Wallet proving station unreachable from deployed site (${String(err)}). Use your supported Midnight wallet (in-wallet proving, e.g. IAM Wallet) or toggle Demo — no wallet. http://localhost:6300 is only for local dev with Docker Desktop running.`;
                 throw new Error(hint, { cause: err });
               }
               throw err;

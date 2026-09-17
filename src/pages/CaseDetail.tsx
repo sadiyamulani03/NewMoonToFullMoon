@@ -130,11 +130,11 @@ export default function CaseDetail() {
         const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         const isLocalhostErr = /localhost:6300/.test(raw);
         if (!isLocalHost && isLocalhostErr) {
-          setMsg('Local proof service is unavailable in this deployment. Connect Lace for wallet-based proving or enable Demo mode.');
+          setMsg('Local proof service is unavailable in this deployment. Connect your supported Midnight wallet or enable Demo mode.');
         } else {
           setMsg('We couldn’t reach the proof service.');
         }
-        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use Lace (in-wallet proving) or enable Demo — no wallet in the header.'}`);
+        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet (in-wallet proving) or enable Demo — no wallet in the header.'}`);
       }
       else if (/timeout/i.test(raw)) { setMsg('Wallet didn’t respond in time.'); setMsgTechnical(raw); }
       else { setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
@@ -171,11 +171,11 @@ export default function CaseDetail() {
         const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         const isLocalhostErr = /localhost:6300/.test(raw);
         if (!isLocalHost && isLocalhostErr) {
-          setMsg('Local proof service is unavailable in this deployment. Connect Lace for wallet-based proving or enable Demo mode.');
+          setMsg('Local proof service is unavailable in this deployment. Connect your supported Midnight wallet or enable Demo mode.');
         } else {
           setMsg('We couldn’t open the case — proof service unavailable.');
         }
-        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use Lace or Demo — no wallet.'}`);
+        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet or Demo — no wallet.'}`);
       }
       else { setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }

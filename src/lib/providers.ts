@@ -122,10 +122,18 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
 
   const LOCAL_FALLBACK_URI = 'http://localhost:6300';
 
+  // Host check — on Vercel/production, localhost is the user's machine, not the
+  // server. Never try to fetch localhost in production.
+  const isLocalHost =
+    typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  const effectiveConfiguredUri =
+    configuredProverUri && configuredProverUri === LOCAL_FALLBACK_URI && !isLocalHost ? undefined : configuredProverUri;
+
   async function tryLocalFallback(unprovenTx: unknown, priorErr: unknown): Promise<unknown> {
     // Last resort: if wallet proving failed due to network, try local proof server
     // even when VITE_PROOF_SERVER_URI is not set. This is the `docker compose up -d proof-server` path.
-    // We probe quickly with a short timeout so we don't hang if docker is not running.
+    // In production (Vercel) localhost is never reachable — fail fast back to caller.
+    if (!isLocalHost) return Promise.reject(priorErr);
     if (configuredProverUri === LOCAL_FALLBACK_URI) return Promise.reject(priorErr);
     try {
       const controller = new AbortController();
@@ -150,10 +158,6 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
   // On deployed hosts (Vercel, not localhost) a baked `http://localhost:6300`
   // can never be reached from the user's browser — detect that and prefer
   // wallet/Demo instead.
-  const isLocalHost =
-    typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  const effectiveConfiguredUri =
-    configuredProverUri && configuredProverUri === LOCAL_FALLBACK_URI && !isLocalHost ? undefined : configuredProverUri;
 
   function wrapWithFallback(primary: ProofProvider, label: string): ProofProvider {
     if (!provingProvider && !config.proverServerUri) return primary;
@@ -218,7 +222,7 @@ export async function buildProvidersFromConnectedAPI<Circuits extends AnyProvabl
                 try {
                   return await httpClientProofProvider(config.proverServerUri, zkConfigProvider).proveTx(unprovenTx);
                 } catch (fallbackErr) {
-                  if (isNetworkError) {
+                  if (isNetworkError && isLocalHost) {
                     try {
                       return (await tryLocalFallback(unprovenTx, fallbackErr)) as never;
                     } catch {

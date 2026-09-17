@@ -52,10 +52,10 @@ export default function FaucetDrawer({ open, onClose }: { open: boolean; onClose
             </div>
           ))}
           <div className="wire" style={{ fontSize: '0.78rem' }}>
-            <div style={{ color: 'var(--muted-ink)', marginBottom: 6, fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Proof server fallback (only if Needed)</div>
+            <div style={{ color: 'var(--muted-ink)', marginBottom: 6, fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Proof server fallback — local dev only</div>
             <code className="mono" style={{ background: 'rgba(255,255,255,0.06)', padding: '4px 8px', borderRadius: 3, border: '1px solid var(--line-ink)' }}>docker compose up -d --wait proof-server</code>
             <button className="btn btn-ghost" onClick={copyCmd} style={{ marginLeft: 8, padding: '4px 8px', fontSize: '0.72rem' }}>{copied ? 'Copied ✓' : 'Copy'}</button>
-            <div style={{ marginTop: 6, color: 'var(--muted-ink)' }}>Wallet auto-retries localhost:6300 on Failed to fetch — set VITE_PROOF_SERVER_URI only to speed first proof.</div>
+            <div style={{ marginTop: 6, color: 'var(--muted-ink)' }}>On localhost, wallet proving auto-retries http://localhost:6300 on Failed to fetch — set <span className="mono">VITE_PROOF_SERVER_URI</span> to speed first proof. On Vercel/production this fallback is never used — Lace proves in-wallet or Demo covers you.</div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href="https://faucet.preprod.midnight.network" target="_blank" rel="noreferrer" className="btn btn-primary">Get tNIGHT →</a>

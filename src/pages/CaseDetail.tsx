@@ -126,7 +126,16 @@ export default function CaseDetail() {
       const raw = (e as Error).message ?? String(e);
       if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” (applies owner secret ${'281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04'.slice(0,12)}…) then retry, or use Demo.`); }
       else if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
-      else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) { setMsg('We couldn’t reach the proof service.'); setMsgTechnical(`${raw} — Try: docker compose up -d --wait proof-server or enable Demo in the header.`); }
+      else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) {
+        const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+        const isLocalhostErr = /localhost:6300/.test(raw);
+        if (!isLocalHost && isLocalhostErr) {
+          setMsg('Local proof service is unavailable in this deployment. Connect Lace for wallet-based proving or enable Demo mode.');
+        } else {
+          setMsg('We couldn’t reach the proof service.');
+        }
+        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use Lace (in-wallet proving) or enable Demo — no wallet in the header.'}`);
+      }
       else if (/timeout/i.test(raw)) { setMsg('Wallet didn’t respond in time.'); setMsgTechnical(raw); }
       else { setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }
@@ -158,6 +167,16 @@ export default function CaseDetail() {
       const raw = (e as Error).message ?? String(e);
       if (/already exists/i.test(raw)) { setMsg(`Case #${resolveId()} already exists on ledger.`); setMsgTechnical(raw); }
       else if (/reject/i.test(raw)) { setMsg('Wallet declined — case not opened.'); setMsgTechnical(raw); }
+      else if (/Failed to fetch|NetworkError|proof server|localhost:6300/i.test(raw)) {
+        const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+        const isLocalhostErr = /localhost:6300/.test(raw);
+        if (!isLocalHost && isLocalhostErr) {
+          setMsg('Local proof service is unavailable in this deployment. Connect Lace for wallet-based proving or enable Demo mode.');
+        } else {
+          setMsg('We couldn’t open the case — proof service unavailable.');
+        }
+        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use Lace or Demo — no wallet.'}`);
+      }
       else { setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }
   };

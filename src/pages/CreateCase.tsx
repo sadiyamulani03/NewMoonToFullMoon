@@ -3,6 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createCase } from '../lib/api';
 import { useDemo } from '../context/DemoContext';
 
+const STEPS = [
+  { n: '01', t: 'Name the matter', d: 'Public title + owner. Only a hash touches the chain.' },
+  { n: '02', t: 'Add context', d: 'Off-chain description. Never on-chain — for reviewers only.' },
+  { n: '03', t: 'Review privacy', d: 'Confirm what stays redacted and what becomes public.' },
+  { n: '04', t: 'File the case', d: 'Create the folder. Evidence comes next, in the dossier.' },
+];
+
 export default function CreateCase() {
   const navigate = useNavigate();
   const { isDemo, demoOpenCase } = useDemo();
@@ -29,94 +36,122 @@ export default function CreateCase() {
       }
       const c = await createCase({ title: title.trim(), description: description.trim(), owner: owner.trim() || 'anonymous' });
       navigate(`/cases/${c.id}`);
-    } catch (err: any) {
-      setError(String(err.message || err));
+    } catch (err: unknown) {
+      setError(String((err as Error).message || err));
     } finally { setBusy(false); }
   };
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gap: 24 }}>
-      <div>
-        <Link to="/cases" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', textDecoration: 'none' }}>← Back to cases</Link>
-        <h1 className="display" style={{ margin: '8px 0 0', fontSize: 'clamp(28px, 4vw, 36px)', color: 'var(--paper)', lineHeight: 1 }}>Create a case</h1>
-        <p style={{ margin: '8px 0 0', color: 'var(--muted-ink)', fontSize: '0.92rem' }}>A focused workflow — private evidence stays on-device, only verification goes on-chain.</p>
-      </div>
+    <>
+      <header className="masthead">
+        <div className="eyebrow">New matter · guided filing · {step} of 4</div>
+        <h1 className="display masthead-title">File a new case.</h1>
+        <p className="masthead-sub">Four moves. Nothing sensitive touches the chain — you&apos;re opening a folder, not uploading evidence.</p>
+        <div className="progress-hairline" aria-hidden="true"><i style={{ width: `${(step / 4) * 100}%` }} /></div>
+      </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-        {[
-          { n: '01', t: 'Case details' },
-          { n: '02', t: 'Private evidence' },
-          { n: '03', t: 'Review' },
-          { n: '04', t: 'Submit' },
-        ].map((s, i) => (
-          <div key={s.n} style={{ padding: '12px', borderRadius: '10px', border: step === i + 1 ? '1px solid var(--ochre-border)' : '1px solid var(--line-ink)', background: step === i + 1 ? 'var(--ochre-soft)' : 'rgba(255,255,255,0.01)', textAlign: 'center' }}>
-            <div className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.08em', color: step === i + 1 ? 'var(--ochre)' : 'var(--muted-ink)', fontWeight: 700 }}>{s.n}</div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 600, color: step === i + 1 ? 'var(--paper)' : 'var(--muted-ink)', marginTop: 4 }}>{s.t}</div>
-          </div>
-        ))}
-      </div>
+      <div className="flow">
+        {/* LEFT — vertical stepper rail */}
+        <ol className="flow-steps" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Filing progress">
+          {STEPS.map((s, i) => {
+            const idx = i + 1;
+            const cls = idx < step ? 'flow-step done' : idx === step ? 'flow-step current' : 'flow-step';
+            return (
+              <li key={s.n} className={cls}>
+                <span className="flow-num">{idx < step ? '✓' : s.n}</span>
+                <span>
+                  <span className="flow-step-t">{s.t}</span>
+                  <span className="flow-step-d" style={{ display: 'block' }}>{s.d}</span>
+                  {idx < step && (
+                    <button className="btn btn-ghost" style={{ padding: '2px 0', fontSize: '0.78rem' }} onClick={() => setStep(idx)}>Edit →</button>
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
 
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 20, border: '1px solid var(--line-ink)', borderRadius: '16px', padding: '20px', background: '#121824' }}>
-        {step === 1 && (
-          <div style={{ display: 'grid', gap: 14 }}>
-            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Case details</h3>
+        {/* RIGHT — open canvas, no card */}
+        <form onSubmit={onSubmit} className="flow-canvas">
+          {step === 1 && (
             <div>
-              <label className="field-label" htmlFor="case-title">Case title</label>
-              <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" required aria-required="true" autoFocus />
-              <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', marginTop: 4 }}>{title.length}/80 — concise, public</div>
+              <h2>What is this matter called?</h2>
+              <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>A concise public name. Think folder tab — “Northstar fund-tracing drill”, not a paragraph.</p>
+              <div className="flow-field">
+                <label className="field-label" htmlFor="case-title">Case title · public</label>
+                <input id="case-title" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Northstar fund-tracing drill" required aria-required="true" autoFocus maxLength={80} />
+                <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 8 }}>{title.length}/80 · min 3 chars · on-chain: only a hash of this</div>
+              </div>
+              <div className="flow-field">
+                <label className="field-label" htmlFor="case-owner">Owner handle</label>
+                <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs  (defaults to anonymous)" style={{ maxWidth: 420 }} />
+              </div>
+              <div className="flow-nav">
+                <Link to="/cases" className="btn btn-ghost">← Cancel</Link>
+                <button type="button" className="btn btn-primary" onClick={() => canNext1 && setStep(2)} disabled={!canNext1} style={{ marginLeft: 'auto', minWidth: 180 }}>Continue →</button>
+              </div>
             </div>
+          )}
+          {step === 2 && (
             <div>
-              <label className="field-label" htmlFor="case-desc">Description</label>
-              <textarea id="case-desc" className="input" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this case tracking? Only the title/ID will be hashed on-chain." style={{ resize: 'vertical' }} />
+              <h2>Give reviewers context.</h2>
+              <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Off-chain only. This never touches the ledger — it lives in the case folder so collaborators know what “done” looks like.</p>
+              <div className="flow-field">
+                <label className="field-label" htmlFor="case-desc">Description · off-chain, min 10 chars</label>
+                <textarea id="case-desc" className="input" rows={6} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is being traced? What would a verified total prove? Who reviews it?" style={{ fontSize: '17px', lineHeight: 1.65 }} />
+                <div className="mono" style={{ fontSize: '0.72rem', color: canNext2 ? 'var(--verify)' : 'var(--muted)', marginTop: 8 }}>{description.trim().length} chars {canNext2 ? '✓ ready' : '· keep going'}</div>
+              </div>
+              <div style={{ marginTop: 20, padding: '16px 18px', background: 'var(--ink)', color: 'var(--paper)', borderRadius: 12, fontFamily: 'var(--font-mono)', fontSize: '0.8rem', lineHeight: 1.6 }}>
+                <span className="redacted redacted-sm" style={{ background: '#000' }}>████ amount</span>
+                <span style={{ color: 'rgba(244,239,228,0.7)' }}> — evidence amounts are added later, inside the dossier, and never leave your device.</span>
+              </div>
+              <div className="flow-nav">
+                <button type="button" className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
+                <button type="button" className="btn btn-primary" onClick={() => canNext2 && setStep(3)} disabled={!canNext2} style={{ marginLeft: 'auto', minWidth: 180 }}>Review privacy →</button>
+              </div>
             </div>
+          )}
+          {step === 3 && (
             <div>
-              <label className="field-label" htmlFor="case-owner">Owner</label>
-              <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs" />
-              <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', marginTop: 4 }}>On-chain: only caseId + metadataHash</div>
+              <h2>Check the privacy split.</h2>
+              <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Before filing, confirm what the world will see — and what it never will.</p>
+              <div style={{ marginTop: 24, borderTop: '1px solid var(--line-strong)' }}>
+                {[
+                  { k: 'Title', v: title || '—', note: 'public label' },
+                  { k: 'Owner', v: owner || 'anonymous', note: 'folder meta' },
+                  { k: 'Description', v: `${description.trim().length} chars`, note: 'off-chain only' },
+                  { k: 'On-chain', v: 'caseId + metadataHash', note: 'nothing sensitive' },
+                  { k: 'Amounts', v: 'redacted', note: 'added later, stay local', red: true },
+                ].map((r) => (
+                  <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '16px 0', borderBottom: '1px solid var(--line-soft)', fontSize: '0.95rem', alignItems: 'baseline' }}>
+                    <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{r.k}</span>
+                    <span style={{ textAlign: 'right' }}>
+                      {r.red ? <span className="redacted redacted-sm">redacted</span> : <strong>{r.v}</strong>}
+                      <span className="mono" style={{ display: 'block', fontSize: '0.7rem', color: 'var(--muted)' }}>{r.note}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flow-nav">
+                <button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
+                <button type="button" className="btn btn-primary" onClick={() => setStep(4)} style={{ marginLeft: 'auto', minWidth: 180 }}>Ready to file →</button>
+              </div>
             </div>
-            <button type="button" className="btn btn-primary" onClick={() => canNext1 && setStep(2)} disabled={!canNext1} style={{ justifySelf: 'start' }}>Continue →</button>
-          </div>
-        )}
-        {step === 2 && (
-          <div style={{ display: 'grid', gap: 14 }}>
-            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Private evidence</h3>
-            <div style={{ padding: '12px', borderRadius: '10px', background: 'var(--redact)', border: '1px solid var(--line-ink)', color: 'var(--muted-ink)', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
-              <span className="redacted redacted-sm">████ amount</span> — this witness never leaves your device. You will prove <code className="mono">total' = total + amount</code> without revealing amount.
+          )}
+          {step === 4 && (
+            <div>
+              <h2>File it.</h2>
+              <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Creates the folder{isDemo ? ' in the demo ledger (not on-chain)' : ' via API + on-chain openCase for the ledger index'}. You&apos;ll land in the dossier, ready to log the first hidden finding.</p>
+              {error && <div role="alert" style={{ marginTop: 16, padding: '12px 14px', borderRadius: 10, background: 'rgba(163,46,31,0.07)', border: '1px solid rgba(163,46,31,0.22)', color: '#A32E1F', fontSize: '0.9rem' }}>{error}</div>}
+              <div className="flow-nav">
+                <button type="button" className="btn btn-ghost" onClick={() => setStep(3)}>← Back</button>
+                <button type="submit" className="btn btn-primary" disabled={busy} style={{ marginLeft: 'auto', minWidth: 220, padding: '14px 24px' }}>{busy ? 'Filing…' : 'File case securely →'}</button>
+              </div>
+              <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 16 }}>{isDemo ? '● Demo — not on-chain' : 'Midnight Preprod · proof required at next step, not here'}</div>
             </div>
-            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem' }}>Evidence will be added after the case is created — in the case workspace, where you can log findings privately.</p>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
-              <button type="button" className="btn btn-primary" onClick={() => canNext2 && setStep(3)} disabled={!canNext2}>Review →</button>
-            </div>
-          </div>
-        )}
-        {step === 3 && (
-          <div style={{ display: 'grid', gap: 14 }}>
-            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Review</h3>
-            <div style={{ display: 'grid', gap: 8, padding: '14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--line-ink)', borderRadius: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Title</span><strong style={{ color: 'var(--paper)' }}>{title || '—'}</strong></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Owner</span><span className="mono" style={{ color: 'var(--paper)' }}>{owner || 'anonymous'}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}><span style={{ color: 'var(--muted-ink)' }}>Privacy</span><span className="badge badge-private">Private witness</span></div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
-              <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>Review case →</button>
-            </div>
-          </div>
-        )}
-        {step === 4 && (
-          <div style={{ display: 'grid', gap: 14 }}>
-            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', color: 'var(--paper)' }}>Submit securely</h3>
-            <p style={{ margin: 0, color: 'var(--muted-ink)', fontSize: '0.88rem' }}>Case creation will be recorded on-chain as <code className="mono">caseId</code> + <code className="mono">metadataHash</code>. No sensitive amount yet.</p>
-            {error && <div role="alert" style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.18)', color: '#ff8d7a', fontSize: '0.84rem' }}>{error}</div>}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setStep(3)}>← Back</button>
-              <button type="submit" className="btn btn-primary" disabled={busy} style={{ flex: 1, justifyContent: 'center' }}>{busy ? 'Creating…' : 'Submit securely →'}</button>
-            </div>
-            <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', textAlign: 'center' }}>{isDemo ? 'Demo — not on-chain' : 'Midnight Preprod · proof required'}</div>
-          </div>
-        )}
-      </form>
-    </div>
+          )}
+        </form>
+      </div>
+    </>
   );
 }

@@ -13,6 +13,9 @@ type Action = 'logStep' | 'discloseFinding' | 'closeCase';
 type TxState = 'idle' | 'preparing' | 'awaiting_wallet' | 'proving' | 'submitting' | 'confirming' | 'success' | 'cancelled' | 'failed' | 'timeout';
 
 function fmtTime(iso: string): string { return new Date(iso).toLocaleString(); }
+function fmtDay(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
 function txStateLabel(s: TxState): string {
   switch (s) {
@@ -100,14 +103,12 @@ export default function CaseDetail() {
     } catch { setMsg('Enter a valid number — digits only.'); setMsgTechnical(null); return null; }
   };
 
-  // Recovery: if a tx was submitted but confirmation was lost (refresh), check via audit
   useEffect(() => {
     if (!caseItem || isDemo) return;
     try {
       const pendingRaw = sessionStorage.getItem(`midnighttrace:lastTx:${id}`);
       if (!pendingRaw) return;
       const pending = JSON.parse(pendingRaw) as { txId: string; caseId: string; ts: number };
-      // If pending tx is recent (< 5 min) and we have receipts, check if it landed
       if (Date.now() - pending.ts < 5 * 60 * 1000 && !caseItem.receipts.some((r) => r.txId === pending.txId)) {
         setMsg(`Previous transaction ${pending.txId.slice(0, 8)}… may still be confirming — check /audit?case=${pending.caseId}`);
       }
@@ -115,7 +116,7 @@ export default function CaseDetail() {
   }, [caseItem, id, isDemo]);
 
   const run = async () => {
-    if (busy) return; // duplicate-click protection
+    if (busy) return;
     setMsgTechnical(null); setShowTechnical(false); setLastProof(null);
     if (isDemo && caseItem) {
       const cid = resolveId();
@@ -135,7 +136,7 @@ export default function CaseDetail() {
     try {
       const cid = resolveId();
       let r: { txId: string; blockHeight: number | bigint } | null = null;
-      let op: 'logStep' | 'discloseFinding' | 'closeCase' = action;
+      const op: 'logStep' | 'discloseFinding' | 'closeCase' = action;
       if (action === 'logStep') {
         const p = validateAmount(amount); if (p === null) { setBusy(false); setTxState('idle'); return; }
         setTxState('proving'); setBusyStage('proof');
@@ -172,18 +173,15 @@ export default function CaseDetail() {
     } catch (e) {
       const raw = (e as Error).message ?? String(e);
       const latency = Date.now()-start;
-      if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setTxState('failed'); logTx({ op: action, caseId: resolveId().toString(), outcome: 'failed', errorCategory: 'circuit_rejected', latencyMs: latency }); setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” (applies owner secret ${'281062cf3798a205c766ba62020351b18f8af1388e896762dd6a57542006ee04'.slice(0,12)}…) then retry, or use Demo.`); }
+      if (/not.*allowlist|findPathForLeaf|Not an authorized/i.test(raw)) { setTxState('failed'); logTx({ op: action, caseId: resolveId().toString(), outcome: 'failed', errorCategory: 'circuit_rejected', latencyMs: latency }); setMsg('Not on allowlist — transaction rejected by circuit.'); setMsgTechnical(`${raw} — Tap “Join as investigator” then retry, or use Demo.`); }
       else if (/reject/i.test(raw) || /declined|denied|user/i.test(raw)) { setTxState('cancelled'); logTx({ op: action, outcome: 'cancelled', errorCategory: 'wallet_rejected', latencyMs: latency }); setMsg('Wallet declined — nothing was submitted. Try again when ready.'); setMsgTechnical(raw); }
       else if (/Failed to fetch|NetworkError|proof server/i.test(raw)) {
         setTxState('failed'); logTx({ op: action, outcome: 'failed', errorCategory: 'prover_unavailable', latencyMs: latency });
         const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         const isLocalhostErr = /localhost:6300/.test(raw);
-        if (!isLocalHost && isLocalhostErr) {
-          setMsg('Local proof service is unavailable in this deployment. Connect your supported Midnight wallet or enable Demo mode.');
-        } else {
-          setMsg('We couldn’t reach the proof service.');
-        }
-        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet (in-wallet proving) or enable Demo — no wallet in the header.'}`);
+        if (!isLocalHost && isLocalhostErr) setMsg('Local proof service is unavailable in this deployment. Connect your supported Midnight wallet or enable Demo mode.');
+        else setMsg('We couldn’t reach the proof service.');
+        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo.' : 'Use your supported Midnight wallet (in-wallet proving) or enable Demo.'}`);
       }
       else if (/timeout/i.test(raw)) { setTxState('timeout'); logTx({ op: action, outcome: 'timeout', errorCategory: 'prover_timeout', latencyMs: latency }); setMsg('Proof generation timed out. No transaction was submitted.'); setMsgTechnical(raw); }
       else { setTxState('failed'); logTx({ op: action, outcome: 'failed', errorCategory: 'unknown', latencyMs: latency }); setMsg('We couldn’t complete the proof.'); setMsgTechnical(raw); }
@@ -203,7 +201,7 @@ export default function CaseDetail() {
     }
     if (!isConnected) { setMsg('Connect wallet or enable Demo.'); setTxState('failed'); return; }
     if (membershipStatus === 'unknown') { setMsg('Checking allowlist membership… please wait a second and retry.'); setTxState('failed'); return; }
-    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet authorized. Tap “Join as investigator” below to apply the Preprod owner secret, or enable Demo.'); setTxState('failed'); return; }
+    if (membershipStatus === 'not-member') { setMsg('Not on allowlist — this wallet is not yet authorized. Tap “Join as investigator” below or enable Demo.'); setTxState('failed'); return; }
     setBusy(true); setTxState('preparing'); setBusyStage('proof'); setMsg(null); setMsgTechnical(null);
     const start = Date.now();
     try {
@@ -226,14 +224,8 @@ export default function CaseDetail() {
       else if (/reject/i.test(raw)) { setTxState('cancelled'); logTx({ op: 'openCase', outcome: 'cancelled', errorCategory: 'wallet_rejected', latencyMs: latency }); setMsg('Wallet declined — case not opened.'); setMsgTechnical(raw); }
       else if (/Failed to fetch|NetworkError|proof server|localhost:6300/i.test(raw)) {
         setTxState('failed'); logTx({ op: 'openCase', outcome: 'failed', errorCategory: 'prover_unavailable', latencyMs: latency });
-        const isLocalHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-        const isLocalhostErr = /localhost:6300/.test(raw);
-        if (!isLocalHost && isLocalhostErr) {
-          setMsg('Local proof service is unavailable in this deployment. Connect your supported Midnight wallet or enable Demo mode.');
-        } else {
-          setMsg('We couldn’t open the case — proof service unavailable.');
-        }
-        setMsgTechnical(`${raw} — ${isLocalHost ? 'Try: docker compose up -d --wait proof-server or enable Demo in the header.' : 'On Vercel this host cannot reach localhost:6300 — that is your machine, not the server. Use your supported Midnight wallet or Demo — no wallet.'}`);
+        setMsg('We couldn’t open the case — proof service unavailable.');
+        setMsgTechnical(raw);
       }
       else { setTxState('failed'); logTx({ op: 'openCase', outcome: 'failed', errorCategory: 'unknown', latencyMs: latency }); setMsg('We couldn’t open the case.'); setMsgTechnical(raw); }
     } finally { setBusy(false); }
@@ -269,230 +261,221 @@ export default function CaseDetail() {
     const a = document.createElement('a'); a.href = url; a.download = `midnighttrace-${caseItem.id}.json`; a.click(); URL.revokeObjectURL(url);
   };
 
+  const sealed = onChainCase?.phase === 'CLOSED' || caseItem?.status === 'closed';
+  const receipts = (caseItem?.receipts ?? []).slice().sort((a, b) => a.blockHeight - b.blockHeight || a.createdAt.localeCompare(b.createdAt));
+
   return (
     <>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--muted-ink)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link to="/cases" style={{ color: 'var(--muted-ink)' }}>Cases</Link>
-        <span>›</span>
-        <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.08)', padding: '2px 6px', borderRadius: 3, border: '1px solid var(--line-ink)' }}>{caseItem?.title ?? id}</span>
-        {isDemo && <span className="stamp stamp-verify stamp-small">Demo — not on-chain</span>}
-      </div>
+      {/* BREADCRUMB — hairline, not pill */}
+      <nav className="mono" aria-label="Breadcrumb" style={{ fontSize: '0.76rem', color: 'var(--muted)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Link to="/dashboard" style={{ color: 'var(--muted)' }}>Workspace</Link>
+        <span>/</span>
+        <Link to="/cases" style={{ color: 'var(--muted)' }}>Cases</Link>
+        <span>/</span>
+        <strong style={{ color: 'var(--ink)' }}>{caseItem?.title ?? id.slice(0, 12)}</strong>
+        {isDemo && <span className="badge badge-verify">Demo — not on-chain</span>}
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <button className="btn btn-ghost" onClick={copyShare} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>{shareCopied ? 'Copied ✓' : 'Copy share link'}</button>
+          <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Export JSON</button>
+        </span>
+      </nav>
 
       {!caseItem && !error && (
-        <div style={{ padding: 18, display: 'grid', gap: 10 }}>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" aria-hidden="true" /><span className="mono" style={{ color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Loading evidence folder…</span></div>
+        <div style={{ display: 'grid', gap: 12, padding: '24px 0' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" /><span className="mono" style={{ color: 'var(--muted)' }}>Opening dossier…</span></div>
           <div className="skeleton" style={{ height: 120 }} />
           <div className="skeleton" style={{ height: 200, opacity: 0.6 }} />
         </div>
       )}
-      {error && <div role="alert" style={{ color: '#ff8d7a', padding: 12, border: '1px solid rgba(255,141,122,0.25)', borderRadius: 4, background: 'rgba(255,141,122,0.08)' }}>{error} <span style={{ color: 'var(--muted-ink)', fontSize: '0.82rem' }}>— try refresh or enable Demo.</span></div>}
+      {error && <div role="alert" style={{ color: '#A32E1F', padding: '16px 0', borderTop: '2px solid #A32E1F', fontSize: '0.92rem' }}>{error} <span style={{ color: 'var(--muted)' }}>— try refresh or enable Demo.</span></div>}
 
       {caseItem && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 0.95fr) minmax(360px, 1.05fr)', gap: 16, alignItems: 'start' }}>
-          {/* PANEL A — status + primary actions */}
-          <div className="inspect" style={{ position: 'sticky', top: 16 }}>
-            <div className="inspect-head">
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Folder · Case file</div>
-                <div className="inspect-title" style={{ marginTop: 4 }}>{caseItem.title}</div>
-                <div style={{ marginTop: 6, color: 'var(--muted-ink)', fontSize: '0.88rem', lineHeight: 1.5 }}>{caseItem.description}</div>
-              </div>
-              <span className={`stamp ${caseItem.status === 'closed' || onChainCase?.phase === 'CLOSED' ? 'stamp-pending' : 'stamp-verify'}`} style={{ flexShrink: 0 }}>
-                {onChainCase?.phase === 'CLOSED' || caseItem.status === 'closed' ? 'Sealed' : 'Open'}
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-              <div style={{ border: '1px solid var(--line-ink)', borderRadius: 4, padding: '10px 11px', background: 'rgba(255,255,255,0.02)' }}>
-                <div className="ledger-label">Public total</div>
-                <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 700, color: onChainCase ? 'var(--verify)' : 'var(--muted-ink)' }}>{onChainCase ? onChainCase.total.toString() : '—'}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>on-chain · <span className="redacted redacted-sm">amount redacted</span></div>
-              </div>
-              <div style={{ border: '1px solid var(--line-ink)', borderRadius: 4, padding: '10px 11px', background: 'rgba(255,255,255,0.02)' }}>
-                <div className="ledger-label" style={{ color: onChainCase?.lastDisclosed && onChainCase.lastDisclosed > 0n ? 'var(--ochre)' : undefined }}>Last disclosed</div>
-                <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 700, color: onChainCase?.lastDisclosed && onChainCase.lastDisclosed > 0n ? 'var(--ochre)' : 'var(--muted-ink)' }}>{onChainCase ? onChainCase.lastDisclosed.toString() : '—'}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>phase {onChainCase?.phase ?? '—'} · {onChainCase?.eventCount.toString() ?? '0'} inserts</div>
+        <article className="dossier">
+          {/* DOSSIER HEADER — full-width editorial */}
+          <div className="dossier-top">
+            <div style={{ minWidth: 0, flex: '1 1 480px' }}>
+              <div className="eyebrow">Dossier · Case file #{onChainIdx?.toString() ?? caseIndex ?? '—'}</div>
+              <h1 className="display dossier-title">{caseItem.title}</h1>
+              <p className="dossier-desc">{caseItem.description}</p>
+              <div className="dossier-meta">
+                <span>OWNER <strong>{caseItem.owner}</strong></span>
+                <span>INSERTS <strong>{receipts.length}</strong></span>
+                <span>TOTAL <strong style={{ color: onChainCase ? 'var(--verify)' : undefined }}>{onChainCase ? onChainCase.total.toString() : '—'}</strong></span>
+                <span>PHASE <strong>{onChainCase?.phase ?? '—'}</strong></span>
               </div>
             </div>
-
-            <div style={{ marginTop: 10, fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--muted-ink)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <span>Owner <span className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>{caseItem.owner}</span></span>
-              <span>Case ID <span className="mono" style={{ color: 'var(--paper)' }}>#{(onChainIdx?.toString() ?? caseIndex) || '—'}</span></span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-end', flexShrink: 0 }}>
+              <span className={`status-ribbon ${sealed ? 'status-sealed' : 'status-open'}`}>{sealed ? '● Sealed' : '● Open'}</span>
+              <Link to={`/audit?case=${onChainIdx?.toString() ?? caseIndex}`} className="btn btn-secondary" style={{ fontSize: '0.84rem' }}>Audit this matter ↗</Link>
             </div>
+          </div>
 
-            {!isDemo && !isConnected && <div style={{ marginTop: 12 }}><WalletStatus walletState={walletState} isMobile={isMobile} /></div>}
+          {!isDemo && !isConnected && (
+            <div style={{ padding: '20px 0', borderTop: '1px solid var(--line)' }}><WalletStatus walletState={walletState} isMobile={isMobile} /></div>
+          )}
+          {isConnected && !isDemo && membershipStatus === 'not-member' && (
+            <div style={{ padding: '18px 0', borderTop: '1px solid var(--line)', display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div className="mono" style={{ fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ochre)', fontWeight: 700 }}>● Not on allowlist — join required</div>
+                <div style={{ fontSize: '0.88rem', color: 'var(--muted)', marginTop: 4, maxWidth: '60ch' }}>Preprod uses one shared owner commitment. Apply it and retry instantly — no grant needed.</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button className="btn btn-primary" style={{ fontSize: '0.84rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — commitment applied. Retry the action.'); setMsgTechnical(null); } catch (e) { setMsg('Join failed.'); setMsgTechnical(String(e)); } }}>
+                  Join as investigator
+                </button>
+                <button className="btn btn-secondary" style={{ fontSize: '0.84rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — no allowlist needed.'); } catch {} }}>Enable demo</button>
+              </div>
+            </div>
+          )}
 
-            {isConnected && !isDemo && membershipStatus === 'not-member' && (
-              <div style={{ marginTop: 14, padding: '10px 11px', borderRadius: 4, background: 'var(--ochre-soft)', border: '1px solid var(--ochre-border)', display: 'grid', gap: 8 }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ochre)', fontWeight: 700 }}>● Not on allowlist — join required</div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>Preprod demo uses one shared owner commitment. Tap to apply the baked owner secret and retry instantly — no grant needed for judges.</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button className="btn btn-primary" style={{ padding: '7px 12px', fontSize: '0.82rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — commitment applied. Retry the action.'); setMsgTechnical(null); } catch (e) { setMsg('Join failed — paste secret manually below.'); setMsgTechnical(String(e)); } }}>
-                    Join as investigator
-                  </button>
-                  <button className="btn btn-secondary" style={{ padding: '7px 12px', fontSize: '0.82rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — no allowlist needed.'); setMsgTechnical(null); } catch {} }}>Enable Demo — no wallet</button>
+          {/* 3-ZONE WORKSPACE */}
+          <div className="work-grid">
+            <nav className="work-index" aria-label="Dossier index">
+              <a href="#overview" className="active">Overview</a>
+              <a href="#evidence">Evidence · {receipts.length}</a>
+              <a href="#prove">Prove & disclose</a>
+              <a href="#access">Access</a>
+            </nav>
+
+            <div className="evidence-stream">
+              <section id="overview" style={{ paddingBottom: 8 }}>
+                <div className="stat-strip" style={{ borderTop: 'none' }}>
+                  <div className="stat-open" style={{ paddingTop: 0 }}>
+                    <span className="stat-open-label">Public total</span>
+                    <span className="stat-open-value" style={{ fontSize: '2.2rem', color: onChainCase ? 'var(--verify)' : 'var(--muted-faint)' }}>{onChainCase ? onChainCase.total.toString() : '—'}</span>
+                    <span className="stat-open-sub">on-chain · <span className="redacted redacted-sm">amount hidden</span></span>
+                  </div>
+                  <div className="stat-open" style={{ paddingTop: 0 }}>
+                    <span className="stat-open-label">Last disclosed</span>
+                    <span className="stat-open-value" style={{ fontSize: '2.2rem', color: onChainCase?.lastDisclosed && onChainCase.lastDisclosed > 0n ? 'var(--ochre)' : 'var(--muted-faint)' }}>{onChainCase ? onChainCase.lastDisclosed.toString() : '—'}</span>
+                    <span className="stat-open-sub">{onChainCase ? `${onChainCase.eventCount.toString()} inserts` : 'no ledger entry'}</span>
+                  </div>
                 </div>
+              </section>
+
+              <section id="evidence" style={{ paddingTop: 12 }}>
+                <div className="section-head">
+                  <h2 style={{ fontSize: '1.5rem' }}>Evidence stream</h2>
+                  <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>{receipts.length} inserts · private amounts <span className="redacted redacted-sm">redacted</span></span>
+                </div>
+                {receipts.length === 0 ? (
+                  <div className="empty-open" style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: '1.6rem' }}>📄</div>
+                    <h3>No inserts yet</h3>
+                    <p>Use “Prove & disclose” on the right — log a hidden finding, disclose, or seal. Each appears here with block + stamp.</p>
+                  </div>
+                ) : (
+                  <div>
+                    {receipts.map((r) => (
+                      <div key={r.txId} className="evidence-entry">
+                        <div className="evidence-when">
+                          {fmtDay(r.createdAt)}<br />
+                          block {r.blockHeight}<br />
+                          <span style={{ opacity: 0.7 }}>{r.txId.slice(0, 8)}…</span>
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <h4>{r.stepType === 'discloseFinding' ? 'Disclosed running total' : r.stepType === 'closeCase' ? 'Sealed the matter' : 'Logged a hidden finding'}</h4>
+                            {r.stepType === 'discloseFinding' ? <span className="stamp stamp-pending stamp-small">Disclosed</span> : <span className="stamp stamp-verify stamp-small">Verified</span>}
+                          </div>
+                          <div className="mono" style={{ marginTop: 8, fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <span>tx <span style={{ color: 'var(--ink)' }}>{r.txId.slice(0, 12)}…</span></span>
+                            <span>case #{r.caseIndex ?? '—'}</span>
+                            <span className="redacted redacted-sm">amount</span>
+                            {r.stepType === 'discloseFinding' && <span>→ total <strong style={{ color: 'var(--ochre)' }}>{r.total}</strong></span>}
+                          </div>
+                          <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--muted)' }}>{fmtTime(r.createdAt)}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section id="access" style={{ paddingTop: 32 }}>
+                <div className="section-head">
+                  <h2 style={{ fontSize: '1.3rem' }}>Access — allowlist</h2>
+                  <span className="mono" style={{ fontSize: '0.7rem', color: membershipStatus === 'member' || isDemo ? 'var(--verify)' : 'var(--ochre)' }}>{isDemo ? 'demo authorized' : membershipStatus}</span>
+                </div>
+                <p style={{ color: 'var(--muted)', fontSize: '0.92rem', maxWidth: '60ch' }}>
+                  Commitment <code className="mono" style={{ color: 'var(--ink)', wordBreak: 'break-all' }}>{memberCommitmentHex ?? (isDemo ? 'demo-authorized' : 'connect wallet')}</code>
+                </p>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                  <input className="input" placeholder="64 hex member secret" value={memberSecret} onChange={(e) => setMemberSecret(e.target.value)} style={{ flex: '1 1 220px' }} />
+                  <button className="btn btn-secondary" onClick={() => void grant()}>Grant access</button>
+                  <button className="btn btn-ghost" onClick={() => { if (isDemo) setMemberMsg('Demo — already authorized'); else { try { applyOwnerSecret(memberSecret.trim()); setMemberMsg('Secret applied'); setMemberSecret(''); } catch (e) { setMemberMsg((e as Error).message); } } }}>Use secret</button>
+                </div>
+                {memberMsg && <div style={{ marginTop: 8, fontSize: '0.86rem', color: 'var(--muted)' }}>{memberMsg}</div>}
+              </section>
+            </div>
+
+            {/* RIGHT — THE selective container: prove rail */}
+            <aside id="prove" className="verify-rail solo-card" aria-label="Prove and disclose">
+              <div className="solo-card-head">
+                <strong style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem' }}>Prove & disclose</strong>
+                <span className="badge badge-private">ZK · private</span>
               </div>
-            )}
-            {isConnected && !isDemo && membershipStatus === 'unknown' && (
-              <div style={{ marginTop: 14, padding: '8px 10px', borderRadius: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid var(--line-ink)', fontSize: '0.82rem', color: 'var(--muted-ink)', display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span className="spinner" aria-hidden="true" style={{ width: 12, height: 12 }} /> Checking allowlist membership…
-              </div>
-            )}
-
-            <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line-ink)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)', marginBottom: 8 }}>Primary actions — one folder, one ledger</div>
-
-              <label className="field-label" htmlFor="case-index" style={{ marginTop: 0 }}>
-                On-chain case #
-                <button type="button" className="btn btn-ghost" style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.68rem' }} onClick={() => setEditIdx((v) => !v)}>{editIdx ? 'Lock' : 'Edit'}</button>
-              </label>
-              <input id="case-index" className="input" inputMode="numeric" value={caseIndex} onChange={(e) => setCaseIndex(e.target.value.replace(/[^0-9]/g, ''))} readOnly={!editIdx} placeholder="7" style={{ opacity: editIdx ? 1 : 0.92 }} />
-              {ledger && <div style={{ fontSize: '0.74rem', color: 'var(--muted-ink)', marginTop: 4 }}>Next free #{ledger.cases.length ? (ledger.cases.reduce((m, c) => c.caseId > m ? c.caseId : m, 0n) + 1n).toString() : '0'} · {isDemo ? 'demo' : 'preprod'} ledger</div>}
-
-              <select className="input" value={action} onChange={(e) => setAction(e.target.value as Action)} style={{ marginTop: 10 }}>
-                <option value="logStep">Log finding — private amount → proof</option>
-                <option value="discloseFinding">Disclose — publish running total</option>
-                <option value="closeCase">Close case — seal phase</option>
-              </select>
-
-              {action !== 'closeCase' && (
-                <>
-                  <label className="field-label" htmlFor="amt">
-                    {action === 'logStep' ? 'Step amount — stays redacted 🔒 PRIVATE' : 'Running total to publish — selective disclosure'}
+              <div className="solo-card-body">
+                <div>
+                  <label className="field-label" htmlFor="case-index">
+                    On-chain case #
+                    <button type="button" className="btn btn-ghost" style={{ marginLeft: 8, padding: '2px 8px', fontSize: '0.7rem' }} onClick={() => setEditIdx((v) => !v)}>{editIdx ? 'Lock' : 'Edit'}</button>
                   </label>
-                  <input id="amt" className="input" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18 (max 65535)' : 'e.g. 42'} maxLength={5} aria-describedby="amt-help" />
-                  <div id="amt-help" style={{ fontSize: '0.74rem', color: 'var(--muted-ink)', marginTop: 4, lineHeight: 1.5 }}>
-                    {action === 'logStep' ? (
-                      <><span className="redacted redacted-sm">amount</span> never leaves your device · Wire proves <code className="mono">total&apos; = total + amount</code> · Public sees only total + <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span></>
-                    ) : (
-                      <>This publishes <code className="mono">lastDisclosed</code> on-chain. All other step amounts stay <span className="redacted redacted-sm">redacted</span>.</>
+                  <input id="case-index" className="input mono" inputMode="numeric" value={caseIndex} onChange={(e) => setCaseIndex(e.target.value.replace(/[^0-9]/g, ''))} readOnly={!editIdx} placeholder="7" style={{ fontSize: '1.2rem', textAlign: 'center' }} />
+                  {ledger && <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 6 }}>Next free #{ledger.cases.length ? (ledger.cases.reduce((m, c) => c.caseId > m ? c.caseId : m, 0n) + 1n).toString() : '0'} · {isDemo ? 'demo' : 'preprod'}</div>}
+                </div>
+                <div>
+                  <label className="field-label" htmlFor="action-sel">Step</label>
+                  <select id="action-sel" className="input" value={action} onChange={(e) => setAction(e.target.value as Action)}>
+                    <option value="logStep">① Log finding — private amount → proof</option>
+                    <option value="discloseFinding">② Disclose — publish running total</option>
+                    <option value="closeCase">③ Close — seal the matter</option>
+                  </select>
+                </div>
+                {action !== 'closeCase' && (
+                  <div>
+                    <label className="field-label" htmlFor="amt">{action === 'logStep' ? 'Hidden amount — 🔒 never leaves device' : 'Total to publish'}</label>
+                    <input id="amt" className="input" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18  (max 65,535)' : 'e.g. 42'} maxLength={5} style={{ fontSize: '1.3rem', textAlign: 'center' }} />
+                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 6, lineHeight: 1.55 }}>
+                      {action === 'logStep'
+                        ? <><span className="redacted redacted-sm">amount</span> stays local · wire proves <code className="mono">total&apos; = total + amount</code> · public sees only total ✓</>
+                        : <>Publishes <code className="mono">lastDisclosed</code>. All step amounts stay <span className="redacted redacted-sm">redacted</span>.</>}
+                    </div>
+                  </div>
+                )}
+                {!onChainCase ? (
+                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => void open()} disabled={busy}>{busy ? txStateLabel(txState) || 'Opening…' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
+                ) : (
+                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => void run()} disabled={busy}>
+                    {busy ? txStateLabel(txState) || 'Generating proof…' : action === 'logStep' ? 'Generate proof — log finding' : action === 'discloseFinding' ? 'Generate proof — disclose' : 'Seal case — final attestation'}
+                  </button>
+                )}
+                {busy && <TxProgress stage={busyStage} />}
+                {msg && (
+                  <div role="status" style={{ padding: '12px', borderRadius: 10, fontSize: '0.88rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
+                    {msg}
+                    {msgTechnical && (
+                      <div style={{ marginTop: 8 }}>
+                        <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowTechnical((v) => !v)}>{showTechnical ? 'Hide technical details' : 'Show technical details'}</button>
+                        {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '10px', background: 'rgba(0,0,0,0.06)', borderRadius: 8, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted)' }}>{msgTechnical}</pre>}
+                      </div>
                     )}
                   </div>
-                </>
-              )}
-
-              {!onChainCase ? (
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void open()} disabled={busy}>{busy ? txStateLabel(txState) || 'Opening… check wallet' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
-              ) : (
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => void run()} disabled={busy}>
-                  {busy ? txStateLabel(txState) || (busyStage === 'proof' ? 'Generating proof… check wallet' : 'Submitting — awaiting finalization…') : action === 'logStep' ? 'Generate proof — log finding (private)' : action === 'discloseFinding' ? 'Generate proof — disclose finding' : 'Seal case — final attestation'}
-                </button>
-              )}
-              {busy && <div style={{ marginTop: 10 }}><TxProgress stage={busyStage} /></div>}
-              {msg && (
-                <div role="status" aria-live="polite" style={{ marginTop: 10, padding: '8px 10px', borderRadius: 4, fontSize: '0.86rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
-                  {msg}
-                  {!msg.startsWith('✓') && /proof|Docker|Failed to fetch|unreachable|allowlist|Authorized/i.test(msg + ' ' + (msgTechnical ?? '')) && (
-                    <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {/allowlist|Authorized/.test(msg + ' ' + (msgTechnical ?? '')) ? (
-                        <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — retry the action.'); setMsgTechnical(null); } catch (e) { setMsgTechnical(String(e)); } }}>
-                          Join as investigator
-                        </button>
-                      ) : (
-                        <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — retry the action, no proof server needed.'); setMsgTechnical(null); } catch {} }}>
-                          Enable Demo — no wallet
-                        </button>
-                      )}
-                      <Link to="/audit" className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Try audit (no proof needed) →</Link>
-                      <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={() => { if (/allowlist|Authorized/.test(msg + ' ' + (msgTechnical ?? ''))) { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); } catch {} } void run(); }}>Retry</button>
-                    </div>
-                  )}
-                  {msgTechnical && (
-                    <div style={{ marginTop: 8 }}>
-                      <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowTechnical((v) => !v)} aria-expanded={showTechnical}>
-                        {showTechnical ? 'Hide technical details' : 'Show technical details'}
-                      </button>
-                      {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '8px 10px', background: 'rgba(0,0,0,0.25)', borderRadius: 4, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>{msgTechnical}</pre>}
-                    </div>
-                  )}
-                </div>
-              )}
-              {msg?.startsWith('✓') && lastProof && (
-                <div className="ledger" style={{ marginTop: 12, borderColor: 'var(--verify-border)' }}>
-                  <div className="ledger-head" style={{ background: 'var(--verify-soft)', borderBottomColor: 'var(--verify-border)' }}>
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--verify)', fontSize: '0.9rem' }}>✓ PROOF VERIFIED</span>
-                    <span className="stamp stamp-verify stamp-small" style={{ transform: 'none' }}>Verified</span>
+                )}
+                {msg?.startsWith('✓') && lastProof && (
+                  <div style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 14, display: 'grid', gap: 8, fontSize: '0.86rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Verification</span><strong style={{ color: 'var(--verify)' }}>✓ VERIFIED</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Case</span><code className="mono">#{lastProof.caseId}</code></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Proof</span><code className="mono">{lastProof.txId.slice(0, 14)}…</code></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Block</span><span className="mono">{String(lastProof.blockHeight)}</span></div>
+                    <Link to={`/audit?case=${lastProof.caseId}`} className="btn btn-secondary" style={{ width: '100%', marginTop: 4 }}>View audit details →</Link>
                   </div>
-                  <div style={{ padding: '10px 12px', display: 'grid', gap: 6, fontSize: '0.82rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}><span style={{ color: 'var(--muted-ink)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Verification</span><span style={{ color: 'var(--verify)', fontWeight: 700 }}>VERIFIED</span></div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Case</span><code className="mono" style={{ color: 'var(--paper)', background: 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 3 }}>#{lastProof.caseId}</code></div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Proof</span><code className="mono" style={{ color: 'var(--paper)', fontSize: '0.72rem' }}>{lastProof.txId.slice(0, 16)}…</code></div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Network</span><span className="mono" style={{ color: 'var(--paper)', fontSize: '0.72rem' }}>{lastProof.network}</span></div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><span style={{ color: 'var(--muted-ink)' }}>Block</span><span className="mono" style={{ color: 'var(--paper)' }}>{String(lastProof.blockHeight)}</span></div>
-                  </div>
-                  <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line-ink)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <Link to={`/audit?case=${lastProof.caseId}`} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>View audit details →</Link>
-                    <Link to="/cases" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>Back to cases</Link>
-                    <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }} onClick={async () => { try { await navigator.clipboard.writeText(lastProof.txId); setMsg('✓ Proof ID copied'); } catch {} }}>Copy proof ID</button>
-                  </div>
-                  <div style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--line-ink)', fontSize: '0.74rem', color: 'var(--muted-ink)', lineHeight: 1.5 }}>
-                    <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Private:</span> <span className="redacted redacted-sm">amount</span> stayed on device. <span style={{ color: 'var(--paper)', fontWeight: 600 }}>Public:</span> <code className="mono">total</code> + <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> are now auditable at <Link to={`/audit?case=${lastProof.caseId}`}>/audit</Link>.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line-ink)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Allowlist — member secret</div>
-              <div style={{ fontSize: '0.76rem', color: 'var(--muted-ink)', marginTop: 4 }}>Commitment <span className="mono" style={{ color: 'var(--paper)', wordBreak: 'break-all' }}>{memberCommitmentHex ?? (isDemo ? 'demo-authorized' : 'connect wallet')}</span> · <span style={{ color: membershipStatus === 'member' || isDemo ? 'var(--verify)' : 'var(--ochre)' }}>{isDemo ? 'demo' : membershipStatus}</span></div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                <input className="input" placeholder="64 hex secret" value={memberSecret} onChange={(e) => setMemberSecret(e.target.value)} style={{ flex: '1 1 160px' }} />
-                <button className="btn btn-secondary" onClick={() => void grant()} style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}>Grant</button>
-                <button className="btn btn-ghost" onClick={() => { if (isDemo) setMemberMsg('Demo — already authorized'); else { try { applyOwnerSecret(memberSecret.trim()); setMemberMsg('Secret applied'); setMemberSecret(''); } catch (e) { setMemberMsg((e as Error).message); } } }} style={{ padding: '8px 10px' }}>Use</button>
+                )}
               </div>
-              {memberMsg && <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--muted-ink)' }}>{memberMsg}</div>}
-            </div>
+            </aside>
           </div>
-
-          {/* PANEL B — ledger history + receipts */}
-          <div className="ledger">
-            <div className="ledger-head">
-              <span className="ledger-title">Ledger history · Receipts</span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-ghost" onClick={copyShare} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>{shareCopied ? 'Copied ✓' : 'Copy share link'}</button>
-                <Link to={`/audit?case=${onChainIdx?.toString() ?? caseIndex}`} className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Audit this ↗</Link>
-                <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Export JSON</button>
-              </div>
-            </div>
-            <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.02)', fontSize: '0.82rem', color: 'var(--muted-ink)' }}>
-              Inserts filed by block height. Private amounts show as <span className="redacted redacted-sm">redacted</span>. Public totals have a <span className="stamp stamp-verify stamp-small" style={{ verticalAlign: 'middle' }}>Verified</span> stamp.
-            </div>
-            {!caseItem ? (
-              <div style={{ padding: 18, color: 'var(--muted-ink)' }}>Loading…</div>
-            ) : caseItem.receipts.length === 0 ? (
-              <div className="empty" style={{ margin: 12 }}>
-                <div className="empty-icon">📄</div>
-                <h3 className="empty-title">No inserts yet</h3>
-                <p className="empty-text">Run the circuit on the left — log a hidden finding, disclose, or seal. Each will appear here with a block number and verify stamp.</p>
-              </div>
-            ) : (
-              <div className="timeline">
-                {caseItem.receipts.slice().sort((a, b) => a.blockHeight - b.blockHeight || a.createdAt.localeCompare(b.createdAt)).map((r) => (
-                  <div key={r.txId} className="timeline-item">
-                    <div className={`timeline-dot ${r.stepType === 'discloseFinding' ? 'timeline-dot-pending' : r.stepType === 'closeCase' ? 'timeline-dot-pending' : 'timeline-dot-verify'}`} />
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <strong style={{ color: 'var(--paper)', fontSize: '0.92rem' }}>{r.stepType === 'discloseFinding' ? 'Disclosed' : r.stepType === 'closeCase' ? 'Sealed' : 'Finding logged'}</strong>
-                        <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>· {fmtTime(r.createdAt)}</span>
-                        {r.stepType === 'discloseFinding' ? <span className="stamp stamp-pending stamp-small">Disclosed</span> : <span className="stamp stamp-verify stamp-small">Verified</span>}
-                      </div>
-                      <div className="mono" style={{ marginTop: 6, fontSize: '0.74rem', color: 'var(--muted-ink)', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                        <span>tx <span style={{ color: 'var(--paper)' }}>{r.txId.slice(0, 12)}…</span></span>
-                        <span>block {r.blockHeight}</span>
-                        <span>case #{r.caseIndex ?? '—'}</span>
-                        <span className="redacted redacted-sm">amount</span>
-                        {r.stepType === 'discloseFinding' && <span>→ total <strong style={{ color: 'var(--ochre)' }}>{r.total}</strong></span>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        </article>
       )}
-      <style>{`@media(max-width: 860px){ div[style*="0.95fr"]{ grid-template-columns:1fr !important } div[style*="sticky"]{ position:static !important } }`}</style>
     </>
   );
 }

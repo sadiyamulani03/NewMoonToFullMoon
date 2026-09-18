@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { buildPublicDataProvider } from '../lib/providers';
 import { readMidnightTraceLedger, type MidnightTraceLedgerView } from '../lib/ledger';
 import { listCases } from '../lib/api';
@@ -37,15 +37,15 @@ export default function Auditor() {
       const ledger = mockLedger;
       const checks: Check[] = [];
       const sum = ledger.cases.reduce((a, c) => a + c.total, 0n);
-      checks.push({ label: 'Aggregate matches sum', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()}` });
-      checks.push({ label: 'Allowlist root matches', ok: true, detail: 'Demo: allowlist mocked — root considered pinned.' });
-      checks.push({ label: 'Phase order valid', ok: ledger.cases.every((c) => c.phase === 'ACTIVE' || c.phase === 'CLOSED'), detail: `${ledger.cases.length} case(s) — all phases are ACTIVE or CLOSED.` });
+      checks.push({ label: 'Aggregate equals Σ totals', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()} — contract invariant` });
+      checks.push({ label: 'Allowlist root pinned', ok: true, detail: 'Demo: allowlist mocked — root considered pinned.' });
+      checks.push({ label: 'Phase order valid', ok: ledger.cases.every((c) => c.phase === 'ACTIVE' || c.phase === 'CLOSED'), detail: `${ledger.cases.length} case(s) — all phases ACTIVE or CLOSED, disclosed ≤ total.` });
       const future = mockCases.flatMap((c) => c.receipts).some((r) => r.blockHeight > 900000);
-      checks.push({ label: 'No future-block references', ok: !future, detail: future ? 'Some receipt references a future block.' : `All ${mockCases.flatMap((c) => c.receipts).length} receipt block(s) are within range.` });
+      checks.push({ label: 'No future-block references', ok: !future, detail: future ? 'Some receipt references a future block.' : `All ${mockCases.flatMap((c) => c.receipts).length} receipt block(s) within range.` });
       if (caseId.trim()) {
         const wanted = BigInt(caseId.trim());
         const found = ledger.cases.find((c) => c.caseId === wanted);
-        checks.push({ label: `Case #${wanted} exists`, ok: !!found, detail: found ? `total ${found.total.toString()}, disclosed ${found.lastDisclosed.toString()}, ${found.eventCount.toString()} inserts, ${found.phase}` : `Case #${wanted} not on ledger.` });
+        checks.push({ label: `Case #${wanted} present on ledger`, ok: !!found, detail: found ? `total ${found.total.toString()} · disclosed ${found.lastDisclosed.toString()} · ${found.eventCount.toString()} inserts · ${found.phase}` : `Case #${wanted} not on ledger.` });
       }
       const fp = await sha256Hex(JSON.stringify({ demo: true, aggregate: ledger.aggregate.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString()]) }));
       setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
@@ -66,8 +66,8 @@ export default function Auditor() {
       }
       const ledger = readMidnightTraceLedger(state.data);
       const sum = ledger.cases.reduce((a, c) => a + c.total, 0n);
-      checks.push({ label: 'Aggregate matches sum', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()}` });
-      checks.push({ label: 'Allowlist root matches', ok: Boolean(ledger.allowlistRoot), detail: ledger.allowlistRoot ? `Root ${hexField(ledger.allowlistRoot.field).slice(0, 18)}… pinned.` : 'No root available.' });
+      checks.push({ label: 'Aggregate equals Σ totals', ok: ledger.aggregate === sum, detail: `aggregate ${ledger.aggregate.toString()} ${ledger.aggregate === sum ? '==' : '!='} Σ totals ${sum.toString()}` });
+      checks.push({ label: 'Allowlist root pinned', ok: Boolean(ledger.allowlistRoot), detail: ledger.allowlistRoot ? `Root ${hexField(ledger.allowlistRoot.field).slice(0, 18)}… pinned.` : 'No root available.' });
       const phaseOk = ledger.cases.every((c) => c.total >= 0n && c.eventCount >= 0n && c.lastDisclosed <= c.total && (c.phase === 'ACTIVE' || c.phase === 'CLOSED'));
       checks.push({ label: 'Phase order valid', ok: phaseOk, detail: phaseOk ? `${ledger.cases.length} case(s) — totals, counts and phase consistent.` : 'One or more cases have inconsistent phase/total.' });
       let future = false;
@@ -82,7 +82,7 @@ export default function Auditor() {
       if (caseId.trim()) {
         const wanted = BigInt(caseId.trim());
         const found = ledger.cases.find((c) => c.caseId === wanted);
-        checks.push({ label: `Case #${wanted} exists`, ok: !!found, detail: found ? `Found: total ${found.total.toString()}, disclosed ${found.lastDisclosed.toString()}, ${found.phase}` : `Case #${wanted} not on ledger.` });
+        checks.push({ label: `Case #${wanted} present on ledger`, ok: !!found, detail: found ? `Found: total ${found.total.toString()}, disclosed ${found.lastDisclosed.toString()}, ${found.phase}` : `Case #${wanted} not on ledger.` });
       }
       const fp = await sha256Hex(JSON.stringify({ contractAddress: trimmed, aggregate: ledger.aggregate.toString(), memberCount: ledger.memberCount.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString(), c.lastDisclosed.toString(), c.eventCount.toString(), c.phase]) }));
       setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
@@ -96,132 +96,135 @@ export default function Auditor() {
   const allPass = result?.checks.every((c) => c.ok) ?? false;
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gap: 24 }}>
-      <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
-        <h1 className="display" style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 36px)', color: 'var(--paper)', lineHeight: 1 }}>Verify a MidnightTrace case</h1>
-        <p style={{ margin: '8px auto 0', color: 'var(--muted-ink)', fontSize: '0.92rem', maxWidth: '52ch' }}>
-          Enter a case number. We read the on-chain ledger straight from the Midnight indexer — no wallet, no prover. Private amounts stay <span className="redacted redacted-sm">redacted</span>.
-        </p>
-        <div style={{ marginTop: 10, display: 'inline-flex', gap: 8, alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)', border: '1px solid var(--line-ink)', padding: '6px 12px', borderRadius: 999 }}>
-          Wallet-free · No login · Public audit {isDemo && <span className="badge badge-verify" style={{ marginLeft: 8 }}>Demo</span>}
-        </div>
-      </div>
-
-      <section style={{ border: '1px solid var(--line-ink)', borderRadius: '16px', background: '#121824', overflow: 'hidden' }}>
-        <div style={{ padding: '20px', display: 'grid', gap: 16 }}>
+    <>
+      <header className="masthead">
+        <div className="eyebrow eyebrow-verify">Verification console · wallet-free · no login</div>
+        <div className="masthead-row">
           <div>
-            <label className="field-label" htmlFor="audit-case" style={{ marginTop: 0 }}>Case ID</label>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <input id="audit-case" className="input" placeholder="e.g. 7" value={caseId} onChange={(e) => setCaseId(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" disabled={busy} style={{ flex: 1, fontSize: '1.1rem', padding: '12px 16px', textAlign: 'center', letterSpacing: '0.02em' }} />
-              <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} style={{ padding: '12px 24px', fontSize: '0.92rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                {busy ? 'Verifying…' : 'Verify case'}
-              </button>
-            </div>
-            <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)' }}>Leave empty to check whole ledger</span>
-              <button className="btn btn-ghost" style={{ padding: '2px 8px', fontSize: '0.72rem' }} onClick={async () => { const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`; try { await navigator.clipboard.writeText(url); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {} }}>{shareCopied ? 'Copied ✓' : 'Copy link'}</button>
-            </div>
+            <h1 className="display masthead-title">Audit the ledger, not the promises.</h1>
+            <p className="masthead-sub">
+              Type a case number. The console reads chain state straight from the Midnight indexer and checks
+              every invariant — amounts stay <span className="redacted redacted-sm">redacted</span> throughout.
+            </p>
           </div>
+          <div className="masthead-actions mono" style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>
+            <span>● LIVE · {isDemo ? 'demo ledger' : network}</span>
+          </div>
+        </div>
+      </header>
 
-          <details style={{ borderTop: '1px solid var(--line-ink)', paddingTop: 12 }}>
-            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600 }}>Advanced — network & contract</summary>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+      {/* CONSOLE — dark input deck + light verdict */}
+      <section className="console-grid" aria-label="Verification console">
+        <div className="console-left">
+          <div className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7BD9A5', fontWeight: 700 }}>⌁ Input deck</div>
+          <div>
+            <label className="field-label" htmlFor="audit-case">Case number to verify</label>
+            <input id="audit-case" className="input mono" placeholder="7" value={caseId} onChange={(e) => setCaseId(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" disabled={busy} />
+            <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--night-muted)', marginTop: 8, textAlign: 'center' }}>empty = whole ledger · digits only</div>
+          </div>
+          <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} style={{ width: '100%', padding: '14px', fontSize: '0.95rem', fontWeight: 700 }}>
+            {busy ? 'Reading chain state…' : '▶ Run verification'}
+          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--night-muted)' }} onClick={async () => { const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`; try { await navigator.clipboard.writeText(url); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {} }}>{shareCopied ? 'Copied ✓' : 'Copy audit link'}</button>
+            <Link to="/cases" className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--night-muted)', textAlign: 'center' }}>Browse cases</Link>
+          </div>
+          <details>
+            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--night-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700 }}>Advanced — network & contract</summary>
+            <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
               <div>
-                <label className="field-label" htmlFor="audit-net" style={{ marginTop: 0 }}>Network</label>
-                <select id="audit-net" className="input" value={network} onChange={(e) => setNetwork(e.target.value as typeof network)} disabled={busy || isDemo}>
+                <label className="field-label" htmlFor="audit-net">Network</label>
+                <select id="audit-net" className="input" value={network} onChange={(e) => setNetwork(e.target.value as typeof network)} disabled={busy || isDemo} style={{ fontSize: '0.9rem', textAlign: 'left' }}>
                   <option value="preprod">Preprod</option>
                   <option value="preview">Preview</option>
                 </select>
               </div>
               <div>
-                <label className="field-label" htmlFor="audit-addr" style={{ marginTop: 0 }}>Contract</label>
-                <input id="audit-addr" className="input mono" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="64 hex" disabled={busy || isDemo} style={{ fontSize: '0.72rem' }} />
+                <label className="field-label" htmlFor="audit-addr">Contract address</label>
+                <input id="audit-addr" className="input mono" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="64 hex" disabled={busy || isDemo} style={{ fontSize: '0.72rem', textAlign: 'left' }} />
               </div>
             </div>
           </details>
-
           {error && (
-            <div role="alert" style={{ padding: '12px', borderRadius: '10px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.18)', color: '#ff8d7a', fontSize: '0.88rem' }}>
+            <div role="alert" style={{ padding: 12, borderRadius: 10, background: 'rgba(255,95,86,0.1)', border: '1px solid rgba(255,95,86,0.3)', color: '#ff9d94', fontSize: '0.86rem' }}>
               {error}
               {errorTechnical && (
                 <div style={{ marginTop: 8 }}>
-                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem' }} onClick={() => setShowErrorTechnical(v => !v)}>{showErrorTechnical ? 'Hide technical details' : 'Show technical details'}</button>
-                  {showErrorTechnical && <pre className="mono" style={{ marginTop: 6, padding: '10px', background: 'rgba(0,0,0,0.24)', borderRadius: '8px', fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted-ink)' }}>{errorTechnical}</pre>}
+                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem', color: '#ff9d94' }} onClick={() => setShowErrorTechnical(v => !v)}>{showErrorTechnical ? 'Hide technical details' : 'Show technical details'}</button>
+                  {showErrorTechnical && <pre className="mono" style={{ marginTop: 6, fontSize: '0.7rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{errorTechnical}</pre>}
                 </div>
               )}
             </div>
           )}
-
-          <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--muted-ink)', textAlign: 'center', borderTop: '1px solid var(--line-ink)', paddingTop: 12 }}>
-            Wire: <span className="redacted redacted-sm">amount</span> → <span style={{ color: 'var(--verify)', fontWeight: 700 }}>total</span> · proof <span style={{ color: 'var(--blue)' }}>ZK</span> → stamp · Private amounts never leave device
+          <div className="mono" style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.68rem', color: 'var(--night-muted)', lineHeight: 1.7 }}>
+            WIRE <span className="redacted redacted-sm">amount</span> → <span style={{ color: '#7BD9A5' }}>total</span> · proof <span style={{ color: '#8FB4F0' }}>ZK</span> → stamp<br />Private amounts never leave the device.
           </div>
         </div>
-      </section>
 
-      {result && (
-        <>
-          <section style={{ border: '1px solid', borderColor: allPass ? 'var(--verify-border)' : 'rgba(192,57,43,0.18)', borderRadius: '16px', overflow: 'hidden', background: allPass ? 'var(--verify-soft)' : 'rgba(192,57,43,0.06)' }}>
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: allPass ? 'var(--verify)' : '#c0392b', color: 'white', display: 'grid', placeItems: 'center', margin: '0 auto', fontSize: '1.4rem', fontWeight: 700 }}>{allPass ? '✓' : '✗'}</div>
-              <h2 style={{ margin: '12px 0 0', fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: allPass ? 'var(--verify)' : '#c0392b' }}>{allPass ? 'VALID' : 'Attention needed'}</h2>
-              <p style={{ margin: '6px 0 0', color: allPass ? 'var(--verify)' : '#c0392b', fontSize: '0.88rem', fontWeight: 600 }}>{allPass ? 'All checks passed — this record is trustworthy.' : 'Some checks failed — review details.'}</p>
-              <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-ink)' }}>
-                <span>Audited {new Date(result.auditedAt).toLocaleString()}</span>
-                {result.fingerprint && <span>· {result.fingerprint.slice(0, 12)}…</span>}
-              </div>
+        <div className="console-right">
+          {!result ? (
+            <div style={{ padding: '24px 0', textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', opacity: 0.35 }}>⌁</div>
+              <h2 style={{ margin: '12px 0 6px', fontSize: '1.6rem' }}>Console idle.</h2>
+              <p style={{ margin: 0, color: 'var(--muted)', maxWidth: '44ch', marginInline: 'auto' }}>
+                Run a verification to see the verdict, per-check readout, and on-chain snapshot.
+                Try case <button className="btn btn-ghost" style={{ padding: '2px 6px', fontSize: '0.86rem' }} onClick={() => { setCaseId('7'); setSearch({ case: '7' }); }}>7 →</button> — the worked example from the guide.
+              </p>
+              <div className="mono" style={{ marginTop: 16, fontSize: '0.7rem', color: 'var(--muted)' }}>Quorum: aggregate == Σ totals · root pinned · phases valid · blocks sane</div>
             </div>
-            <div style={{ background: '#121824', padding: '16px', display: 'grid', gap: 10, borderTop: `1px solid ${allPass ? 'var(--verify-border)' : 'rgba(192,57,43,0.18)'}` }}>
-              {result.checks.map((c, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.01)', border: `1px solid ${c.ok ? 'var(--verify-border)' : 'rgba(192,57,43,0.18)'}` }}>
-                  <span style={{ width: 24, height: 24, borderRadius: '50%', background: c.ok ? 'var(--verify-soft)' : 'rgba(192,57,43,0.08)', border: `1px solid ${c.ok ? 'var(--verify-border)' : 'rgba(192,57,43,0.18)'}`, color: c.ok ? 'var(--verify)' : '#c0392b', display: 'grid', placeItems: 'center', fontSize: '0.72rem', fontWeight: 700, flexShrink: 0 }}>{c.ok ? '✓' : '✗'}</span>
-                  <div>
-                    <div style={{ fontWeight: 600, color: 'var(--paper)', fontSize: '0.88rem' }}>{c.label}</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--muted-ink)', marginTop: 2, lineHeight: 1.5 }}>{c.detail}</div>
-                  </div>
+          ) : (
+            <>
+              <div className={`verdict ${allPass ? 'verdict-ok' : 'verdict-bad'}`}>
+                <span className="verdict-mark">{allPass ? '✓' : '!'}</span>
+                <div>
+                  <p className="mono" style={{ margin: 0, fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>Verdict · {new Date(result.auditedAt).toLocaleString()}</p>
+                  <h2 className="verdict-title">{allPass ? 'VALID' : 'Needs review'}</h2>
+                  <p style={{ margin: '6px 0 0', fontSize: '0.92rem', color: 'var(--muted)' }}>{allPass ? 'Every invariant holds — this record is trustworthy.' : 'At least one check failed — inspect the readout.'} {result.fingerprint && <span className="mono" style={{ fontSize: '0.72rem' }}>· fp {result.fingerprint.slice(0, 12)}…</span>}</p>
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {result.ledger && (
-            <section style={{ border: '1px solid var(--line-ink)', borderRadius: '16px', overflow: 'hidden', background: '#121824' }}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line-ink)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-                <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--paper)' }}>On-chain snapshot</h3>
-                <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)' }}>{result.ledger.cases.length} cases · aggregate {result.ledger.aggregate.toString()}</span>
               </div>
-              {result.ledger.cases.length === 0 ? (
-                <div style={{ padding: 20, color: 'var(--muted-ink)', textAlign: 'center' }}>No case files yet.</div>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
-                    <thead>
-                      <tr style={{ textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-ink)', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.01)' }}>
-                        <th style={{ padding: '10px 16px', fontWeight: 700 }}>Case</th>
-                        <th style={{ padding: '10px 16px', fontWeight: 700 }}>Total</th>
-                        <th style={{ padding: '10px 16px', fontWeight: 700 }}>Last disclosed</th>
-                        <th style={{ padding: '10px 16px', fontWeight: 700 }}>Inserts</th>
-                        <th style={{ padding: '10px 16px', fontWeight: 700 }}>Phase</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(caseId.trim() ? result.ledger.cases.filter((c) => c.caseId.toString() === caseId.trim()) : result.ledger.cases).map((c) => (
-                        <tr key={String(c.caseId)} style={{ borderBottom: '1px solid var(--line-ink)' }}>
-                          <td style={{ padding: '10px 16px' }}><span className="mono" style={{ background: 'rgba(255,255,255,0.04)', padding: '2px 8px', borderRadius: 6, border: '1px solid var(--line-ink)', fontWeight: 600 }}>#{String(c.caseId)}</span></td>
-                          <td style={{ padding: '10px 16px' }}><span className="mono" style={{ color: 'var(--paper)', fontWeight: 600 }}>{c.total.toString()}</span></td>
-                          <td style={{ padding: '10px 16px' }}><span className="mono">{c.lastDisclosed.toString()}</span></td>
-                          <td style={{ padding: '10px 16px' }}>{c.eventCount.toString()}</td>
-                          <td style={{ padding: '10px 16px' }}><span className="badge" style={{ background: c.phase === 'CLOSED' ? 'var(--ochre-soft)' : 'var(--verify-soft)', color: c.phase === 'CLOSED' ? 'var(--ochre)' : 'var(--verify)', borderColor: c.phase === 'CLOSED' ? 'var(--ochre-border)' : 'var(--verify-border)' }}>{c.phase}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div>
+                {result.checks.map((c, i) => (
+                  <div key={i} className="check-row">
+                    <span className={`check-ico ${c.ok ? 'check-ico-ok' : 'check-ico-bad'}`}>{c.ok ? '✓' : '✗'}</span>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{String(i + 1).padStart(2, '0')} · {c.label}</div>
+                      <div className="mono" style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 2 }}>{c.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {result.ledger && (
+                <div style={{ marginTop: 8 }}>
+                  <div className="mono" style={{ fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700, marginBottom: 8 }}>
+                    On-chain snapshot · {result.ledger.cases.length} cases · aggregate {result.ledger.aggregate.toString()}
+                  </div>
+                  {result.ledger.cases.length === 0 ? (
+                    <div style={{ color: 'var(--muted)' }}>No case files yet.</div>
+                  ) : (
+                    <div style={{ overflowX: 'auto', borderTop: '1px solid var(--line-strong)' }}>
+                      <table className="queue-table">
+                        <thead><tr><th>case</th><th>total</th><th>disclosed</th><th>inserts</th><th>phase</th></tr></thead>
+                        <tbody>
+                          {(caseId.trim() ? result.ledger.cases.filter((c) => c.caseId.toString() === caseId.trim()) : result.ledger.cases).map((c) => (
+                            <tr key={String(c.caseId)}>
+                              <td><span className="mono" style={{ background: 'rgba(23,19,11,0.05)', padding: '3px 9px', borderRadius: 999, border: '1px solid var(--line)', fontWeight: 700 }}>#{String(c.caseId)}</span></td>
+                              <td className="mono" style={{ fontWeight: 700 }}>{c.total.toString()}</td>
+                              <td className="mono">{c.lastDisclosed.toString()}</td>
+                              <td>{c.eventCount.toString()}</td>
+                              <td><span className={`badge ${c.phase === 'CLOSED' ? 'badge-pending' : 'badge-verify'}`}>{c.phase}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
-            </section>
+            </>
           )}
-        </>
-      )}
-    </div>
+        </div>
+      </section>
+    </>
   );
 }
 

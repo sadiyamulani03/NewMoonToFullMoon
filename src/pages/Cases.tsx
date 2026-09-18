@@ -31,108 +31,125 @@ export default function Cases() {
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-ink)' }}>Cases · {isDemo ? 'Demo — not on-chain' : 'Preprod ledger · wallet-free audit at /audit'}</div>
-          <h1 className="display" style={{ margin: '4px 0 0', fontSize: '1.6rem', color: 'var(--paper)', lineHeight: 1 }}>Case files</h1>
-          <p style={{ margin: '6px 0 0', color: 'var(--muted-ink)', fontSize: '0.9rem', maxWidth: '60ch' }}>
-            Folder inserts on ledger {isDemo && <span style={{ color: 'var(--verify)' }}>· Demo — not on-chain</span>} · Private amounts <span className="redacted redacted-sm">redacted</span> unless you disclose · Each row is <span style={{ color: 'var(--verify)', fontWeight: 700 }}>Verified</span> by a ZK proof.
-          </p>
+      <header className="masthead">
+        <div className="eyebrow">Index · {isDemo ? 'demo ledger' : 'preprod ledger'} · {cases?.length ?? '—'} matters</div>
+        <div className="masthead-row">
+          <div>
+            <h1 className="display masthead-title">Case index</h1>
+            <p className="masthead-sub">
+              Every row is proof-backed. Private amounts <span className="redacted redacted-sm">stay hidden</span> unless
+              disclosed — totals carry a <span style={{ color: 'var(--verify)', fontWeight: 700 }}>✓ Valid</span> stamp.
+            </p>
+          </div>
+          <div className="masthead-actions">
+            <Link to="/audit" className="btn btn-ghost">Audit without wallet</Link>
+            <Link to="/new" className="btn btn-primary">Open new case →</Link>
+          </div>
         </div>
-        <Link to="/new" className="btn btn-primary" aria-label="Open a new case">Open new case</Link>
-      </div>
+      </header>
 
-      <div className="ledger">
-        <div className="ledger-head" style={{ gap: 10, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: '1 1 260px' }}>
+      <section className="section" aria-label="Filter and results">
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', paddingBottom: 4 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: '1 1 320px', maxWidth: 520 }}>
             <input
               className="input"
-              placeholder="Search title, ID or case #"
+              placeholder="Filter by title, ID, or case #  —  e.g. “batches” or “7”"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               aria-label="Search cases"
-              style={{ maxWidth: 360 }}
+              style={{ fontSize: '1rem', padding: '14px 18px' }}
             />
-            {q && <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '6px 10px' }}>Clear</button>}
+            {q && <button className="btn btn-ghost" onClick={() => setQ('')} style={{ flexShrink: 0 }}>Clear</button>}
           </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted-ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {filtered ? `${filtered.length} / ${cases?.length ?? 0}` : '—'}
+          <span className="mono" style={{ marginLeft: 'auto', fontSize: '0.74rem', color: 'var(--muted)' }}>
+            {filtered ? `${filtered.length} / ${cases?.length ?? 0} shown` : '—'}
           </span>
         </div>
 
-        <div style={{ padding: '8px 14px', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', fontSize: '0.78rem', color: 'var(--muted-ink)' }}>
-          <span className="stamp stamp-verify stamp-small">Verified</span> proof-backed row
-          <span style={{ opacity: 0.5 }}>·</span>
-          <span className="stamp stamp-pending stamp-small">Pending</span> not yet disclosed
+        <div className="mono" style={{ fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span className="stamp stamp-verify stamp-small">Verified</span> proof-backed
+          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="stamp stamp-pending stamp-small">Sealed</span> phase closed
+          <span style={{ opacity: 0.4 }}>·</span>
+          <span className="redacted redacted-sm">redacted</span> never on-chain
         </div>
 
         {error && (
-          <div role="alert" style={{ padding: 14, color: '#ff8d7a', fontSize: '0.88rem', borderBottom: '1px solid var(--line-ink)', background: 'rgba(255,141,122,0.06)' }}>
-            We couldn’t load case files. <span style={{ color: 'var(--muted-ink)' }}>{error}</span>
-            <div style={{ marginTop: 8 }}><button className="btn btn-secondary" onClick={() => { setError(null); setCases(null); listCases().then(setCases).catch((e) => setError(String(e))); }} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Retry</button> <span style={{ color: 'var(--muted-ink)', fontSize: '0.78rem' }}>or enable Demo for seeded files</span></div>
+          <div role="alert" style={{ padding: '16px 0', borderTop: '1px solid var(--line)', color: '#A32E1F', fontSize: '0.92rem' }}>
+            We couldn&apos;t load case files. <span style={{ color: 'var(--muted)' }}>{error}</span>
+            <div style={{ marginTop: 10, display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary" onClick={() => { setError(null); setCases(null); listCases().then(setCases).catch((e) => setError(String(e))); }}>Retry</button>
+              <span style={{ color: 'var(--muted)', fontSize: '0.86rem', alignSelf: 'center' }}>or enable Demo for seeded files</span>
+            </div>
           </div>
         )}
         {!cases && !error && (
-          <div style={{ padding: 18, display: 'grid', gap: 10 }}>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><span className="spinner" aria-hidden="true" /><span className="mono" style={{ color: 'var(--muted-ink)', fontSize: '0.86rem' }}>Loading evidence ledger…</span></div>
-            <div className="skeleton" style={{ height: 48 }} />
-            <div className="skeleton" style={{ height: 48, opacity: 0.7 }} />
-            <div className="skeleton" style={{ height: 48, opacity: 0.4 }} />
+          <div style={{ display: 'grid', gap: 10, padding: '16px 0' }}>
+            <div className="skeleton" style={{ height: 56 }} />
+            <div className="skeleton" style={{ height: 56, opacity: 0.7 }} />
+            <div className="skeleton" style={{ height: 56, opacity: 0.4 }} />
           </div>
         )}
 
         {cases && cases.length === 0 && (
-          <div className="empty" style={{ margin: 12 }}>
-            <div className="empty-icon">🗂️</div>
-            <h3 className="empty-title">Ledger just reset</h3>
-            <p className="empty-text">
-              The API store is ephemeral and clears on cold start — expected on Vercel. Your on-chain totals remain. Add a case or switch on demo for seeded files.
-            </p>
+          <div className="empty-open">
+            <div style={{ fontSize: '1.8rem' }}>🗂️</div>
+            <h3>The ledger just reset</h3>
+            <p>The API store is ephemeral and clears on cold start — expected on Vercel. On-chain totals remain. Add a case or switch on demo for seeded files.</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/new" className="btn btn-primary">Open first case</Link>
+              <Link to="/new" className="btn btn-primary">Open first case →</Link>
               <Link to="/dashboard" className="btn btn-secondary">Try demo folder</Link>
             </div>
           </div>
         )}
 
         {filtered && filtered.length === 0 && cases && cases.length > 0 && (
-          <div style={{ padding: 22, textAlign: 'center', color: 'var(--muted-ink)' }}>
+          <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--muted)' }}>
             No files match “{q}”. <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '4px 8px' }}>Clear search</button>
           </div>
         )}
 
         {filtered && filtered.length > 0 && (
-          <div>
-            {filtered.map((c) => (
-              <Link key={c.id} to={`/cases/${c.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="ledger-row" style={{ alignItems: 'flex-start' }}>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <strong style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: 'var(--paper)' }}>{c.title}</strong>
-                      <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted-ink)', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--line-ink)', padding: '2px 6px', borderRadius: 3 }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="queue-table">
+              <thead>
+                <tr>
+                  <th>matter</th>
+                  <th>record</th>
+                  <th>trail</th>
+                  <th>state</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((c) => (
+                  <tr key={c.id}>
+                    <td style={{ minWidth: 260 }}>
+                      <Link to={`/cases/${c.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <span className="queue-row-title" style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem' }}>{c.title}</span>
+                      </Link>
+                      <div style={{ marginTop: 4, fontSize: '0.88rem', color: 'var(--muted)', maxWidth: '52ch', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.description}</div>
+                    </td>
+                    <td>
+                      <span className="mono" style={{ fontSize: '0.76rem', background: 'rgba(23,19,11,0.05)', border: '1px solid var(--line)', padding: '4px 9px', borderRadius: 999, fontWeight: 700 }}>
                         #{c.receipts[0]?.caseIndex ?? c.id.slice(0, 6)}
                       </span>
-                      <span style={{ fontSize: '0.76rem', color: 'var(--muted-ink)' }}>· {c.receipts.length} insert{c.receipts.length === 1 ? '' : 's'} · {fmtDate(c.createdAt)}</span>
-                    </div>
-                    <div style={{ marginTop: 4, fontSize: '0.86rem', color: 'var(--muted-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.description}</div>
-                    <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center' }}>
-                      <span className="redacted redacted-sm">private amount</span>
-                      <span style={{ color: 'var(--muted-ink)', fontSize: '0.78rem' }}>→</span>
-                      <code className="mono" style={{ fontSize: '0.78rem', background: 'var(--verify-soft)', border: '1px solid var(--verify-border)', padding: '1px 6px', borderRadius: 3, color: 'var(--verify)', fontWeight: 700 }}>total verified</code>
-                    </div>
-                  </div>
-                  <span className={`stamp ${c.status === 'closed' ? 'stamp-pending' : 'stamp-verify'} stamp-small`} style={{ flexShrink: 0, marginTop: 2 }}>{c.status === 'closed' ? 'Sealed' : 'Open'}</span>
-                </div>
-              </Link>
-            ))}
+                      <div className="queue-row-sub">{c.receipts.length} inserts · {fmtDate(c.createdAt)}</div>
+                    </td>
+                    <td>
+                      <span className="redacted redacted-sm">private</span>
+                      <span style={{ color: 'var(--muted)', fontSize: '0.84rem' }}> → </span>
+                      <span className="mono" style={{ fontSize: '0.78rem', color: 'var(--verify)', fontWeight: 700 }}>total verified</span>
+                    </td>
+                    <td>{c.status === 'closed' ? <span className="badge badge-pending">Sealed</span> : <span className="badge badge-verify">Open</span>}</td>
+                    <td><Link to={`/cases/${c.id}`} className="btn btn-ghost" style={{ padding: '8px 12px' }}>Dossier →</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
-
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <Link to="/new" className="btn btn-primary">Open a new case</Link>
-        <Link to="/audit" className="btn btn-ghost">Audit without wallet</Link>
-      </div>
+      </section>
     </>
   );
 }

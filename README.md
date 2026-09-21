@@ -53,9 +53,11 @@
 | Preprod responses | 67 |
 | Preview responses | 3 |
 | Unique Preprod wallets | 66 |
+| Unique Preview wallets | 3 |
+| Unique wallets across all environments | 69 |
 | Duplicate Preprod entries | 1 |
 
-The Level 5 requirement (50 Preprod users) is satisfied: the sheet contains 66 unique Preprod wallets. The Level 6 requirement is **70 real Preprod users total (all together)**; the sheet currently shows **66 unique Preprod wallets**, which is 4 short of the 70‑user target. The 3 Preview responses and the 1 duplicate Preprod entry are not counted toward the Preprod user requirement. The Markdown trackers (`USERS.md`, `LAUNCH_USERS.md`) are archival copies and may not match the sheet exactly.
+The Level 5 requirement (50 Preprod users) is satisfied: the sheet contains 66 unique Preprod wallets. The Level 6 requirement is **70 real Preprod users total (all together)** — a Preprod‑specific metric — so the 3 Preview responses are **not** counted toward it. Even if Preview users were permitted, the cohort would total **69 unique wallets** (66 Preprod + 3 Preview, no overlap), which still falls short of 70. The Markdown trackers (`USERS.md`, `LAUNCH_USERS.md`) are archival copies and may not match the sheet exactly.
 
 ## What This Product Does
 

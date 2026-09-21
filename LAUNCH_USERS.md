@@ -90,7 +90,7 @@ Current count: **66 / 70 unique Preprod wallets verified — 50 / 50 Level 5 + 2
 
 > **Sep 13 late + Sep 14 batch note:** 9 new verified Preprod addresses collected Sep 13 23:41 – Sep 14 09:41 UTC (Payal Shidgur through Trishal shetty, plus Hetvi already counted). Average for 9 new: **4.56 / 5** (41 / 9: 4×4, 5×5). Combined Level 6 total 20 = **4.50 / 5** (90 / 20: 10×5, 10×4). All 9 wallets unique vs `USERS.md` 50 and vs prior 11 (verified — Hetvi duplicate excluded from count). Full verbatim feedback logged in `FEEDBACK.md` § Level 6 Supplemental — Sep 13 late + Sep 14 batch (entries 62–70) and `docs/FEEDBACK.md` Raw Log #62–70. All 3 actionable suggestions from this batch implemented in commit `fa584da`.
 
-> **CURRENT:** 66 unique Preprod wallets verified in the authoritative Google Sheet. Archival trackers list 50 (`USERS.md`) + 20 (this file) = 70 entries, but the sheet contains 67 Preprod responses, 3 Preview responses, and 1 duplicate Preprod entry. Rows 21–70 are `_pending_` only as tracker structure (not missing users).
+> **CURRENT:** 66 unique Preprod wallets verified in the authoritative Google Sheet. Even if the 3 Preview wallets were permitted, the cohort would total **69 unique wallets** (66 Preprod + 3 Preview, no overlap), still short of the 70‑user target. Archival trackers list 50 (`USERS.md`) + 20 (this file) = 70 entries, but the sheet contains 67 Preprod responses, 3 Preview responses, and 1 duplicate Preprod entry. Rows 21–70 are `_pending_` only as tracker structure (not missing users).
 
 Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6 in this file: **20 NEW — 66/70 unique Preprod wallets with Level 5 — target not yet met**
 

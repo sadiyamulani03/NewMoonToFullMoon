@@ -4,10 +4,8 @@
 
 ## 📄 Docs (Level 5 — User Validation)
 
-| Doc | What it is |
-|-----|-----------|
-| [**FEEDBACK.md**](./FEEDBACK.md) | Level 5 feedback log — form, raw feedback, themes, changes |
-| [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (50 / 50) |
+| Doc |
+ https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754
 
 > **Authoritative evidence:** The official Google Sheet of all feedback responses and wallet addresses is the primary verification source: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). The Markdown trackers below (`USERS.md`, `LAUNCH_USERS.md`) are archival copies and may not match the sheet exactly.
 

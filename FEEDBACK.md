@@ -175,7 +175,7 @@ Earlier feedback (first 20 responses) had already driven many changes. The full 
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
-## What We Changed — Level 6 (response to feedback, Sep 13 batch — 11 users, 11/70)
+## What We Changed — Level 6 (response to feedback, Sep 13 batch — 11 users, 11/70 responses)
 
 Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 UTC). All 7 actionable suggestions from 11 new Preprod testers are implemented in this commit; Level 5 remains frozen at 50.
 
@@ -191,7 +191,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 ## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers)
 
-> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 20 NEW Level 6 (70/70 TOTAL with Level 5 50).** Feedback triaged and implemented across two commits `0996a4e` + `fa584da` (see `What We Changed` rows above). Level 5 remains frozen at 50. These 20 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — 50+20=70/70 TOTAL). All 20 wallets are unique vs `USERS.md` 50 (Hetvi counted once).
+> **Batches collected Sep 13 19:12–23:19 + Sep 13 23:41–Sep 14 09:41 UTC — 20 NEW Level 6 entries (66/70 unique Preprod wallets with Level 5 50).** Feedback triaged and implemented across two commits `0996a4e` + `fa584da` (see `What We Changed` rows above). Level 5 remains frozen at 50. These 20 are Level 6 launch testers (tracked in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — 50+20=70 archival entries; authoritative sheet: 66 unique Preprod wallets). All 20 wallets are unique vs `USERS.md` 50 (Hetvi counted once).
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -223,9 +223,9 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 
 > All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
-## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6, 70/70 TOTAL)
+## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6 entries, 66/70 unique Preprod wallets)
 
-> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Feedback triaged and implemented in `fa584da`. Level 5 frozen at 50. Cumulative Level 6: 20 NEW = 70/70 TOTAL with Level 5.**
+> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Feedback triaged and implemented in `fa584da`. Level 5 frozen at 50. Cumulative Level 6: 20 NEW entries = 66/70 unique Preprod wallets with Level 5.**
 
 | # | Name | Wallet | Rating | Ease | Liked | Issues | Suggested Change | Time (UTC) |
 |---|------|--------|--------|------|-------|--------|------------------|------------|
@@ -254,6 +254,6 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 > All 3 verified by `npm run build`.
 ## Links
 
-* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20 NEW = 70/70 TOTAL with Level 5 — CLOSED)
+* **User list:** [USERS.md](./USERS.md) · **Level 6 tracker:** [LAUNCH_USERS.md](./LAUNCH_USERS.md) (20 NEW = 66/70 unique Preprod wallets with Level 5 — target not yet met)
 * **Live dApp:** https://midnighttrace.vercel.app
 * **Docs:** [README.md](./README.md) · [docs/USAGE.md](./docs/USAGE.md) · [PROPOSAL.md](./PROPOSAL.md)

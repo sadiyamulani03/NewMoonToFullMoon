@@ -1,6 +1,6 @@
-# User Acquisition Messages — Level 6 (70 Preprod Users)
+# User Acquisition Messages — Level 6 (target: 70 unique Preprod users; 66/70 verified)
 
-These messages are used to recruit **70 Preprod testers** for MidnightTrace at https://midnighttrace.vercel.app on **Midnight Preprod** (Mainnet NOT used). Each tester is asked to connect a **Lace/1AM wallet on Preprod**, try the core forensic flow, and submit their `mn_addr_preprod…` via the feedback form for verification (see `LAUNCH_USERS.md`). Level 5’s 50 users are retained in `USERS.md`.
+These messages are used to recruit up to **70 unique Preprod testers** for MidnightTrace at https://midnighttrace.vercel.app on **Midnight Preprod** (Mainnet NOT used). Each tester is asked to connect a **Lace/1AM wallet on Preprod**, try the core forensic flow, and submit their `mn_addr_preprod…` via the feedback form for verification (see `LAUNCH_USERS.md`). Level 5’s 50 users are retained in `USERS.md`. The authoritative [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) currently shows **66 unique Preprod wallets**.
 
 > **Authoritative source:** All submitted wallet addresses and feedback are recorded in the official Google Sheet: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). This file lists the outreach messages only.
 

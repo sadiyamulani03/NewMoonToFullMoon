@@ -1,7 +1,7 @@
-# Level 6 Users — Preprod — FINAL (70 total)
+# Level 6 Users — Preprod — 66/70 verified (target: 70 unique Preprod wallets)
 
-**Target (all together): 70 verified Preprod wallet addresses — ACHIEVED 70/70 (50 Level 5 + 20 Level 6) — CLOSED for submission**
-**Level 6 in this file: 20 NEW — with Level 5 (50) = 70/70 TOTAL FINAL — CLOSED**
+**Target (all together): 70 unique Preprod wallet addresses — 66/70 verified (50 Level 5 + 20 Level 6 entries) — NOT YET ACHIEVED**
+**Level 6 in this file: 20 NEW — with Level 5 (50) = 70 archival entries; authoritative sheet shows 66 unique Preprod wallets**
 **Network:** Midnight Preprod / Testnet — **Mainnet NOT used**
 
 > **Authoritative source:** The official Google Sheet is the primary evidence: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). This tracker is an archival copy of the 20 Level 6 launch entries; combined with `USERS.md` it preserves the original 70-entry structure for submission. The sheet may contain additional Preview/duplicate rows not counted here.
@@ -9,7 +9,7 @@
 **Demo:** https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app
 **Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (MidnightTrace v1.1 — live) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (v1.0 legacy) on Preprod
 
-> This file tracks **Level 6 — Supermoon** onboarding. **Submission is CLOSED at 70 total** — Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 unique Preprod wallets. **Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets** (deduplicated by `mn_addr_preprod…` — 0 duplicates verified). Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
+> This file tracks **Level 6 — Supermoon** onboarding. **Target is 70 unique Preprod wallets** — the authoritative [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) currently shows **66 unique Preprod wallets** (67 Preprod responses, 3 Preview responses, 1 duplicate). Level 5’s 50 users in [`USERS.md`](./USERS.md) plus 20 users in this file = 70 archival entries, but unique Preprod wallets total 66. **Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets** (deduplicated by `mn_addr_preprod…`). Rows 21–70 are intentionally `_pending_` (not required for total-70; kept for tracker structure). Do **not** duplicate or fabricate addresses — each row must be a real tester who connected their wallet on Preprod and submitted their `mn_addr_preprod…` via the feedback form.
 
 | # | Wallet Address | Name | Rating | Date Onboarded |
 |---|----------------|------|--------|----------------|
@@ -84,15 +84,15 @@
 | 69 | _pending_ | — | — | — |
 | 70 | _pending_ | — | — | — |
 
-Current count: **70 / 70 TOTAL — FINAL — 50 / 50 Level 5 + 20 NEW Level 6 (Sep 13–14, 2026) — CLOSED for submission — was 20/70 in this tracker alone before total-70 clarification**
+Current count: **66 / 70 unique Preprod wallets verified — 50 / 50 Level 5 + 20 NEW Level 6 (Sep 13–14, 2026) — target not yet met**
 
 > **Sep 13 batch note:** 11 verified Preprod addresses collected Sep 13, 2026 19:12–23:19 UTC. Average rating **4.45 / 5** (49 / 11: 5×5, 6×4). All addresses unique vs Level 5's 50 in `USERS.md` (verified — no duplicates). Full verbatim feedback for this batch is logged in `FEEDBACK.md` § Level 6 Supplemental (entries 51–61) and `docs/FEEDBACK.md` Raw Log #51–61.
 
 > **Sep 13 late + Sep 14 batch note:** 9 new verified Preprod addresses collected Sep 13 23:41 – Sep 14 09:41 UTC (Payal Shidgur through Trishal shetty, plus Hetvi already counted). Average for 9 new: **4.56 / 5** (41 / 9: 4×4, 5×5). Combined Level 6 total 20 = **4.50 / 5** (90 / 20: 10×5, 10×4). All 9 wallets unique vs `USERS.md` 50 and vs prior 11 (verified — Hetvi duplicate excluded from count). Full verbatim feedback logged in `FEEDBACK.md` § Level 6 Supplemental — Sep 13 late + Sep 14 batch (entries 62–70) and `docs/FEEDBACK.md` Raw Log #62–70. All 3 actionable suggestions from this batch implemented in commit `fa584da`.
 
-> **FINAL:** 70/70 TOTAL = 50 (USERS.md) + 20 NEW (this file) — 70 distinct `mn_addr_preprod1…` verified (`grep -Eo` 70 unique, 0 dupes). No further wallets required — **70/70 CLOSED**. Rows 21–70 are `_pending_` only as tracker structure (not missing users).
+> **CURRENT:** 66 unique Preprod wallets verified in the authoritative Google Sheet. Archival trackers list 50 (`USERS.md`) + 20 (this file) = 70 entries, but the sheet contains 67 Preprod responses, 3 Preview responses, and 1 duplicate Preprod entry. Rows 21–70 are `_pending_` only as tracker structure (not missing users).
 
-Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6 in this file: **20 NEW — 70/70 TOTAL with Level 5 — CLOSED**
+Current Level 5: 50 / 50 in [`USERS.md`](./USERS.md) · Level 6 in this file: **20 NEW — 66/70 unique Preprod wallets with Level 5 — target not yet met**
 
 > **How to onboard:** Testers install Lace → select **Midnight Preprod** → get tNIGHT from https://faucet.preprod.midnight.network → open https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app → connect wallet → log a hidden step → verify in Audit → submit wallet address + feedback via the form. See [`docs/USAGE.md`](./docs/USAGE.md) `Getting Started on Preprod` and `docs/ONBOARDING.md`.
 >

@@ -138,7 +138,7 @@ Collected via a short online feedback form (Google Forms) shared after each test
 | Example forensic scenario | Sajid Shaikh (1 request) | `db40d5d` ✅ (About.tsx + Landing.tsx example flow) |
 | Faster transactions | Tanishq Sonawane (infra/chain-side — Preprod finalization is chain-dependent) | `4d621a9` ✅ Perceived-performance: estimated remaining, background continuation, stats cache (chain time unchanged) |
 
-## What We Changed — Level 6 (response to Sep 13 batch — 11 NEW, 70/70 TOTAL with Level 5)
+## What We Changed — Level 6 (response to Sep 13 batch — 11 NEW, 66/70 unique Preprod wallets)
 
 Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC). All 7 actionable suggestions are implemented in `0996a4e`.
 
@@ -188,9 +188,9 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 | Simplified documentation | Khushi Nagare `Documentation can be simplified` | `db40d5d` ✅ (`docs/USAGE.md` rewritten) |
 | Example forensic scenario | Sajid Shaikh `Add an example forensic scenario` | `db40d5d` ✅ (`About.tsx:115`, `Landing.tsx:48`) |
 
-## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers — part of 20 NEW, 70/70 TOTAL)
+## Level 6 Supplemental — Sep 13, 2026 Batch (11 new Preprod testers — part of 20 NEW, 66/70 unique Preprod wallets)
 
-> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11 NEW Level 6 (first half of 20). Feedback triaged and implemented in `0996a4e` — see [`../FEEDBACK.md`](../FEEDBACK.md) Level 6 Supplemental. Level 5 frozen at 50 — 70/70 TOTAL with Level 5.**
+> **Batch collected Sep 13, 2026 19:12–23:19 UTC — 11 NEW Level 6 (first half of 20). Feedback triaged and implemented in `0996a4e` — see [`../FEEDBACK.md`](../FEEDBACK.md) Level 6 Supplemental. Level 5 frozen at 50 — 66/70 unique Preprod wallets with Level 5.**
 
 | # | User | Feedback Summary | Date |
 |---|------|-----------------|------|
@@ -222,9 +222,9 @@ Same 3-column format as Level 5, for the Sep 13, 2026 batch (19:12–23:19 UTC).
 
 > All 7 verified by `npm run build` + 21 contract tests.
 
-## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6, 70/70 TOTAL)
+## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6 entries, 66/70 unique Preprod wallets)
 
-> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Cumulative Level 6: 20 NEW = 70/70 TOTAL with Level 5 50.**
+> **Batch collected Sep 13 23:41–Sep 14 09:41 UTC — 9 new wallets (Hetvi already counted as #61). Cumulative Level 6: 20 NEW entries = 66/70 unique Preprod wallets with Level 5 50.**
 
 | # | User | Feedback Summary | Date |
 |---|------|-----------------|------|

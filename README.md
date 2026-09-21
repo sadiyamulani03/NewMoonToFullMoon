@@ -40,8 +40,22 @@
 
 - Target: 50 Preprod users
 - Current: 50 verified Preprod users (archival tracker: [USERS.md](./USERS.md))
-- **Authoritative source:** [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) — 70 response rows (67 `mn_addr_preprod...`, 3 `mn_addr_preview...`, 66 unique Preprod, 1 duplicate)
+- **Authoritative source:** [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) — 70 response rows (67 `mn_addr_preprod...`, 3 `mn_addr_preview...`, 66 unique Preprod wallets, 1 duplicate Preprod entry)
 - See [USERS.md](./USERS.md) for the archival 50-address tracker and [FEEDBACK.md](./FEEDBACK.md) / [docs/FEEDBACK.md](./docs/FEEDBACK.md) for the feedback log and changes
+
+## Onboarded User Evidence
+
+**Official source:** [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754)
+
+| Metric | Verified value |
+|---|---:|
+| Total responses | 70 |
+| Preprod responses | 67 |
+| Preview responses | 3 |
+| Unique Preprod wallets | 66 |
+| Duplicate Preprod entries | 1 |
+
+The Level 5 requirement (50 Preprod users) is satisfied: the sheet contains 66 unique Preprod wallets. The Level 6 requirement is **70 real Preprod users total (all together)**; the sheet currently shows **66 unique Preprod wallets**, which is 4 short of the 70‑user target. The 3 Preview responses and the 1 duplicate Preprod entry are not counted toward the Preprod user requirement. The Markdown trackers (`USERS.md`, `LAUNCH_USERS.md`) are archival copies and may not match the sheet exactly.
 
 ## What This Product Does
 
@@ -204,7 +218,7 @@ Additional pages: **Audit** (`/audit`).
 | Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 18 implemented changes linked to commits including `db40d5d` (audit filter, landing page, privacy banner, forensic example, simplified docs) |
 | 50 Preprod users | ✅ | Complete — archival tracker `USERS.md` lists 50 verified Preprod addresses; authoritative counts are in the [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) |
 
-### Level 6 — Supermoon · Iterate & Close (70 total — FINAL)
+### Level 6 — Supermoon · Iterate & Close (70 target — 66/70 verified)
 
 > Official requirements: **iterate on feedback, brand assets, and 70 real Preprod users total (all together).**
 
@@ -212,7 +226,7 @@ Additional pages: **Audit** (`/audit`).
 |---|---|---|
 | Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
 | Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/MidnightTraceAp` |
-| 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: archival trackers `USERS.md` (50) + `LAUNCH_USERS.md` (20) = 70 entries; authoritative response counts are in the [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). No Mainnet used. |
+| 70 real Preprod users total (all together) | ⚠️ | **66/70 unique Preprod wallets verified** — archival trackers `USERS.md` (50) + `LAUNCH_USERS.md` (20) = 70 entries, but the authoritative [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) contains 66 unique Preprod wallets (67 Preprod responses, 3 Preview responses, 1 duplicate). No Mainnet used. |
 | Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.1` redeployed at `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (Uint32 scaling + metadataHash anchor, `2026-09-15T09:41`); v1.0 `c69ac004…` retained as legacy; Mainnet path in `PROPOSAL.md` |
 
 ## Contract Deployment
@@ -461,9 +475,9 @@ See [`docs/FEEDBACK.md`](./docs/FEEDBACK.md) (and [`FEEDBACK.md`](./FEEDBACK.md)
 
 ## Level 6 Users
 
-See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 TOTAL combined (all together) — ACHIEVED 70/70 FINAL**: 50/50 Level 5 in [`USERS.md`](./USERS.md) + 20 NEW Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod…` on **Midnight Preprod** (Mainnet NOT used) — **CLOSED for submission**.
+See [`LAUNCH_USERS.md`](./LAUNCH_USERS.md) — **Target: 70 unique Preprod wallets (all together) — 66/70 verified**: 50/50 Level 5 in [`USERS.md`](./USERS.md) + 20 entries in `LAUNCH_USERS.md` = 70 archival entries, but the authoritative [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) contains **66 unique `mn_addr_preprod…`** on **Midnight Preprod** (Mainnet NOT used) — **target not yet met**.
 
-> Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets (deduplicated by wallet address — `mn_addr_preprod…` — 0 duplicates, 70 unique verified).
+> Level 6 user count is calculated from unique users across Level 5 and Level 6, without double-counting wallets (deduplicated by wallet address — `mn_addr_preprod…`). The authoritative sheet currently shows **66 unique Preprod wallets**, not 70.
 
 ## Product X Profile
 

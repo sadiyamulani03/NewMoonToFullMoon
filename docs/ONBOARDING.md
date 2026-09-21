@@ -16,7 +16,7 @@
 7. **Verify the result** —
    * **Dashboard:** `aggregate` increased, but your `amount` never appears.
    * **Public Audit (`/audit`):** No wallet needed → Paste contract `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (or use default) → **Run audit** → Use **Filter by case ID** to find your case → `All integrity checks passed` + fingerprint.
-8. **Send wallet address** — Copy your `mn_addr_preprod…` from Lace (Receive → Copy) → Paste it in the feedback form: https://docs.google.com/forms/d/e/1FAIpQLSdMZQVcwBSz4oQIHFUWWDdkxkBbyNo-wBMB7BiINVrQ70r9tw/viewform (or DM the coordinator). This counts you toward the 70 Preprod users (in `LAUNCH_USERS.md`). The official response sheet is: https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754
+8. **Send wallet address** — Copy your `mn_addr_preprod…` from Lace (Receive → Copy) → Paste it in the feedback form: https://docs.google.com/forms/d/e/1FAIpQLSdMZQVcwBSz4oQIHFUWWDdkxkBbyNo-wBMB7BiINVrQ70r9tw/viewform (or DM the coordinator). This counts you toward the **70 unique Preprod user target** (66/70 verified so far; see `LAUNCH_USERS.md`). The official response sheet is: https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754
 9. **Give feedback** — In the same form: rating 1–5, ease (Very Easy/Easy/Normal), what you liked, hardest part, one change you’d make → Submit. Your feedback directly shapes the next iteration (see `docs/FEEDBACK.md`).
 
 ### Need help?

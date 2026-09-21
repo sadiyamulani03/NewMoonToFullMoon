@@ -9,6 +9,8 @@
 | [**FEEDBACK.md**](./FEEDBACK.md) | Level 5 feedback log — form, raw feedback, themes, changes |
 | [**USERS.md**](./USERS.md) | Preprod user tracker — verified wallet addresses (50 / 50) |
 
+> **Authoritative evidence:** The official Google Sheet of all feedback responses and wallet addresses is the primary verification source: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). The Markdown trackers below (`USERS.md`, `LAUNCH_USERS.md`) are archival copies and may not match the sheet exactly.
+
 > A privacy-first forensics dApp on the Midnight Network: an on-chain counter
 > that proves each forensic step (a hidden amount) without ever revealing the
 > amount itself, grown into a full case-management and private-audit system.
@@ -41,9 +43,9 @@
 ## Level 5 — User Validation
 
 - Target: 50 Preprod users
-- Current: 50 / 50 (see [USERS.md](./USERS.md))
-- See [USERS.md](./USERS.md) for wallet addresses (50 verified Preprod addresses, no duplicates)
-- See [FEEDBACK.md](./FEEDBACK.md) / [docs/FEEDBACK.md](./docs/FEEDBACK.md) for the feedback log and changes
+- Current: 50 verified Preprod users (archival tracker: [USERS.md](./USERS.md))
+- **Authoritative source:** [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) — 70 response rows (67 `mn_addr_preprod...`, 3 `mn_addr_preview...`, 66 unique Preprod, 1 duplicate)
+- See [USERS.md](./USERS.md) for the archival 50-address tracker and [FEEDBACK.md](./FEEDBACK.md) / [docs/FEEDBACK.md](./docs/FEEDBACK.md) for the feedback log and changes
 
 ## What This Product Does
 
@@ -157,7 +159,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| MVP live on Preprod | ✅ | `midnighttrace.compact` deployed at `c69ac004…` (see **Contract Address**); live dApp at `https://midnighttrace.vercel.app` |
+| MVP live on Preprod | ✅ | `midnighttrace.compact` deployed at `c69ac004…` (see **Contract Address**); deployment record **Aug 11, 2026, 4:05 AM UTC**; live dApp at `https://midnighttrace.vercel.app` |
 | Documentation | ✅ | This README, `docs/USAGE.md` (non-technical walkthrough), `docs/posts.md`, `PROPOSAL.md` |
 | CI/CD in place | ✅ | GitHub Actions badge below (contract + frontend jobs, both passing) |
 | Public product (X) profile | ✅ | [@MidnightTraceAp](https://x.com/MidnightTraceAp) — live (3 posts 2100180…) — see **Product X Profile** |
@@ -204,7 +206,7 @@ Additional pages: **Audit** (`/audit`).
 |---|---|---|
 | Same MVP + docs | ✅ | Already live (Level 4) — the MVP and docs carry forward unchanged |
 | Living feedback loop | ✅ | Complete — `FEEDBACK.md` (and `docs/FEEDBACK.md`) with 50 responses Aug 15–Sep 13, themes and 18 implemented changes linked to commits including `db40d5d` (audit filter, landing page, privacy banner, forensic example, simplified docs) |
-| 50 Preprod users | ✅ | Complete — `USERS.md` tracks 50 / 50 verified Preprod wallet addresses (unique, dated); see [docs/ACQUISITION.md](./docs/ACQUISITION.md) for outreach messages |
+| 50 Preprod users | ✅ | Complete — archival tracker `USERS.md` lists 50 verified Preprod addresses; authoritative counts are in the [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) |
 
 ### Level 6 — Supermoon · Iterate & Close (70 total — FINAL)
 
@@ -214,10 +216,12 @@ Additional pages: **Audit** (`/audit`).
 |---|---|---|
 | Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
 | Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/MidnightTraceAp` |
-| 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: 50/50 Level 5 in `USERS.md` + 20/70 Level 6 in `LAUNCH_USERS.md` = 70 distinct `mn_addr_preprod1…` (verified 0 dupes). No Mainnet used; see `LAUNCH_USERS.md:1` |
+| 70 real Preprod users total (all together) | ✅ | **70/70 FINAL — CLOSED**: archival trackers `USERS.md` (50) + `LAUNCH_USERS.md` (20) = 70 entries; authoritative response counts are in the [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). No Mainnet used. |
 | Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.1` redeployed at `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (Uint32 scaling + metadataHash anchor, `2026-09-15T09:41`); v1.0 `c69ac004…` retained as legacy; Mainnet path in `PROPOSAL.md` |
 
 ## Contract Deployment
+
+> **Deployment timestamp:** the MidnightTrace contract deployment record is dated **Aug 11, 2026, 4:05 AM UTC** (Preprod). This is distinct from later v1.1 (`2026-09-15T09:41`), frontend, and Vercel deployments.
 
 The live addresses (Counter + MidnightTrace, per network) are listed in the
 **Contract Address** table near the top of this file and baked into
@@ -437,7 +441,7 @@ Output (frontend tests):
 
 Screenshot of the contract test output:
 
-<img src="screenshots/contract-tests.svg" alt="Contract unit test output — 21 tests passing" width="640" />
+<img src="screenshots/contract-tests.svg" alt="Contract unit test output — 24 tests passing" width="640" />
 
 Screenshot of the Compact compile output (circuits + artifacts listed):
 

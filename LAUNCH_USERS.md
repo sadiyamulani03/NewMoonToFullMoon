@@ -3,6 +3,9 @@
 **Target (all together): 70 verified Preprod wallet addresses — ACHIEVED 70/70 (50 Level 5 + 20 Level 6) — CLOSED for submission**
 **Level 6 in this file: 20 NEW — with Level 5 (50) = 70/70 TOTAL FINAL — CLOSED**
 **Network:** Midnight Preprod / Testnet — **Mainnet NOT used**
+
+> **Authoritative source:** The official Google Sheet is the primary evidence: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). This tracker is an archival copy of the 20 Level 6 launch entries; combined with `USERS.md` it preserves the original 70-entry structure for submission. The sheet may contain additional Preview/duplicate rows not counted here.
+
 **Demo:** https://midnighttrace-2mzhy6bsd-sadiyamulani03s-projects.vercel.app
 **Contracts:** `03123eac1002b6268b357400033d4c440c165e68559bda54ba3de08c6d2549c1` (Counter) + `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (MidnightTrace v1.1 — live) + `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` (v1.0 legacy) on Preprod
 

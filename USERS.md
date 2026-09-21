@@ -3,7 +3,8 @@
 **Target:** 50 verified wallet addresses
 **Achieved:** 50 / 50
 **Collection period:** August 15, 2026 – September 13, 2026
-**Source:** Short online feedback form shared after each tester tried the dApp (see [FEEDBACK.md](./FEEDBACK.md) / [docs/FEEDBACK.md](./docs/FEEDBACK.md) for full responses). Each tester connected their **Lace/1AM wallet on Preprod** and submitted their `mn_addr_preprod…` address via the form. Addresses below are published for verification; no private keys or seeds are exposed.
+
+> **Authoritative source:** The official Google Sheet is the primary evidence: [Official evidence sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754). This tracker is an archival copy of the first 50 Preprod entries and may not reflect later sheet rows (Preview or duplicate entries).
 
 ## Summary
 

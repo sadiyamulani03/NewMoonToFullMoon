@@ -8,6 +8,9 @@
 * **Form links**
   * Form: https://docs.google.com/forms/d/e/1FAIpQLSdMZQVcwBSz4oQIHFUWWDdkxkBbyNo-wBMB7BiINVrQ70r9tw/viewform
   * Responses sheet: https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754
+
+> **Authoritative source:** The official Google Sheet is the primary evidence for all responses and wallet addresses. This file is an archival feedback log.
+
 * **Form fields (all optional, ~1 min):**
   1. Wallet address (Preprod) — for logging in `USERS.md`
   2. Overall experience — rating 1–5 (single choice)

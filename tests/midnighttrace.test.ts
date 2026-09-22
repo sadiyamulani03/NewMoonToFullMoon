@@ -198,4 +198,58 @@ describe('MidnightTrace smart contract', () => {
     sim.openCase(99n, hash, OWNER);
     expect(sim.case(99n)).toBeDefined();
   });
+
+  it('records the case creator commitment on open (v1.2 owner tracking)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    sim.openCase(1n, new Uint8Array(32), OWNER);
+    const c = sim.case(1n)!;
+    expect(c.creatorCommitment).toEqual(OWNER_COMMITMENT);
+  });
+
+  it('only the case creator can close the case (v1.2 owner gate)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    sim.openCase(1n, new Uint8Array(32), OWNER);
+    const colleague = testSecret(1);
+    sim.grantAccess(memberCommitment(colleague), OWNER);
+    // A non-creator member is rejected from closing
+    expect(() => sim.closeCase(1n, colleague)).toThrow();
+    // The creator can still close
+    sim.closeCase(1n, OWNER);
+    expect(sim.case(1n)!.phase).toBe(1); // Phase.CLOSED
+  });
+
+  it('allows collaborative logStep but not non-creator closeCase (v1.2)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    sim.openCase(1n, new Uint8Array(32), OWNER);
+    const colleague = testSecret(1);
+    sim.grantAccess(memberCommitment(colleague), OWNER);
+    // Colleague (not creator) can still log steps — collaborative forensics
+    sim.logStep(1n, 5n, colleague);
+    expect(sim.case(1n)!.total).toEqual(5n);
+    // But colleague cannot close
+    expect(() => sim.closeCase(1n, colleague)).toThrow();
+  });
+
+  it('only the case creator can update metadata (v1.2 new circuit)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    const initialHash = new Uint8Array(32).fill(0xab);
+    sim.openCase(1n, initialHash, OWNER);
+    const colleague = testSecret(1);
+    sim.grantAccess(memberCommitment(colleague), OWNER);
+    const newHash = new Uint8Array(32).fill(0xcd);
+    // Non-creator cannot update metadata
+    expect(() => sim.updateCaseMetadata(1n, newHash, colleague)).toThrow();
+    // Creator can update metadata
+    sim.updateCaseMetadata(1n, newHash, OWNER);
+    expect(sim.case(1n)!.metadataHash).toEqual(newHash);
+    // Event counter advances with the metadata update
+    expect(sim.case(1n)!.eventCount).toEqual(1n);
+  });
+
+  it('prevents metadata update on a closed case (v1.2)', () => {
+    const sim = new MidnightTraceSimulator({ ownerCommitment: OWNER_COMMITMENT });
+    sim.openCase(1n, new Uint8Array(32), OWNER);
+    sim.closeCase(1n, OWNER);
+    expect(() => sim.updateCaseMetadata(1n, new Uint8Array(32).fill(0xff), OWNER)).toThrow();
+  });
 });

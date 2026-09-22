@@ -32,9 +32,13 @@
 | Preprod  | `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` | MidnightTrace v1.1 (Uint32 + metadataHash) — Live |
 | Preprod  | `c69ac004457738109af76035270359ffd7ef5019d4b166e82d9cfcefe3552d72` | MidnightTrace v1.0 (legacy) |
 | Preview  | `e86050af934fed3ed7d6e8dfab05a7198d4d91521b68279ecaccd26e68d4ffb6` | Counter (Level 1) |
+| Local    | `66efd99ed2ca06363e37c6ccd2acd616da3e63294531085da69aa4b159ccaedc` | MidnightTrace v1.2 (Case Owner Authorization) |
 
 > The Level 4 MidnightTrace address is added to this table **and** to
 > `src/config.ts` (`MIDNIGHTTRACE_CONTRACT_ADDRESS`) right after the deploy.
+> v1.2 is deployed to the local devnet (`docker compose up -d --wait`);
+> Preprod deployment is blocked by a wallet-SDK crash on `midnight:event[v9]`
+> DUST events (see [GitHub issue #436](https://github.com/midnightntwrk/midnight-wallet/issues/436)).
 
 ## Level 5 — User Validation
 
@@ -150,7 +154,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | Requirement | Status | Evidence |
 |---|---|---|
 | Polished dApp | ✅ | Single unified repo (contracts, CLI scripts, API, frontend), full multi-page UI, live on Vercel at `https://midnighttrace.vercel.app` |
-| Tests | ✅ | 24 contract unit tests (Vitest) + ZK-asset smoke + Express API smoke (`npm run test`) |
+| Tests | ✅ | 29 contract unit tests (Vitest) + ZK-asset smoke + Express API smoke (`npm run test`) |
 | CI/CD | ✅ | Two-job GitHub Actions pipeline (`.github/workflows/ci.yml`) on push/PR |
 | Problem chosen from the provided list | ✅ | Private, verifiable compliance/forensics proofs — **MidnightTrace** (see `PROPOSAL.md`) |
 
@@ -177,9 +181,10 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | Public product (X) profile | ✅ | [@MidnightTraceAp](https://x.com/MidnightTraceAp) — live (3 posts 2100180…) — see **Product X Profile** |
 
 `contracts/midnighttrace.compact` replaces the single counter with a whole
-investigation desk, still private by default. Its five circuits:
+investigation desk, still private by default. Its six circuits:
 
-- `openCase(caseId)` — start a number-addressed case file.
+- `openCase(caseId)` — start a number-addressed case file; the caller's
+  `persistentHash` is stored as `creatorCommitment` for owner authorization.
 - `grantAccess(newCommitment, secret)` — an allowlisted member authorizes a new
   investigator *without ever revealing who*. Member secrets and step amounts
   never go on-chain.
@@ -187,7 +192,11 @@ investigation desk, still private by default. Its five circuits:
   `total` rises by the private `amount`.
 - `discloseFinding(caseId, amount, secret)` — *selective disclosure*: publish
   the running total you choose into the public `lastDisclosed` column.
+- `updateCaseMetadata(caseId, newMetadataHash, secret)` *(v1.2)* — update a
+  case's metadata anchor; only the case creator can call this, and it
+  advances the `eventCount`.
 - `closeCase(caseId, secret)` — seal the case so its totals become permanent.
+  *(v1.2)* Only the case creator can close (owner-gated `checkCreator`).
 
 Membership is a **private allowlist**: the ledger stores only commitments
 (`persistentHash` of each member's secret) in a Merkle tree. Proving membership
@@ -229,7 +238,7 @@ Additional pages: **Audit** (`/audit`).
 | Iterate on feedback | ✅ | Completed — 10 Level 6 UX improvements across `0996a4e` (11 users) + `fa584da` (9 users): persistent wallet badge, landing CTA, PROOFS tooltip, caption, legend, verify-publicly link, onboarding overlay, glossary front-load, discard confirm, simplified copy |
 | Brand assets | ✅ | `docs/BRAND_BRIEF.md` (tagline, palette `#0B1020`/`#F4C770`, X bio, banner/logo concept) + live X `https://x.com/MidnightTraceAp` |
 | 70 real Preprod users total (all together) | ⚠️ | **66/70 unique Preprod wallets verified** — archival trackers `USERS.md` (50) + `LAUNCH_USERS.md` (20) = 70 entries, but the authoritative [Google Sheet](https://docs.google.com/spreadsheets/d/1Ncc6OihXwjqCNs8Nm3CRIpyhNiFJsXEEFQlA4AyZGyA/edit?gid=1372265754#gid=1372265754) contains 66 unique Preprod wallets (67 Preprod responses, 3 Preview responses, 1 duplicate). No Mainnet used. |
-| Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.1` redeployed at `df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501` (Uint32 scaling + metadataHash anchor, `2026-09-15T09:41`); v1.0 `c69ac004…` retained as legacy; Mainnet path in `PROPOSAL.md` |
+| Fresh Level 6 Preprod deploy | ✅ | `midnighttrace v1.2` (Case Owner Authorization) deployed to local devnet at `66efd99e…` (`2026-09-22T09:42`); new `updateCaseMetadata` circuit, `creatorCommitment` allowlist field, owner-only `closeCase` (v1.0 `c69ac004…` and v1.1 `df5e0583…` retained as legacy); Preprod deploy blocked by wallet-SDK DUST-event crash (issue #436) |
 
 ## Contract Deployment
 
@@ -247,7 +256,7 @@ the amounts or the identities behind them.
 |-------------------------------------------|--------------------------------------------|
 | `ledger.total` — running counter value    | `amount` — the witness of each circuit |
 | `ledger.lastDisclosed` — amounts a caller deliberately published via `incrementAndReveal` (left at `0` in the private path) | the connection between a case and its evidence amounts |
-| MidnightTrace: the `cases` map (caseId → total, lastDisclosed, eventCount, phase), the single `aggregate`, the allowlist `memberCount`, and the allowlist Merkle root | the step amounts and every member secret — only their `persistentHash` commitments are ever stored |
+| MidnightTrace: the `cases` map (caseId → total, lastDisclosed, eventCount, metadataHash, phase, creatorCommitment), the single `aggregate`, the allowlist `memberCount`, and the allowlist Merkle root | the step amounts and every member secret — only their `persistentHash` commitments are ever stored |
 | receipt `txId` / `blockHeight` (off-chain metadata pointing at the public tx) | case description/owner (off-chain metadata only) |
 
 ## Privacy Model
@@ -259,8 +268,9 @@ the amounts or the identities behind them.
     visible new value.
   - `ledger lastDisclosed` — the most recent step amount that a caller
     deliberately published via `incrementAndReveal`.
-  - MidnightTrace: per-case `total` / `lastDisclosed` / `eventCount` / `phase`,
-    the global `aggregate`, the allowlist root, and `memberCount`.
+  - MidnightTrace: per-case `total` / `lastDisclosed` / `eventCount` /
+    `metadataHash` / `phase` / `creatorCommitment`, the global
+    `aggregate`, the allowlist root, and `memberCount`.
 ### What is PRIVATE?
 
 - **What is PRIVATE (private witness, never on-chain):**
@@ -417,7 +427,7 @@ Notes:
 ## Run Tests
 
 ```bash
-# Contract unit tests (circuit logic, state transitions, privacy) — 24 tests
+# Contract unit tests (circuit logic, state transitions, privacy) — 29 tests
 npm run test:contract
 
 # Frontend build + ZK smoke test + API smoke test
@@ -431,18 +441,20 @@ Output (contract tests):
 > vitest run
 
   ✓ tests/counter.test.ts (8 tests) 163ms
-  ✓ tests/midnighttrace.test.ts (16 tests) 904ms
+  ✓ tests/midnighttrace.test.ts (21 tests) 904ms
 
   Test Files  2 passed (2)
-       Tests  24 passed (24)
+        Tests  29 passed (29)
 ```
 
-The 16 midnighttrace tests cover: owner allowlist bootstrap, deterministic
+The 21 midnighttrace tests cover: owner allowlist bootstrap, deterministic
 ledger projection, open/duplicate cases, hidden-amount `logStep` (the amount is
 never disclosed), chain-of-custody ordering, `discloseFinding` selective
 disclosure, non-member rejection, member-grant `grantAccess`, non-member grant
 rejection, multi-case isolation + aggregate reconciliation, `closeCase` sealing,
-and the on-chain storage of commitments only (never secrets).
+on-chain storage of commitments only (never secrets), case creator tracking
+(`creatorCommitment`), owner-only `closeCase` (non-creator rejection), and the
+v1.2 `updateCaseMetadata` circuit (owner-only + non-owner rejection + closed-case rejection).
 
 Output (frontend tests):
 
@@ -535,8 +547,8 @@ A GitHub Actions pipeline runs on every push to `main` and on every pull
 request. The workflow lives at `.github/workflows/ci.yml` and runs two jobs:
 
 1. **contract** — installs the Compact compiler, compiles `counter.compact`,
-   `hello-world.compact`, and `midnighttrace.compact`, and runs the 24 contract
-   unit tests.
+    `hello-world.compact`, and `midnighttrace.compact`, and runs the 29 contract
+    unit tests.
 2. **frontend** — installs dependencies, runs the production Vite build, and
    runs both the ZK-asset smoke test and the Express API smoke test.
 

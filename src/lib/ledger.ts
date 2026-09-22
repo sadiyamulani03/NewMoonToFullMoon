@@ -20,6 +20,7 @@ export interface OnChainCase {
   eventCount: bigint;
   phase: 'ACTIVE' | 'CLOSED';
   metadataHash: Uint8Array;
+  creatorCommitment: Uint8Array;
 }
 
 export interface MidnightTraceLedgerView {
@@ -37,6 +38,7 @@ export function readMidnightTraceLedger(state: StateValue | ChargedState): Midni
   for (const [caseId, caseState] of l.cases) {
     // v1.0 compatibility: old ledger has no metadataHash
     const meta = (caseState as unknown as { metadataHash?: Uint8Array }).metadataHash ?? new Uint8Array(32);
+    const cc = (caseState as unknown as { creatorCommitment?: Uint8Array }).creatorCommitment ?? new Uint8Array(32);
     cases.push({
       caseId,
       total: caseState.total,
@@ -44,6 +46,7 @@ export function readMidnightTraceLedger(state: StateValue | ChargedState): Midni
       eventCount: caseState.eventCount,
       phase: caseState.phase === 0 ? 'ACTIVE' : 'CLOSED',
       metadataHash: meta,
+      creatorCommitment: cc,
     });
   }
   cases.sort((a, b) => (a.caseId < b.caseId ? -1 : 1));

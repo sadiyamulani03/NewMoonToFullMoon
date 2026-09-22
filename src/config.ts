@@ -2,7 +2,10 @@
  * MidnightTrace — Level 2 configuration.
  *
  * The Preprod contract address is MANDATORY. Replace the placeholder below
- * with the counter contract address you deployed on Preprod in Level 1.
+ * with the midnighttrace contract address you deployed on Preprod in Level 1.
+ * Currently set to the v1.2 local devnet deployment; Preprod deployment is
+ * blocked by a wallet-SDK crash on `midnight:event[v9]` DUST events
+ * (see https://github.com/midnightntwrk/midnight-wallet/issues/436).
  */
 export const CONTRACT_ADDRESS =
   import.meta.env.VITE_CONTRACT_ADDRESS ??
@@ -27,10 +30,11 @@ export const PRIVATE_STATE_ID = 'midnighttraceCounterPrivateState';
  * The two contract addresses are MANDATORY. The counter address was deployed
  * in Level 1/2; the midnighttrace address must be pasted after deploying the
  * Level 4 contract with `npm run deploy:midnighttrace` (Step 5).
+ * Currently set to the v1.2 local devnet deployment.
  */
 export const MIDNIGHTTRACE_CONTRACT_ADDRESS =
   import.meta.env.VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS ??
-  'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501';
+  '66efd99ed2ca06363e37c6ccd2acd616da3e63294531085da69aa4b159ccaedc';
 
 /** Private state id used by the midnighttrace contract. */
 export const MIDNIGHTTRACE_PRIVATE_STATE_ID = 'midnighttracePrivateState';

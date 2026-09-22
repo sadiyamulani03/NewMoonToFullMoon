@@ -84,6 +84,7 @@ function buildMockLedger(cases: ForensicCase[]): MidnightTraceLedgerView {
           eventCount: 0n,
           phase: c.status === 'closed' ? 'CLOSED' : 'ACTIVE',
           metadataHash: new Uint8Array(32),
+          creatorCommitment: new Uint8Array(32),
         });
       }
     }
@@ -97,6 +98,7 @@ function buildMockLedger(cases: ForensicCase[]): MidnightTraceLedgerView {
         eventCount: 0n,
         phase: c.status === 'closed' ? 'CLOSED' : 'ACTIVE',
         metadataHash: new Uint8Array(32),
+        creatorCommitment: new Uint8Array(32),
       });
     }
   }
@@ -128,6 +130,7 @@ function buildMockLedger(cases: ForensicCase[]): MidnightTraceLedgerView {
           eventCount: 0n,
           phase: c.status === 'closed' ? 'CLOSED' : 'ACTIVE',
           metadataHash: new Uint8Array(32),
+          creatorCommitment: new Uint8Array(32),
         });
       }
     }

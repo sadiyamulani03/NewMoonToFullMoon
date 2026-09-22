@@ -22,6 +22,12 @@ import CompactStandardLibrary;
 //                                   immutable, on-chain ordering.
 //    cases[caseId].phase          : ACTIVE or CLOSED (sealed integrity —
 //                                   a closed case can never change again).
+//    cases[caseId].creatorCommitment : persistentHash(secret) of the member
+//                                   who opened the case — authorizes close
+//                                   and metadata updates (v1.2 owner check).
+//    cases[caseId].metadataHash   : hash of title+description anchored at
+//                                   creation; auditors can verify the off-chain
+//                                   receipt book wasn't tampered.
 //    allowlist (HistoricMerkleTree): commitments of authorized investigators.
 //    memberCount                  : how many authorized members exist.
 //    aggregate (Counter)          : the sum of all hidden amounts across all
@@ -59,6 +65,7 @@ export struct Case {
     eventCount: Uint<32>,
     phase: Phase,
     metadataHash: Bytes<32>,
+    creatorCommitment: Bytes<32>,
 }
 
 // ── PUBLIC LEDGER ──────────────────────────────────────────────────────
@@ -94,6 +101,7 @@ export circuit openCase(caseId: Uint<32>, metadataHash: Bytes<32>, secret: Bytes
         eventCount: 0,
         phase: Phase.ACTIVE,
         metadataHash: disclose(metadataHash),
+        creatorCommitment: disclose(persistentHash<Bytes<32>>(secret)),
     });
 }
 
@@ -122,6 +130,7 @@ export circuit logStep(caseId: Uint<32>, amount: Uint<16>, secret: Bytes<32>): [
         eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: caseState.phase,
         metadataHash: caseState.metadataHash,
+        creatorCommitment: caseState.creatorCommitment,
     });
     aggregate.increment(disclose(amount));
 }
@@ -140,16 +149,20 @@ export circuit discloseFinding(caseId: Uint<32>, amount: Uint<16>, secret: Bytes
         eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: caseState.phase,
         metadataHash: caseState.metadataHash,
+        creatorCommitment: caseState.creatorCommitment,
     });
     aggregate.increment(disclose(amount));
 }
 
 // Seals a case file (integrity attestation). Once CLOSED the public ledger
 // can never change it again — a report published against a closed case is
-// provably current and unchanged. Sealing also moves the event counter.
+// provably current and unchanged. Only the case creator may seal it, preventing
+// premature closure by other authorized investigators. Sealing also advances
+// the event counter.
 export circuit closeCase(caseId: Uint<32>, secret: Bytes<32>): [] {
     assert(mutable(caseId), "Case does not exist, or is closed");
     assert(checkMembership(secret), "Not an authorized investigator");
+    assert(checkCreator(caseId, secret), "Only the case creator can close the case");
     const caseState = cases.lookup(disclose(caseId));
     cases.insert(disclose(caseId), Case {
         total: caseState.total,
@@ -157,6 +170,25 @@ export circuit closeCase(caseId: Uint<32>, secret: Bytes<32>): [] {
         eventCount: (caseState.eventCount + 1) as Uint<32>,
         phase: Phase.CLOSED,
         metadataHash: caseState.metadataHash,
+        creatorCommitment: caseState.creatorCommitment,
+    });
+}
+
+// Allows the case creator to re-anchor metadata (e.g. when new evidence
+// documents are attached off-chain). Only the original creator may call this;
+// the event counter advances so the update is auditable on-chain.
+export circuit updateCaseMetadata(caseId: Uint<32>, newMetadataHash: Bytes<32>, secret: Bytes<32>): [] {
+    assert(mutable(caseId), "Case does not exist, or is closed");
+    assert(checkMembership(secret), "Not an authorized investigator");
+    assert(checkCreator(caseId, secret), "Only the case creator can update metadata");
+    const caseState = cases.lookup(disclose(caseId));
+    cases.insert(disclose(caseId), Case {
+        total: caseState.total,
+        lastDisclosed: caseState.lastDisclosed,
+        eventCount: (caseState.eventCount + 1) as Uint<32>,
+        phase: caseState.phase,
+        metadataHash: disclose(newMetadataHash),
+        creatorCommitment: caseState.creatorCommitment,
     });
 }
 
@@ -168,6 +200,15 @@ circuit checkMembership(secret: Bytes<32>): Boolean {
     const commitment = persistentHash<Bytes<32>>(secret);
     const authPath = findAuthPath(commitment);
     return allowlist.checkRoot(disclose(merkleTreePathRoot<24, Bytes<32>>(authPath)));
+}
+
+// Proves the caller is the case creator: `persistentHash(secret)` must equal
+// the `creatorCommitment` stored on-chain when the case was opened. Compared
+// inside the ZK circuit — neither the secret nor the identity is revealed.
+circuit checkCreator(caseId: Uint<32>, secret: Bytes<32>): Boolean {
+    const commitment = persistentHash<Bytes<32>>(secret);
+    const caseState = cases.lookup(disclose(caseId));
+    return commitment == caseState.creatorCommitment;
 }
 
 circuit mutable(caseId: Uint<32>): Boolean {

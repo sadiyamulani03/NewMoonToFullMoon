@@ -150,7 +150,7 @@ Pages: **Dashboard** (`/`), **Cases** (`/cases`), **Case detail** (`/cases/:id`)
 | Requirement | Status | Evidence |
 |---|---|---|
 | Polished dApp | ✅ | Single unified repo (contracts, CLI scripts, API, frontend), full multi-page UI, live on Vercel at `https://midnighttrace.vercel.app` |
-| Tests | ✅ | 21 contract unit tests (Vitest) + ZK-asset smoke + Express API smoke (`npm run test`) |
+| Tests | ✅ | 24 contract unit tests (Vitest) + ZK-asset smoke + Express API smoke (`npm run test`) |
 | CI/CD | ✅ | Two-job GitHub Actions pipeline (`.github/workflows/ci.yml`) on push/PR |
 | Problem chosen from the provided list | ✅ | Private, verifiable compliance/forensics proofs — **MidnightTrace** (see `PROPOSAL.md`) |
 
@@ -535,7 +535,7 @@ A GitHub Actions pipeline runs on every push to `main` and on every pull
 request. The workflow lives at `.github/workflows/ci.yml` and runs two jobs:
 
 1. **contract** — installs the Compact compiler, compiles `counter.compact`,
-   `hello-world.compact`, and `midnighttrace.compact`, and runs the 21 contract
+   `hello-world.compact`, and `midnighttrace.compact`, and runs the 24 contract
    unit tests.
 2. **frontend** — installs dependencies, runs the production Vite build, and
    runs both the ZK-asset smoke test and the Express API smoke test.
@@ -589,6 +589,6 @@ NewMoonToFullMoon/
 | `docs/USAGE.md` | Step-by-step user guide for the Level 4 investigation desk |
 | `FEEDBACK.md` / `docs/FEEDBACK.md` | Level 5 feedback log — collection method, raw log, themes, changes (both paths) |
 | `docs/posts.md` | The three X/Twitter promo posts for the Level 4 submission |
-| `screenshots/contract-tests.svg` | Test-output screenshot (21 tests passing) |
+| `screenshots/contract-tests.svg` | Test-output screenshot (24 tests passing) |
 | `screenshots/midnighttrace-deployed.svg` | Level 4 MidnightTrace deploy (address + owner bootstrap) |
 | `.github/workflows/ci.yml` | CI/CD pipeline with passing runs |

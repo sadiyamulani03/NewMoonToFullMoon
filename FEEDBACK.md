@@ -221,7 +221,7 @@ Same 3-column format as Level 5, now for the Sep 13, 2026 batch (19:12–23:19 U
 | Surface "Don't want to connect? Verify publicly" on landing | Elijah Negasi (4/5) — "Surface link from landing page: Don't want to connect? Verify publicly" | `0996a4e` ✅ `src/pages/Landing.tsx:31` explicit link → `/audit` |
 | First-visit onboarding overlay reusing existing copy | Mark Guevarra (4/5) — "Gate first visit behind short onboarding overlay pulling from existing copy" | `0996a4e` ✅ `src/components/OnboardingOverlay.tsx:1` overlay reuses Landing hero + steps, gated by localStorage, mounted in `Landing.tsx:6` |
 
-> All 7 verified by `npm run build` + 21 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
+> All 7 verified by `npm run build` + 24 contract tests. Canonical mapping is in `What We Changed — Level 6` above.
 
 ## Level 6 Supplemental — Sep 13 late + Sep 14 batch (9 new Preprod testers — 20 NEW Level 6 entries, 66/70 unique Preprod wallets)
 

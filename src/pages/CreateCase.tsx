@@ -101,9 +101,9 @@ export default function CreateCase() {
                 <textarea id="case-desc" className="input" rows={6} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is being traced? What would a verified total prove? Who reviews it?" style={{ fontSize: '17px', lineHeight: 1.65 }} />
                 <div className="mono" style={{ fontSize: '0.72rem', color: canNext2 ? 'var(--verify)' : 'var(--muted)', marginTop: 8 }}>{description.trim().length} chars {canNext2 ? '✓ ready' : '· keep going'}</div>
               </div>
-              <div style={{ marginTop: 20, padding: '16px 18px', background: 'var(--ink)', color: 'var(--paper)', borderRadius: 12, fontFamily: 'var(--font-mono)', fontSize: '0.8rem', lineHeight: 1.6 }}>
-                <span className="redacted redacted-sm" style={{ background: '#000' }}>████ amount</span>
-                <span style={{ color: 'rgba(244,239,228,0.7)' }}> — evidence amounts are added later, inside the dossier, and never leave your device.</span>
+              <div style={{ marginTop: 20, padding: '16px 18px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 12, fontFamily: 'var(--font-mono)', fontSize: '0.82rem', lineHeight: 1.6 }}>
+                <span className="redacted redacted-sm">████ amount</span>
+                <span style={{ color: 'var(--text-secondary)' }}> — evidence amounts are added later, inside the dossier, and never leave your device.</span>
               </div>
               <div className="flow-nav">
                 <button type="button" className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>

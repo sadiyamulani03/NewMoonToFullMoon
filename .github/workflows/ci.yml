@@ -4,15 +4,45 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  contract:
-    name: Compact compile + contract tests
+  typecheck:
+    name: TypeScript Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
+
+  contract:
+    name: Compact compile + contract unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -22,32 +52,37 @@ jobs:
         with:
           compact-version: '0.31.1'
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Compile the Compact contracts (counter + midnighttrace)
+      - name: Compile the Compact contracts (hello-world, counter, midnighttrace)
         run: npm run compile
 
-      - name: Contract unit tests
-        run: npm test
+      - name: Run contract unit tests (Vitest)
+        run: npm run test:contract
 
   frontend:
-    name: Frontend build + smoke test
+    name: Frontend build + ZK asset and API smoke tests
     runs-on: ubuntu-latest
+    needs: [typecheck]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Production build
+      - name: Production Vite build
         run: npm run build
 
-      - name: Smoke test (verifies ZK assets ship in dist)
+      - name: Smoke test (verifies ZK prover & verifier keys ship in dist)
         run: node tests/smoke.mjs
 
-      - name: API smoke test
+      - name: API server smoke test
         run: node tests/api-smoke.mjs

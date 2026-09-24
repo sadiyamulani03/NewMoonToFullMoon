@@ -13,13 +13,14 @@ export function BrandMark({ size = 40, showVerified = true }: { size?: number; s
         width: size,
         height: size,
         borderRadius: r,
-        background: '#0B1020',
-        border: '1.2px solid rgba(244,199,112,0.42)',
+        background: 'linear-gradient(135deg, #0d1424 0%, #070a12 100%)',
+        border: '1.4px solid rgba(245, 158, 11, 0.45)',
         display: 'grid',
         placeItems: 'center',
         position: 'relative',
         flexShrink: 0,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+        boxShadow: '0 0 16px rgba(245, 158, 11, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       }}
     >
       <span

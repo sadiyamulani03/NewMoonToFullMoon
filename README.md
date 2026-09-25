@@ -17,7 +17,7 @@
 
 ## Live Demo
 
-- **Live Link:** https://midnighttrace-19lyippfh-sadiyamulani03s-projects.vercel.app/
+- **Live Link:** https://midnighttrace-kfws1hirb-sadiyamulani03s-projects.vercel.app/
 - **Demo video :** https://drive.google.com/file/d/1CF4R80XEjnCJSuiZLb021i9prMtbACZg/view?usp=sharing
   
 > Runs the complete dApp: wallet + on-chain calls, the multi-page React frontend,

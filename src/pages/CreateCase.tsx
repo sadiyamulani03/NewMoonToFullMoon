@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createCase } from '../lib/api';
 import { useDemo } from '../context/DemoContext';
+import { useToast } from '../context/ToastContext';
 
 const STEPS = [
   { n: '01', t: 'Name the matter', d: 'Public title + owner. Only a hash touches the chain.' },
@@ -13,6 +14,7 @@ const STEPS = [
 export default function CreateCase() {
   const navigate = useNavigate();
   const { isDemo, demoOpenCase } = useDemo();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -22,6 +24,16 @@ export default function CreateCase() {
 
   const canNext1 = title.trim().length >= 3;
   const canNext2 = description.trim().length >= 10;
+  const isDirty = title.trim().length > 0 || description.trim().length > 0 || owner.trim().length > 0;
+
+  const handleCancel = () => {
+    if (isDirty) {
+      if (!window.confirm('Discard this new case draft? Any entered details will be lost.')) {
+        return;
+      }
+    }
+    navigate('/cases');
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,20 +43,23 @@ export default function CreateCase() {
       if (isDemo) {
         const cid = BigInt(Math.floor(Math.random() * 9000) + 10);
         const id = demoOpenCase(cid, title.trim(), description.trim());
+        toast(`✓ Demo case #${cid} created!`, 'success');
         navigate(`/cases/${id}`);
         return;
       }
       const c = await createCase({ title: title.trim(), description: description.trim(), owner: owner.trim() || 'anonymous' });
+      toast('✓ Case file created on Midnight Preprod', 'success');
       navigate(`/cases/${c.id}`);
     } catch (err: unknown) {
       setError(String((err as Error).message || err));
+      toast('Failed to create case', 'error');
     } finally { setBusy(false); }
   };
 
   return (
     <>
       <header className="masthead">
-        <div className="eyebrow">New matter · guided filing · {step} of 4</div>
+        <div className="eyebrow eyebrow-verify">New matter · guided filing · {step} of 4</div>
         <h1 className="display masthead-title">File a new case.</h1>
         <p className="masthead-sub">Four moves. Nothing sensitive touches the chain — you&apos;re opening a folder, not uploading evidence.</p>
         <div className="progress-hairline" aria-hidden="true"><i style={{ width: `${(step / 4) * 100}%` }} /></div>
@@ -63,7 +78,7 @@ export default function CreateCase() {
                   <span className="flow-step-t">{s.t}</span>
                   <span className="flow-step-d" style={{ display: 'block' }}>{s.d}</span>
                   {idx < step && (
-                    <button className="btn btn-ghost" style={{ padding: '2px 0', fontSize: '0.78rem' }} onClick={() => setStep(idx)}>Edit →</button>
+                    <button type="button" className="btn btn-ghost" style={{ padding: '2px 0', fontSize: '0.78rem' }} onClick={() => setStep(idx)}>Edit →</button>
                   )}
                 </span>
               </li>
@@ -71,7 +86,7 @@ export default function CreateCase() {
           })}
         </ol>
 
-        {/* RIGHT — open canvas, no card */}
+        {/* RIGHT — open canvas */}
         <form onSubmit={onSubmit} className="flow-canvas">
           {step === 1 && (
             <div>
@@ -84,10 +99,24 @@ export default function CreateCase() {
               </div>
               <div className="flow-field">
                 <label className="field-label" htmlFor="case-owner">Owner handle</label>
-                <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs  (defaults to anonymous)" style={{ maxWidth: 420 }} />
+                <input id="case-owner" className="input" value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="acc-labs (defaults to anonymous)" style={{ maxWidth: 420 }} />
               </div>
+
+              {/* Live Dossier Card Preview */}
+              {title.trim().length > 0 && (
+                <div className="preview-card">
+                  <span className="preview-badge">⚡ Live Dossier Tab Preview</span>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+                    {title}
+                  </div>
+                  <div className="mono" style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Owner: {owner.trim() || 'anonymous'} · State: NEW · Chain: Hash only
+                  </div>
+                </div>
+              )}
+
               <div className="flow-nav">
-                <Link to="/cases" className="btn btn-ghost">← Cancel</Link>
+                <button type="button" onClick={handleCancel} className="btn btn-ghost">← Cancel</button>
                 <button type="button" className="btn btn-primary" onClick={() => canNext1 && setStep(2)} disabled={!canNext1} style={{ marginLeft: 'auto', minWidth: 180 }}>Continue →</button>
               </div>
             </div>
@@ -98,8 +127,8 @@ export default function CreateCase() {
               <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Off-chain only. This never touches the ledger — it lives in the case folder so collaborators know what “done” looks like.</p>
               <div className="flow-field">
                 <label className="field-label" htmlFor="case-desc">Description · off-chain, min 10 chars</label>
-                <textarea id="case-desc" className="input" rows={6} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is being traced? What would a verified total prove? Who reviews it?" style={{ fontSize: '17px', lineHeight: 1.65 }} />
-                <div className="mono" style={{ fontSize: '0.72rem', color: canNext2 ? 'var(--verify)' : 'var(--muted)', marginTop: 8 }}>{description.trim().length} chars {canNext2 ? '✓ ready' : '· keep going'}</div>
+                <textarea id="case-desc" className="input" rows={6} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is being traced? What would a verified total prove? Who reviews it?" style={{ fontSize: '16px', lineHeight: 1.65 }} />
+                <div className="mono" style={{ fontSize: '0.72rem', color: canNext2 ? 'var(--verify)' : 'var(--muted)', marginTop: 8 }}>{description.trim().length} chars {canNext2 ? '✓ ready' : '· keep going (min 10 chars)'}</div>
               </div>
               <div style={{ marginTop: 20, padding: '16px 18px', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 12, fontFamily: 'var(--font-mono)', fontSize: '0.82rem', lineHeight: 1.6 }}>
                 <span className="redacted redacted-sm">████ amount</span>
@@ -115,7 +144,7 @@ export default function CreateCase() {
             <div>
               <h2>Check the privacy split.</h2>
               <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Before filing, confirm what the world will see — and what it never will.</p>
-              <div style={{ marginTop: 24, borderTop: '1px solid var(--line-strong)' }}>
+              <div style={{ marginTop: 24, borderTop: '1px solid var(--border-medium)' }}>
                 {[
                   { k: 'Title', v: title || '—', note: 'public label' },
                   { k: 'Owner', v: owner || 'anonymous', note: 'folder meta' },
@@ -123,7 +152,7 @@ export default function CreateCase() {
                   { k: 'On-chain', v: 'caseId + metadataHash', note: 'nothing sensitive' },
                   { k: 'Amounts', v: 'redacted', note: 'added later, stay local', red: true },
                 ].map((r) => (
-                  <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '16px 0', borderBottom: '1px solid var(--line-soft)', fontSize: '0.95rem', alignItems: 'baseline' }}>
+                  <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '16px 0', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.95rem', alignItems: 'baseline' }}>
                     <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{r.k}</span>
                     <span style={{ textAlign: 'right' }}>
                       {r.red ? <span className="redacted redacted-sm">redacted</span> : <strong>{r.v}</strong>}
@@ -142,7 +171,11 @@ export default function CreateCase() {
             <div>
               <h2>File it.</h2>
               <p style={{ color: 'var(--muted)', maxWidth: '56ch' }}>Creates the folder{isDemo ? ' in the demo ledger (not on-chain)' : ' via API + on-chain openCase for the ledger index'}. You&apos;ll land in the dossier, ready to log the first hidden finding.</p>
-              {error && <div role="alert" style={{ marginTop: 16, padding: '12px 14px', borderRadius: 10, background: 'rgba(163,46,31,0.07)', border: '1px solid rgba(163,46,31,0.22)', color: '#A32E1F', fontSize: '0.9rem' }}>{error}</div>}
+              {error && (
+                <div role="alert" style={{ marginTop: 16, padding: '14px 18px', borderRadius: 10, background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.35)', color: '#fb7185', fontSize: '0.9rem' }}>
+                  {error}
+                </div>
+              )}
               <div className="flow-nav">
                 <button type="button" className="btn btn-ghost" onClick={() => setStep(3)}>← Back</button>
                 <button type="submit" className="btn btn-primary" disabled={busy} style={{ marginLeft: 'auto', minWidth: 220, padding: '14px 24px' }}>{busy ? 'Filing…' : 'File case securely →'}</button>

@@ -2,13 +2,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { useMidnightContext } from '../context/MidnightContext';
+import { useToast } from '../context/ToastContext';
 import FaucetDrawer from '../components/FaucetDrawer';
 
 export default function Landing() {
   const { isDemo, enableDemo, mockCases, mockLedger, demoLogStep, demoDisclose } = useDemo();
   const { isConnected, connect } = useMidnightContext();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const goDemo = () => { if (!isDemo) enableDemo(); navigate('/dashboard'); };
+  const goDemo = () => {
+    if (!isDemo) enableDemo();
+    toast('✓ Launching interactive demo sandbox', 'info');
+    navigate('/dashboard');
+  };
   
   const [demoAmt, setDemoAmt] = useState('25');
   const [demoMsg, setDemoMsg] = useState<string | null>(null);
@@ -37,6 +43,7 @@ export default function Landing() {
       demoLogStep(7n, n, demoCase.id);
       setIsProving(false);
       setDemoMsg(`Proof verified on-chain: Total incremented by [REDACTED] ✓`);
+      toast(`✓ ZK Witness generated — amount redacted, total verified`, 'success');
       
       setLiveRows(prev => [
         ...prev,
@@ -57,6 +64,7 @@ export default function Landing() {
     const n = BigInt(parseInt(demoAmt || '0', 10) || 0);
     demoDisclose(7n, n || 42n, demoCase.id);
     setDemoMsg(`Disclosed to public ledger → lastDisclosed updated ✓`);
+    toast('✓ Disclosed running total to public ledger', 'info');
     setLiveRows(prev => [
       ...prev,
       {

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { addReceipt, exportCaseReceipts, getCase, setCaseStatus, type ForensicCase } from '../lib/api';
 import { useMidnightContext } from '../context/MidnightContext';
 import { useDemo } from '../context/DemoContext';
+import { useToast } from '../context/ToastContext';
 import { commitmentForSecret, toHex } from '../lib/membership';
 import { MIDNIGHTTRACE_OWNER_SECRET } from '../config';
 import WalletStatus from '../components/WalletStatus';
@@ -53,6 +54,7 @@ export default function CaseDetail() {
 
   const { isConnected, walletState, isMobile, midLedger, memberCommitmentHex, membershipStatus, applyOwnerSecret, callOpenCase, callGrantAccess, callLogStep, callDiscloseFinding, callCloseCase } = useMidnightContext();
   const { isDemo, mockCases, mockLedger, demoLogStep, demoDisclose, demoClose, demoOpenCase, getDemoCase, enableDemo } = useDemo();
+  const { toast } = useToast();
   const ledger = isDemo ? mockLedger : midLedger;
 
   const reload = useCallback(() => {
@@ -250,7 +252,14 @@ export default function CaseDetail() {
   const [shareCopied, setShareCopied] = useState(false);
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/cases/${id}?audit=${onChainIdx?.toString() ?? caseIndex}`;
   const copyShare = async () => {
-    try { await navigator.clipboard.writeText(shareUrl); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {}
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      toast('✓ Case share link copied to clipboard', 'success');
+      setTimeout(() => setShareCopied(false), 1800);
+    } catch {
+      toast('Failed to copy link', 'warning');
+    }
   };
   const exportJson = () => {
     if (!caseItem) return;
@@ -259,6 +268,7 @@ export default function CaseDetail() {
     const blob = new Blob([JSON.stringify(withShare, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `midnighttrace-${caseItem.id}.json`; a.click(); URL.revokeObjectURL(url);
+    toast('✓ Case dossier exported as JSON', 'info');
   };
 
   const sealed = onChainCase?.phase === 'CLOSED' || caseItem?.status === 'closed';
@@ -266,17 +276,17 @@ export default function CaseDetail() {
 
   return (
     <>
-      {/* BREADCRUMB — hairline, not pill */}
-      <nav className="mono" aria-label="Breadcrumb" style={{ fontSize: '0.76rem', color: 'var(--muted)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link to="/dashboard" style={{ color: 'var(--muted)' }}>Workspace</Link>
+      {/* BREADCRUMB — sleek cyber breadcrumb */}
+      <nav className="mono" aria-label="Breadcrumb" style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Link to="/dashboard" style={{ color: 'var(--text-secondary)' }}>Workspace</Link>
         <span>/</span>
-        <Link to="/cases" style={{ color: 'var(--muted)' }}>Cases</Link>
+        <Link to="/cases" style={{ color: 'var(--text-secondary)' }}>Cases</Link>
         <span>/</span>
-        <strong style={{ color: 'var(--ink)' }}>{caseItem?.title ?? id.slice(0, 12)}</strong>
+        <strong style={{ color: '#fff' }}>{caseItem?.title ?? id.slice(0, 12)}</strong>
         {isDemo && <span className="badge badge-verify">Demo — not on-chain</span>}
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-          <button className="btn btn-ghost" onClick={copyShare} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>{shareCopied ? 'Copied ✓' : 'Copy share link'}</button>
-          <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 10px', fontSize: '0.78rem' }}>Export JSON</button>
+          <button className="btn btn-ghost" onClick={copyShare} style={{ padding: '6px 12px', fontSize: '0.78rem' }}>{shareCopied ? 'Copied ✓' : '📋 Copy share link'}</button>
+          <button className="btn btn-ghost" onClick={exportJson} disabled={!caseItem || !caseItem.receipts.length} style={{ padding: '6px 12px', fontSize: '0.78rem' }}>📥 Export JSON</button>
         </span>
       </nav>
 
@@ -287,7 +297,11 @@ export default function CaseDetail() {
           <div className="skeleton" style={{ height: 200, opacity: 0.6 }} />
         </div>
       )}
-      {error && <div role="alert" style={{ color: '#A32E1F', padding: '16px 0', borderTop: '2px solid #A32E1F', fontSize: '0.92rem' }}>{error} <span style={{ color: 'var(--muted)' }}>— try refresh or enable Demo.</span></div>}
+      {error && (
+        <div role="alert" style={{ background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.35)', color: '#fb7185', padding: '16px 20px', borderRadius: 'var(--radius-md)', fontSize: '0.92rem' }}>
+          {error} <span style={{ color: 'var(--text-secondary)' }}>— try refresh or enable Demo mode.</span>
+        </div>
+      )}
 
       {caseItem && (
         <article className="dossier">
@@ -311,19 +325,19 @@ export default function CaseDetail() {
           </div>
 
           {!isDemo && !isConnected && (
-            <div style={{ padding: '20px 0', borderTop: '1px solid var(--line)' }}><WalletStatus walletState={walletState} isMobile={isMobile} /></div>
+            <div style={{ padding: '20px 0', borderTop: '1px solid var(--border-subtle)' }}><WalletStatus walletState={walletState} isMobile={isMobile} /></div>
           )}
           {isConnected && !isDemo && membershipStatus === 'not-member' && (
-            <div style={{ padding: '18px 0', borderTop: '1px solid var(--line)', display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ padding: '18px 20px', borderRadius: 'var(--radius-md)', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', margin: '16px 0' }}>
               <div>
-                <div className="mono" style={{ fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ochre)', fontWeight: 700 }}>● Not on allowlist — join required</div>
-                <div style={{ fontSize: '0.88rem', color: 'var(--muted)', marginTop: 4, maxWidth: '60ch' }}>Preprod uses one shared owner commitment. Apply it and retry instantly — no grant needed.</div>
+                <div className="mono" style={{ fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--amber)', fontWeight: 700 }}>● Not on allowlist — join required</div>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: 4, maxWidth: '60ch' }}>Preprod uses one shared owner commitment. Apply it and retry instantly — no grant needed.</div>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button className="btn btn-primary" style={{ fontSize: '0.84rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — commitment applied. Retry the action.'); setMsgTechnical(null); } catch (e) { setMsg('Join failed.'); setMsgTechnical(String(e)); } }}>
+                <button className="btn btn-primary" style={{ fontSize: '0.84rem' }} onClick={() => { try { applyOwnerSecret(MIDNIGHTTRACE_OWNER_SECRET); setMsg('✓ Joined as investigator — commitment applied. Retry the action.'); toast('✓ Joined as authorized investigator', 'success'); setMsgTechnical(null); } catch (e) { setMsg('Join failed.'); setMsgTechnical(String(e)); } }}>
                   Join as investigator
                 </button>
-                <button className="btn btn-secondary" style={{ fontSize: '0.84rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — no allowlist needed.'); } catch {} }}>Enable demo</button>
+                <button className="btn btn-secondary" style={{ fontSize: '0.84rem' }} onClick={() => { try { enableDemo(); setMsg('Demo enabled — no allowlist needed.'); toast('✓ Demo mode active', 'info'); } catch {} }}>Enable demo</button>
               </div>
             </div>
           )}
@@ -425,45 +439,90 @@ export default function CaseDetail() {
                   {ledger && <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 6 }}>Next free #{ledger.cases.length ? (ledger.cases.reduce((m, c) => c.caseId > m ? c.caseId : m, 0n) + 1n).toString() : '0'} · {isDemo ? 'demo' : 'preprod'}</div>}
                 </div>
                 <div>
-                  <label className="field-label" htmlFor="action-sel">Step</label>
-                  <select id="action-sel" className="input" value={action} onChange={(e) => setAction(e.target.value as Action)}>
-                    <option value="logStep">① Log finding — private amount → proof</option>
-                    <option value="discloseFinding">② Disclose — publish running total</option>
-                    <option value="closeCase">③ Close — seal the matter</option>
-                  </select>
+                  <label className="field-label">Action</label>
+                  <div className="action-tabs">
+                    <button
+                      type="button"
+                      className={`action-tab-btn ${action === 'logStep' ? 'selected' : ''}`}
+                      onClick={() => setAction('logStep')}
+                    >
+                      <span style={{ fontSize: '1.1rem' }}>🔒</span>
+                      <span>① Log Finding</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-tab-btn ${action === 'discloseFinding' ? 'selected' : ''}`}
+                      onClick={() => setAction('discloseFinding')}
+                    >
+                      <span style={{ fontSize: '1.1rem' }}>📢</span>
+                      <span>② Disclose</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`action-tab-btn ${action === 'closeCase' ? 'selected' : ''}`}
+                      onClick={() => setAction('closeCase')}
+                    >
+                      <span style={{ fontSize: '1.1rem' }}>🛡️</span>
+                      <span>③ Seal Case</span>
+                    </button>
+                  </div>
                 </div>
+
                 {action !== 'closeCase' && (
                   <div>
                     <label className="field-label" htmlFor="amt">{action === 'logStep' ? 'Hidden amount — 🔒 never leaves device' : 'Total to publish'}</label>
-                    <input id="amt" className="input" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18  (max 65,535)' : 'e.g. 42'} maxLength={5} style={{ fontSize: '1.3rem', textAlign: 'center' }} />
+                    <input id="amt" className="input mono" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18 (max 65,535)' : 'e.g. 42'} maxLength={5} style={{ fontSize: '1.3rem', textAlign: 'center' }} />
                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 6, lineHeight: 1.55 }}>
                       {action === 'logStep'
                         ? <><span className="redacted redacted-sm">amount</span> stays local · wire proves <code className="mono">total&apos; = total + amount</code> · public sees only total ✓</>
                         : <>Publishes <code className="mono">lastDisclosed</code>. All step amounts stay <span className="redacted redacted-sm">redacted</span>.</>}
                     </div>
+
+                    {/* Live Cryptographic State Transformation Formula Deck */}
+                    <div className="formula-deck">
+                      <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--cyan)', fontWeight: 700 }}>
+                        ZK State Transform
+                      </div>
+                      <div className="formula-eq">
+                        <span className="formula-pill formula-pill-verify">
+                          Old: {onChainCase ? onChainCase.total.toString() : '0'}
+                        </span>
+                        <span>+</span>
+                        <span className="formula-pill formula-pill-private">
+                          🔒 [Redacted: {amount || '?'}]
+                        </span>
+                        <span>=</span>
+                        <span className="formula-pill formula-pill-verify">
+                          New: {onChainCase ? (onChainCase.total + (BigInt(amount || '0'))).toString() : amount || '0'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                        Proof is computed in browser. Only the new total touches Midnight Preprod.
+                      </div>
+                    </div>
                   </div>
                 )}
                 {!onChainCase ? (
-                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => void open()} disabled={busy}>{busy ? txStateLabel(txState) || 'Opening…' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
+                  <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={() => void open()} disabled={busy}>{busy ? txStateLabel(txState) || 'Opening…' : `Open case #${caseIndex || '—'} on ledger${isDemo ? ' (demo)' : ''}`}</button>
                 ) : (
-                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => void run()} disabled={busy}>
+                  <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={() => void run()} disabled={busy}>
                     {busy ? txStateLabel(txState) || 'Generating proof…' : action === 'logStep' ? 'Generate proof — log finding' : action === 'discloseFinding' ? 'Generate proof — disclose' : 'Seal case — final attestation'}
                   </button>
                 )}
                 {busy && <TxProgress stage={busyStage} />}
                 {msg && (
-                  <div role="status" style={{ padding: '12px', borderRadius: 10, fontSize: '0.88rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--ochre-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--ochre-border)'}`, color: msg.startsWith('✓') ? 'var(--verify)' : 'var(--ochre)' }}>
+                  <div role="status" style={{ padding: '14px 16px', borderRadius: 10, fontSize: '0.88rem', background: msg.startsWith('✓') ? 'var(--verify-soft)' : 'var(--amber-soft)', border: `1px solid ${msg.startsWith('✓') ? 'var(--verify-border)' : 'var(--amber-border)'}`, color: msg.startsWith('✓') ? '#34d399' : '#fbbf24', marginTop: 10 }}>
                     {msg}
                     {msgTechnical && (
                       <div style={{ marginTop: 8 }}>
                         <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.74rem' }} onClick={() => setShowTechnical((v) => !v)}>{showTechnical ? 'Hide technical details' : 'Show technical details'}</button>
-                        {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '10px', background: 'rgba(0,0,0,0.06)', borderRadius: 8, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--muted)' }}>{msgTechnical}</pre>}
+                        {showTechnical && <pre className="mono" style={{ marginTop: 6, padding: '10px', background: 'rgba(0,0,0,0.4)', borderRadius: 8, fontSize: '0.72rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'var(--text-secondary)' }}>{msgTechnical}</pre>}
                       </div>
                     )}
                   </div>
                 )}
                 {msg?.startsWith('✓') && lastProof && (
-                  <div style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 14, display: 'grid', gap: 8, fontSize: '0.86rem' }}>
+                  <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14, display: 'grid', gap: 8, fontSize: '0.86rem', marginTop: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Verification</span><strong style={{ color: 'var(--verify)' }}>✓ VERIFIED</strong></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Case</span><code className="mono">#{lastProof.caseId}</code></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>Proof</span><code className="mono">{lastProof.txId.slice(0, 14)}…</code></div>

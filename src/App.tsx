@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { MidnightProvider } from './context/MidnightContext';
 import { DemoProvider } from './context/DemoContext';
+import { ToastProvider } from './context/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import MarketingLayout from './components/MarketingLayout';
@@ -36,7 +37,8 @@ export default function App() {
     <BrowserRouter>
       <DemoProvider>
         <MidnightProvider>
-          <ErrorBoundary>
+          <ToastProvider>
+            <ErrorBoundary>
             <Routes>
               <Route element={<MarketingLayout />}>
                 <Route path="/" element={<Landing />} />
@@ -53,8 +55,9 @@ export default function App() {
               </Route>
             </Routes>
           </ErrorBoundary>
-        </MidnightProvider>
-      </DemoProvider>
-    </BrowserRouter>
+        </ToastProvider>
+      </MidnightProvider>
+    </DemoProvider>
+  </BrowserRouter>
   );
 }

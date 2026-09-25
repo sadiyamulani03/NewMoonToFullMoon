@@ -39,6 +39,27 @@ export default function Dashboard() {
   const aggregate = ledger?.aggregate.toString() ?? '—';
   const members = ledger?.memberCount.toString() ?? '—';
 
+  const [queueFilter, setQueueFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'sealed'>('all');
+
+  const filteredRows = useMemo(() => {
+    let rows = tableRows;
+    if (statusFilter === 'open') {
+      rows = rows.filter((r) => r.stepType !== 'closeCase');
+    } else if (statusFilter === 'sealed') {
+      rows = rows.filter((r) => r.stepType === 'closeCase');
+    }
+    const q = queueFilter.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter((r) =>
+        r.caseTitle.toLowerCase().includes(q) ||
+        r.txId.toLowerCase().includes(q) ||
+        String(r.caseIndex ?? '').includes(q)
+      );
+    }
+    return rows;
+  }, [tableRows, queueFilter, statusFilter]);
+
   return (
     <>
       {/* MASTHEAD — editorial, not command bar */}
@@ -72,26 +93,38 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* OPEN STATS — dividers, no boxes */}
+      {/* OPEN STATS — with subtle glowing icons */}
       <section aria-label="Ledger at a glance">
         <div className="stat-strip">
           <div className="stat-open">
-            <span className="stat-open-label">Cases on ledger</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="stat-open-label">Cases on ledger</span>
+              <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>📁</span>
+            </div>
             <span className="stat-open-value">{displayCases ? displayCases.length : '—'}</span>
             <span className="stat-open-sub">{open} open · {disclosed} disclosed</span>
           </div>
           <div className="stat-open">
-            <span className="stat-open-label">Private findings</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="stat-open-label">Private findings</span>
+              <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>🔒</span>
+            </div>
             <span className="stat-open-value">{displayCases ? findings : '—'}</span>
             <span className="stat-open-sub">amounts stay redacted</span>
           </div>
           <div className="stat-open">
-            <span className="stat-open-label">Verified · 7 days</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="stat-open-label">Verified · 7 days</span>
+              <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>🛡️</span>
+            </div>
             <span className="stat-open-value" style={{ color: 'var(--verify)' }}>{displayCases ? verifiedWeek : '—'}</span>
             <span className="stat-open-sub">proofs checked</span>
           </div>
           <div className="stat-open">
-            <span className="stat-open-label">Awaiting review</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="stat-open-label">Awaiting review</span>
+              <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>⏳</span>
+            </div>
             <span className="stat-open-value" style={{ color: 'var(--ochre)' }}>{displayCases ? open : '—'}</span>
             <span className="stat-open-sub">open matters</span>
           </div>
@@ -108,25 +141,62 @@ export default function Dashboard() {
             </div>
             <Link to="/cases" className="section-link">All cases →</Link>
           </div>
+
+          {/* Quick search and filter controls */}
+          <div className="filter-bar" style={{ marginBottom: 4 }}>
+            <div className="search-box" style={{ maxWidth: 360 }}>
+              <span className="search-icon" aria-hidden="true">🔍</span>
+              <input
+                className="input"
+                placeholder="Search matter title or tx..."
+                value={queueFilter}
+                onChange={(e) => setQueueFilter(e.target.value)}
+                style={{ padding: '8px 12px 8px 36px', fontSize: '0.86rem' }}
+                aria-label="Filter priority queue"
+              />
+            </div>
+            <div className="filter-pills">
+              {(['all', 'open', 'sealed'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={`filter-pill ${statusFilter === mode ? 'active' : ''}`}
+                  onClick={() => setStatusFilter(mode)}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+            {queueFilter && (
+              <button className="btn btn-ghost" onClick={() => setQueueFilter('')} style={{ padding: '4px 8px', fontSize: '0.78rem' }}>
+                Clear
+              </button>
+            )}
+          </div>
+
           {!displayCases ? (
             <div style={{ display: 'grid', gap: 12, padding: '12px 0' }}>
               <div className="skeleton" style={{ height: 52 }} />
               <div className="skeleton" style={{ height: 52, opacity: 0.6 }} />
               <div className="skeleton" style={{ height: 52, opacity: 0.35 }} />
             </div>
-          ) : tableRows.length === 0 ? (
+          ) : filteredRows.length === 0 ? (
             <div className="empty-open">
               <div style={{ fontSize: '1.6rem' }}>◇</div>
-              <h3>No evidence yet</h3>
-              <p>Create your first case — log a hidden finding and watch the total verify without revealing the amount.</p>
-              <Link to="/new" className="btn btn-primary">Create case →</Link>
+              <h3>No matching evidence</h3>
+              <p>{tableRows.length === 0 ? 'Create your first case — log a hidden finding and watch the total verify without revealing the amount.' : 'No items match your search filter.'}</p>
+              {tableRows.length === 0 ? (
+                <Link to="/new" className="btn btn-primary">Create case →</Link>
+              ) : (
+                <button className="btn btn-secondary" onClick={() => { setQueueFilter(''); setStatusFilter('all'); }}>Reset filters</button>
+              )}
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}>
               <table className="queue-table">
                 <thead>
                   <tr>
-                    <th> matter</th>
+                    <th>matter</th>
                     <th>state</th>
                     <th>privacy</th>
                     <th>activity</th>
@@ -135,17 +205,19 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {tableRows.map((r) => (
+                  {filteredRows.map((r) => (
                     <tr key={r.txId}>
                       <td>
-                        <div className="queue-row-title">{r.caseTitle}</div>
+                        <Link to={`/cases/${r.caseIdStr}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <div className="queue-row-title">{r.caseTitle}</div>
+                        </Link>
                         <div className="queue-row-sub">#{r.caseIndex ?? '—'} · {r.txId.slice(0, 8)}… · block {r.blockHeight}</div>
                       </td>
                       <td>{r.stepType === 'closeCase' ? <span className="badge badge-pending">Sealed</span> : <span className="badge badge-verify">Open</span>}</td>
                       <td><span className="badge badge-private">Redacted</span></td>
                       <td className="mono" style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>{fmtDateShort(r.createdAt)}</td>
                       <td style={{ color: 'var(--verify)', fontWeight: 700, fontSize: '0.86rem' }}>✓ Valid</td>
-                      <td><Link to={`/cases/${r.caseIdStr}`} className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.82rem' }}>Open →</Link></td>
+                      <td><Link to={`/cases/${r.caseIdStr}`} className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: '0.82rem' }}>Open →</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -178,7 +250,7 @@ export default function Dashboard() {
                     <span className={`river-dot ${r.stepType === 'closeCase' ? 'river-dot-warn' : 'river-dot-verify'}`} />
                     <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>
                       {r.stepType === 'discloseFinding' ? 'Disclosed' : r.stepType === 'closeCase' ? 'Sealed' : 'Finding logged'}
-                      <span className="mono" style={{ fontWeight: 400, fontSize: '0.76rem', color: 'var(--muted)' }}> · {r.caseTitle}</span>
+                      <Link to={`/cases/${r.caseIdStr}`} className="mono" style={{ fontWeight: 400, fontSize: '0.76rem', color: 'var(--muted)', textDecoration: 'none' }}> · {r.caseTitle}</Link>
                     </div>
                     <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>{r.txId.slice(0, 10)}… · block {r.blockHeight} · {fmtDateShort(r.createdAt)}</div>
                   </div>

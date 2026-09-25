@@ -2215,3 +2215,316 @@ small, .meta {
   .marketing-nav-center.open { display: flex; }
   .marketing-menu-toggle { display: flex; }
 }
+
+/* ============================================================
+   CUSTOM CYBER SCROLLBARS
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(5, 8, 17, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  border: 2px solid rgba(5, 8, 17, 0.95);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.45);
+}
+
+/* ============================================================
+   FLOATING TOAST NOTIFICATION SYSTEM
+   ============================================================ */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100vw - 48px);
+}
+
+.toast-card {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(13, 19, 38, 0.92);
+  border: 1px solid var(--border-medium);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.76rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.toast-close:hover {
+  color: #fff;
+}
+
+.toast-success {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.2);
+}
+.toast-success .toast-icon {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.toast-info {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.2);
+}
+.toast-info .toast-icon {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+}
+
+.toast-warning {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(245, 158, 11, 0.2);
+}
+.toast-warning .toast-icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.toast-error {
+  border-color: rgba(244, 63, 94, 0.45);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(244, 63, 94, 0.2);
+}
+.toast-error .toast-icon {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.5);
+}
+
+/* ============================================================
+   INTERACTIVE CRYPTOGRAPHIC FORMULA & STEP SELECTOR
+   ============================================================ */
+
+.formula-deck {
+  padding: 16px 18px;
+  background: rgba(10, 16, 32, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.formula-eq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.formula-pill {
+  padding: 3px 9px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.formula-pill-verify {
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.formula-pill-private {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.action-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.action-tab-btn {
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  transition: all 0.18s ease;
+}
+
+.action-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.action-tab-btn.selected {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+}
+
+/* ============================================================
+   ENHANCED SEARCH & FILTER BAR
+   ============================================================ */
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1 1 320px;
+  max-width: 520px;
+}
+
+.search-box .input {
+  padding-left: 40px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 0.95rem;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+.filter-pill.active {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+/* ============================================================
+   DOSSIER LIVE PREVIEW CARD (FOR CREATE CASE)
+   ============================================================ */
+
+.preview-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  background: rgba(14, 21, 42, 0.6);
+  backdrop-filter: blur(14px);
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-badge {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 700;
+}
+

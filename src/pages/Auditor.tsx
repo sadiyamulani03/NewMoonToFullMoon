@@ -5,6 +5,7 @@ import { readMidnightTraceLedger, type MidnightTraceLedgerView } from '../lib/le
 import { listCases } from '../lib/api';
 import { MIDNIGHTTRACE_CONTRACT_ADDRESS, NETWORK_ID } from '../config';
 import { useDemo } from '../context/DemoContext';
+import { useToast } from '../context/ToastContext';
 
 interface Check { label: string; ok: boolean; detail: string; }
 
@@ -16,6 +17,7 @@ function hexField(field: bigint | undefined | null): string {
 
 export default function Auditor() {
   const { isDemo, mockLedger, mockCases } = useDemo();
+  const { toast } = useToast();
   const [search, setSearch] = useSearchParams();
   const [network, setNetwork] = useState((NETWORK_ID as string) === 'undeployed' ? 'preprod' : NETWORK_ID);
   const [address, setAddress] = useState(MIDNIGHTTRACE_CONTRACT_ADDRESS);
@@ -49,6 +51,7 @@ export default function Auditor() {
       }
       const fp = await sha256Hex(JSON.stringify({ demo: true, aggregate: ledger.aggregate.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString()]) }));
       setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
+      toast('✓ Verification checks complete', 'success');
       return;
     }
     const trimmed = address.trim();
@@ -86,12 +89,22 @@ export default function Auditor() {
       }
       const fp = await sha256Hex(JSON.stringify({ contractAddress: trimmed, aggregate: ledger.aggregate.toString(), memberCount: ledger.memberCount.toString(), cases: ledger.cases.map((c) => [c.caseId.toString(), c.total.toString(), c.lastDisclosed.toString(), c.eventCount.toString(), c.phase]) }));
       setResult({ ledger, checks, fingerprint: fp, auditedAt: new Date().toISOString() });
+      toast('✓ Preprod verification checks complete', 'success');
     } catch (e) {
       const raw = (e as Error).message ?? String(e);
       if (/Failed to fetch|NetworkError|indexer/i.test(raw)) { setError('We couldn’t reach the Midnight indexer.'); setErrorTechnical(`${raw} — Check your connection and that the contract address is on ${network}.`); }
       else { setError('We couldn’t complete the audit.'); setErrorTechnical(raw); }
+      toast('Audit check encountered an issue', 'error');
     } finally { setBusy(false); }
-  }, [network, address, caseId, isDemo, mockLedger, mockCases]);
+  }, [network, address, caseId, isDemo, mockLedger, mockCases, toast]);
+
+  const copyFingerprint = async () => {
+    if (!result?.fingerprint) return;
+    try {
+      await navigator.clipboard.writeText(result.fingerprint);
+      toast('✓ Cryptographic fingerprint copied', 'success');
+    } catch {}
+  };
 
   const allPass = result?.checks.every((c) => c.ok) ?? false;
 
@@ -116,21 +129,29 @@ export default function Auditor() {
       {/* CONSOLE — dark input deck + light verdict */}
       <section className="console-grid" aria-label="Verification console">
         <div className="console-left">
-          <div className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#7BD9A5', fontWeight: 700 }}>⌁ Input deck</div>
+          <div className="mono" style={{ fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cyan)', fontWeight: 700 }}>⌁ Input deck</div>
           <div>
             <label className="field-label" htmlFor="audit-case">Case number to verify</label>
-            <input id="audit-case" className="input mono" placeholder="7" value={caseId} onChange={(e) => setCaseId(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" disabled={busy} />
-            <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--night-muted)', marginTop: 8, textAlign: 'center' }}>empty = whole ledger · digits only</div>
+            <input id="audit-case" className="input mono" placeholder="e.g. 7" value={caseId} onChange={(e) => setCaseId(e.target.value.replace(/[^0-9]/g, ''))} inputMode="numeric" disabled={busy} />
+            
+            {/* Quick Test Presets */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+              <button type="button" className="btn btn-ghost" style={{ padding: '3px 8px', fontSize: '0.72rem', color: 'var(--text-secondary)' }} onClick={() => { setCaseId('7'); setSearch({ case: '7' }); }}>#7 Northstar</button>
+              <button type="button" className="btn btn-ghost" style={{ padding: '3px 8px', fontSize: '0.72rem', color: 'var(--text-secondary)' }} onClick={() => { setCaseId('42'); setSearch({ case: '42' }); }}>#42 Drill</button>
+              <button type="button" className="btn btn-ghost" style={{ padding: '3px 8px', fontSize: '0.72rem', color: 'var(--text-secondary)' }} onClick={() => { setCaseId(''); setSearch({}); }}>Full Ledger</button>
+            </div>
+            
+            <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>empty = whole ledger · digits only</div>
           </div>
           <button className="btn btn-primary" onClick={() => { setSearch(caseId ? { case: caseId } : {}); void run(); }} disabled={busy} style={{ width: '100%', padding: '14px', fontSize: '0.95rem', fontWeight: 700 }}>
             {busy ? 'Reading chain state…' : '▶ Run verification'}
           </button>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--night-muted)' }} onClick={async () => { const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`; try { await navigator.clipboard.writeText(url); setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); } catch {} }}>{shareCopied ? 'Copied ✓' : 'Copy audit link'}</button>
-            <Link to="/cases" className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--night-muted)', textAlign: 'center' }}>Browse cases</Link>
+            <button className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--text-secondary)' }} onClick={async () => { const url = `${window.location.origin}/audit${caseId ? `?case=${caseId}` : ''}`; try { await navigator.clipboard.writeText(url); setShareCopied(true); toast('✓ Public audit link copied', 'success'); setTimeout(() => setShareCopied(false), 1800); } catch {} }}>{shareCopied ? 'Copied ✓' : '📋 Copy audit link'}</button>
+            <Link to="/cases" className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Browse cases</Link>
           </div>
           <details>
-            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--night-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700 }}>Advanced — network & contract</summary>
+            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700 }}>Advanced — network & contract</summary>
             <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
               <div>
                 <label className="field-label" htmlFor="audit-net">Network</label>
@@ -146,31 +167,31 @@ export default function Auditor() {
             </div>
           </details>
           {error && (
-            <div role="alert" style={{ padding: 12, borderRadius: 10, background: 'rgba(255,95,86,0.1)', border: '1px solid rgba(255,95,86,0.3)', color: '#ff9d94', fontSize: '0.86rem' }}>
+            <div role="alert" style={{ padding: '14px 16px', borderRadius: 10, background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.35)', color: '#fb7185', fontSize: '0.86rem' }}>
               {error}
               {errorTechnical && (
                 <div style={{ marginTop: 8 }}>
-                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem', color: '#ff9d94' }} onClick={() => setShowErrorTechnical(v => !v)}>{showErrorTechnical ? 'Hide technical details' : 'Show technical details'}</button>
-                  {showErrorTechnical && <pre className="mono" style={{ marginTop: 6, fontSize: '0.7rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{errorTechnical}</pre>}
+                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem', color: '#fb7185' }} onClick={() => setShowErrorTechnical(v => !v)}>{showErrorTechnical ? 'Hide technical details' : 'Show technical details'}</button>
+                  {showErrorTechnical && <pre className="mono" style={{ marginTop: 6, fontSize: '0.7rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: 'rgba(0,0,0,0.3)', padding: 8, borderRadius: 6 }}>{errorTechnical}</pre>}
                 </div>
               )}
             </div>
           )}
-          <div className="mono" style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.68rem', color: 'var(--night-muted)', lineHeight: 1.7 }}>
-            WIRE <span className="redacted redacted-sm">amount</span> → <span style={{ color: '#7BD9A5' }}>total</span> · proof <span style={{ color: '#8FB4F0' }}>ZK</span> → stamp<br />Private amounts never leave the device.
+          <div className="mono" style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--border-subtle)', fontSize: '0.68rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
+            WIRE <span className="redacted redacted-sm">amount</span> → <span style={{ color: 'var(--verify)' }}>total</span> · proof <span style={{ color: 'var(--cyan)' }}>ZK</span> → stamp<br />Private amounts never leave the device.
           </div>
         </div>
 
         <div className="console-right">
           {!result ? (
-            <div style={{ padding: '24px 0', textAlign: 'center' }}>
-              <div style={{ fontSize: '2rem', opacity: 0.35 }}>⌁</div>
-              <h2 style={{ margin: '12px 0 6px', fontSize: '1.6rem' }}>Console idle.</h2>
-              <p style={{ margin: 0, color: 'var(--muted)', maxWidth: '44ch', marginInline: 'auto' }}>
-                Run a verification to see the verdict, per-check readout, and on-chain snapshot.
-                Try case <button className="btn btn-ghost" style={{ padding: '2px 6px', fontSize: '0.86rem' }} onClick={() => { setCaseId('7'); setSearch({ case: '7' }); }}>7 →</button> — the worked example from the guide.
+            <div style={{ padding: '36px 0', textAlign: 'center' }}>
+              <div style={{ fontSize: '2.5rem', opacity: 0.5, marginBottom: 8 }}>🛡️</div>
+              <h2 style={{ margin: '12px 0 6px', fontSize: '1.6rem' }}>Console ready.</h2>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', maxWidth: '44ch', marginInline: 'auto' }}>
+                Run a verification to inspect the verdict, per-check invariant readout, and on-chain state.
+                Try case <button type="button" className="btn btn-ghost" style={{ padding: '2px 6px', fontSize: '0.86rem', color: 'var(--cyan)' }} onClick={() => { setCaseId('7'); setSearch({ case: '7' }); void run(); }}>7 →</button> — the worked example from the guide.
               </p>
-              <div className="mono" style={{ marginTop: 16, fontSize: '0.7rem', color: 'var(--muted)' }}>Quorum: aggregate == Σ totals · root pinned · phases valid · blocks sane</div>
+              <div className="mono" style={{ marginTop: 18, fontSize: '0.72rem', color: 'var(--text-muted)' }}>Quorum: aggregate == Σ totals · root pinned · phases valid · blocks sane</div>
             </div>
           ) : (
             <>
@@ -179,7 +200,15 @@ export default function Auditor() {
                 <div>
                   <p className="mono" style={{ margin: 0, fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>Verdict · {new Date(result.auditedAt).toLocaleString()}</p>
                   <h2 className="verdict-title">{allPass ? 'VALID' : 'Needs review'}</h2>
-                  <p style={{ margin: '6px 0 0', fontSize: '0.92rem', color: 'var(--muted)' }}>{allPass ? 'Every invariant holds — this record is trustworthy.' : 'At least one check failed — inspect the readout.'} {result.fingerprint && <span className="mono" style={{ fontSize: '0.72rem' }}>· fp {result.fingerprint.slice(0, 12)}…</span>}</p>
+                  <p style={{ margin: '6px 0 0', fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
+                    {allPass ? 'Every invariant holds — this record is cryptographically verified.' : 'At least one check failed — inspect the readout.'}
+                    {result.fingerprint && (
+                      <span className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+                        · fp {result.fingerprint.slice(0, 12)}…
+                        <button type="button" className="btn btn-ghost" onClick={copyFingerprint} style={{ padding: '2px 6px', fontSize: '0.68rem' }}>📋</button>
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
               <div>
@@ -201,13 +230,13 @@ export default function Auditor() {
                   {result.ledger.cases.length === 0 ? (
                     <div style={{ color: 'var(--muted)' }}>No case files yet.</div>
                   ) : (
-                    <div style={{ overflowX: 'auto', borderTop: '1px solid var(--line-strong)' }}>
+                    <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}>
                       <table className="queue-table">
                         <thead><tr><th>case</th><th>total</th><th>disclosed</th><th>inserts</th><th>phase</th></tr></thead>
                         <tbody>
                           {(caseId.trim() ? result.ledger.cases.filter((c) => c.caseId.toString() === caseId.trim()) : result.ledger.cases).map((c) => (
                             <tr key={String(c.caseId)}>
-                              <td><span className="mono" style={{ background: 'rgba(23,19,11,0.05)', padding: '3px 9px', borderRadius: 999, border: '1px solid var(--line)', fontWeight: 700 }}>#{String(c.caseId)}</span></td>
+                              <td><span className="mono" style={{ background: 'rgba(56, 189, 248, 0.12)', padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(56, 189, 248, 0.35)', color: 'var(--cyan)', fontWeight: 700 }}>#{String(c.caseId)}</span></td>
                               <td className="mono" style={{ fontWeight: 700 }}>{c.total.toString()}</td>
                               <td className="mono">{c.lastDisclosed.toString()}</td>
                               <td>{c.eventCount.toString()}</td>

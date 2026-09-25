@@ -12,6 +12,7 @@ export default function Cases() {
   const [cases, setCases] = useState<ForensicCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'sealed'>('all');
 
   useEffect(() => {
     if (isDemo) { setCases(mockCases); return; }
@@ -22,12 +23,18 @@ export default function Cases() {
 
   const filtered = useMemo(() => {
     if (!cases) return null;
+    let list = cases;
+    if (statusFilter === 'open') {
+      list = list.filter((c) => c.status !== 'closed');
+    } else if (statusFilter === 'sealed') {
+      list = list.filter((c) => c.status === 'closed');
+    }
     const s = q.trim().toLowerCase();
-    if (!s) return cases;
-    return cases.filter((c) =>
+    if (!s) return list;
+    return list.filter((c) =>
       [c.title, c.id, c.description, String(c.receipts[0]?.caseIndex ?? '')].some((v) => v.toLowerCase().includes(s))
     );
-  }, [cases, q]);
+  }, [cases, q, statusFilter]);
 
   return (
     <>
@@ -49,18 +56,38 @@ export default function Cases() {
       </header>
 
       <section className="section" aria-label="Filter and results">
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', paddingBottom: 4 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: '1 1 320px', maxWidth: 520 }}>
+        <div className="filter-bar" style={{ paddingBottom: 4 }}>
+          <div className="search-box">
+            <span className="search-icon" aria-hidden="true">🔍</span>
             <input
               className="input"
-              placeholder="Filter by title, ID, or case #  —  e.g. “batches” or “7”"
+              placeholder="Filter by title, ID, or case # — e.g. “batches” or “7”"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               aria-label="Search cases"
-              style={{ fontSize: '1rem', padding: '14px 18px' }}
+              style={{ fontSize: '0.94rem', padding: '12px 14px 12px 38px' }}
             />
-            {q && <button className="btn btn-ghost" onClick={() => setQ('')} style={{ flexShrink: 0 }}>Clear</button>}
           </div>
+
+          <div className="filter-pills">
+            {(['all', 'open', 'sealed'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`filter-pill ${statusFilter === mode ? 'active' : ''}`}
+                onClick={() => setStatusFilter(mode)}
+              >
+                {mode === 'all' ? 'All matters' : mode === 'open' ? 'Active / Open' : 'Sealed'}
+              </button>
+            ))}
+          </div>
+
+          {q && (
+            <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '6px 12px', fontSize: '0.82rem' }}>
+              Clear search
+            </button>
+          )}
+
           <span className="mono" style={{ marginLeft: 'auto', fontSize: '0.74rem', color: 'var(--muted)' }}>
             {filtered ? `${filtered.length} / ${cases?.length ?? 0} shown` : '—'}
           </span>
@@ -75,11 +102,11 @@ export default function Cases() {
         </div>
 
         {error && (
-          <div role="alert" style={{ padding: '16px 0', borderTop: '1px solid var(--line)', color: '#A32E1F', fontSize: '0.92rem' }}>
-            We couldn&apos;t load case files. <span style={{ color: 'var(--muted)' }}>{error}</span>
+          <div role="alert" style={{ padding: '16px 20px', borderRadius: 'var(--radius-md)', background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.35)', color: '#fb7185', fontSize: '0.92rem' }}>
+            We couldn&apos;t load case files. <span style={{ color: 'var(--text-secondary)' }}>{error}</span>
             <div style={{ marginTop: 10, display: 'flex', gap: 10 }}>
               <button className="btn btn-secondary" onClick={() => { setError(null); setCases(null); listCases().then(setCases).catch((e) => setError(String(e))); }}>Retry</button>
-              <span style={{ color: 'var(--muted)', fontSize: '0.86rem', alignSelf: 'center' }}>or enable Demo for seeded files</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.86rem', alignSelf: 'center' }}>or enable Demo for seeded files</span>
             </div>
           </div>
         )}
@@ -104,13 +131,15 @@ export default function Cases() {
         )}
 
         {filtered && filtered.length === 0 && cases && cases.length > 0 && (
-          <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--muted)' }}>
-            No files match “{q}”. <button className="btn btn-ghost" onClick={() => setQ('')} style={{ padding: '4px 8px' }}>Clear search</button>
+          <div className="empty-open" style={{ padding: '36px 20px' }}>
+            <div style={{ fontSize: '1.5rem', opacity: 0.7 }}>🔍</div>
+            <p style={{ margin: 0 }}>No files match “{q}” with current filter.</p>
+            <button className="btn btn-ghost" onClick={() => { setQ(''); setStatusFilter('all'); }} style={{ marginTop: 8 }}>Clear search & filters</button>
           </div>
         )}
 
         {filtered && filtered.length > 0 && (
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)' }}>
             <table className="queue-table">
               <thead>
                 <tr>
@@ -131,7 +160,7 @@ export default function Cases() {
                       <div style={{ marginTop: 4, fontSize: '0.88rem', color: 'var(--muted)', maxWidth: '52ch', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.description}</div>
                     </td>
                     <td>
-                      <span className="mono" style={{ fontSize: '0.76rem', background: 'rgba(23,19,11,0.05)', border: '1px solid var(--line)', padding: '4px 9px', borderRadius: 999, fontWeight: 700 }}>
+                      <span className="mono" style={{ fontSize: '0.74rem', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)', color: 'var(--cyan)', padding: '4px 10px', borderRadius: 999, fontWeight: 700 }}>
                         #{c.receipts[0]?.caseIndex ?? c.id.slice(0, 6)}
                       </span>
                       <div className="queue-row-sub">{c.receipts.length} inserts · {fmtDate(c.createdAt)}</div>
@@ -142,7 +171,7 @@ export default function Cases() {
                       <span className="mono" style={{ fontSize: '0.78rem', color: 'var(--verify)', fontWeight: 700 }}>total verified</span>
                     </td>
                     <td>{c.status === 'closed' ? <span className="badge badge-pending">Sealed</span> : <span className="badge badge-verify">Open</span>}</td>
-                    <td><Link to={`/cases/${c.id}`} className="btn btn-ghost" style={{ padding: '8px 12px' }}>Dossier →</Link></td>
+                    <td><Link to={`/cases/${c.id}`} className="btn btn-ghost" style={{ padding: '8px 14px' }}>Dossier →</Link></td>
                   </tr>
                 ))}
               </tbody>

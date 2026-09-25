@@ -2,15 +2,36 @@ import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { useMidnightContext } from '../context/MidnightContext';
+import { useToast } from '../context/ToastContext';
 import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 import { BrandMark } from './BrandMark';
+import FaucetDrawer from './FaucetDrawer';
 
 export default function MarketingLayout() {
   const { isDemo, toggleDemo } = useDemo();
   const { walletState, isConnected, walletInfo, connect } = useMidnightContext();
+  const { toast } = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [faucetOpen, setFaucetOpen] = useState(false);
   const isConnecting = walletState.status === 'connecting';
-  const isIdle = walletState.status === 'idle';
+
+  const handleCopyAddress = async () => {
+    if (!walletInfo?.address) return;
+    try {
+      await navigator.clipboard.writeText(walletInfo.address);
+      toast(`Copied address: ${walletInfo.address.slice(0, 8)}…${walletInfo.address.slice(-4)}`, 'success');
+    } catch {
+      toast('Failed to copy address', 'warning');
+    }
+  };
+
+  const handleToggleDemo = () => {
+    toggleDemo();
+    toast(
+      !isDemo ? '✓ Demo sandbox active — zero-token mock ledger' : 'Switched back to live Preprod view',
+      'info'
+    );
+  };
 
   return (
     <div className="marketing-shell">
@@ -42,6 +63,15 @@ export default function MarketingLayout() {
           </nav>
 
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexShrink: 0 }}>
+            <button
+              className="btn btn-ghost"
+              onClick={() => setFaucetOpen(true)}
+              title="Get Preprod wallet & tNIGHT faucet tokens"
+              style={{ padding: '6px 10px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}
+            >
+              Faucet ↗
+            </button>
+
             <span className="net-dot" title="Midnight Preprod">
               <i /> Preprod
             </span>
@@ -54,16 +84,21 @@ export default function MarketingLayout() {
 
             <button
               className={`demo-pill${isDemo ? ' demo-pill-on' : ''}`}
-              onClick={toggleDemo}
+              onClick={handleToggleDemo}
               title="Toggle mock ledger — no wallet, no tokens"
             >
               {isDemo ? '● Demo on' : 'Try demo'}
             </button>
 
             {isConnected && walletInfo ? (
-              <span className="wallet-pill wallet-pill-connected" title={walletInfo.address}>
+              <button
+                className="wallet-pill wallet-pill-connected"
+                onClick={handleCopyAddress}
+                title="Click to copy full address"
+                style={{ cursor: 'pointer' }}
+              >
                 ● {walletInfo.address.slice(0, 6)}…{walletInfo.address.slice(-4)}
-              </span>
+              </button>
             ) : (
               <button
                 className="btn btn-primary"
@@ -77,6 +112,8 @@ export default function MarketingLayout() {
           </div>
         </div>
       </header>
+
+      <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
 
       <main className="marketing-container">
         {isDemo && (

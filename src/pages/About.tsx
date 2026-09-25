@@ -1,6 +1,28 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
+const VOCABULARY = [
+  ['Aggregate', 'Sum of all active dossier totals on-chain. Provably verified by contract invariant.'],
+  ['Allowlist', 'Merkle tree of member persistent hashes; access proved in zero-knowledge.'],
+  ['Commitment', 'Cryptographic hash of investigator secret — identity never stored.'],
+  ['Zero-knowledge proof', 'Mathematically proves a calculation without leaking underlying witnesses.'],
+  ['Redacted', 'Sensitive input — shielded locally on client, never leaves device memory.'],
+  ['Verified', 'Cryptographically verified — Compact ZK-SNARK checked and finalized on-chain.'],
+  ['Disclosed', 'Selectively revealed — running total published by case owner.'],
+  ['Phase', 'ACTIVE (open for evidence inserts) or CLOSED (sealed — immutable totals).'],
+  ['Witness', 'Private input provided directly to the ZK prover in your local environment.'],
+  ['Preprod', 'Midnight Testnet environment with live consensus and cryptographic verification.'],
+];
+
 export default function About() {
+  const [glossaryQuery, setGlossaryQuery] = useState('');
+
+  const filteredVocab = useMemo(() => {
+    const q = glossaryQuery.trim().toLowerCase();
+    if (!q) return VOCABULARY;
+    return VOCABULARY.filter(([k, v]) => k.toLowerCase().includes(q) || v.toLowerCase().includes(q));
+  }, [glossaryQuery]);
+
   return (
     <>
       <header className="masthead">
@@ -122,25 +144,40 @@ export default function About() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="section-head"><h2>Ledger Vocabulary</h2></div>
+      <section id="glossary" className="section">
+        <div className="section-head">
+          <div>
+            <h2>Ledger Vocabulary</h2>
+            <p>Key terms explained plainly for investigators, compliance officers, and developers.</p>
+          </div>
+          <div className="search-box" style={{ maxWidth: 280 }}>
+            <span className="search-icon" aria-hidden="true">🔍</span>
+            <input
+              className="input"
+              placeholder="Search vocabulary..."
+              value={glossaryQuery}
+              onChange={(e) => setGlossaryQuery(e.target.value)}
+              style={{ padding: '7px 10px 7px 34px', fontSize: '0.84rem' }}
+              aria-label="Filter vocabulary"
+            />
+          </div>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 40px' }}>
-          {[
-            ['Aggregate', 'Sum of all active dossier totals on-chain. Provably verified by contract invariant.'],
-            ['Allowlist', 'Merkle tree of member persistent hashes; access proved in zero-knowledge.'],
-            ['Commitment', 'Cryptographic hash of investigator secret — identity never stored.'],
-            ['Zero-knowledge proof', 'Mathematically proves a calculation without leaking underlying witnesses.'],
-            ['Redacted', 'Sensitive input — shielded locally on client, never leaves device memory.'],
-            ['Verified', 'Cryptographically verified — Compact ZK-SNARK checked and finalized on-chain.'],
-            ['Disclosed', 'Selectively revealed — running total published by case owner.'],
-            ['Phase', 'ACTIVE (open for evidence inserts) or CLOSED (sealed — immutable totals).'],
-          ].map(([k, v]) => (
+          {filteredVocab.map(([k, v]) => (
             <div key={k} style={{ padding: '16px 0', borderBottom: '1px solid var(--border-subtle)' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.02rem', color: '#fff' }}>{k}</div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: 4 }}>{v}</div>
             </div>
           ))}
         </div>
+
+        {filteredVocab.length === 0 && (
+          <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+            No vocabulary matches “{glossaryQuery}”. <button type="button" className="btn btn-ghost" onClick={() => setGlossaryQuery('')} style={{ fontSize: '0.8rem' }}>Clear</button>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
           <Link to="/cases" className="btn btn-primary">Browse Case Dossiers →</Link>
           <Link to="/audit" className="btn btn-secondary">Public Auditor (No Wallet)</Link>

@@ -236,31 +236,17 @@ export function useMidnight() {
 
         const shielded = await connected.getShieldedAddresses();
 
-        const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
-        providersRef.current = providers;
+        // Mark wallet as connected immediately after handshake and address retrieval
+        connectedAPIRef.current = connected;
+        setConnectedAPI(connected);
 
-        const deployed = await findDeployedCounter(providers, CONTRACT_ADDRESS);
-        contractRef.current = deployed;
-        setContract(deployed);
-        setContractAddress(CONTRACT_ADDRESS);
-
-        // MidnightTrace (Level 4) uses its own compiled circuits, so build a
-        // second provider set keyed to its artifacts. The wallet, network, and
-        // private state backing are the same; only the ZK config paths differ.
-        const midProviders = MIDNIGHTTRACE_CONTRACT_ADDRESS
-          ? await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace')
-          : null;
-        midProvidersRef.current = midProviders;
-        if (midProviders && MIDNIGHTTRACE_CONTRACT_ADDRESS) {
-          try {
-            const midDeployed = await findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS);
-            midContractRef.current = midDeployed;
-            setMidContract(midDeployed);
-            setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
-          } catch (e) {
-            console.error('midnighttrace join failed (is the Level 4 address configured?)', e);
-          }
-        }
+        setWalletInfo({
+          address: shielded.shieldedAddress,
+          walletName: wallet.name,
+          networkId: config.networkId,
+        });
+        setWalletState({ status: 'connected' });
+        isConnectingRef.current = false;
 
         // Member secret: the deployer-printed owner secret wins when configured;
         // otherwise derive a stable per-wallet secret from the shielded address.
@@ -278,18 +264,71 @@ export function useMidnight() {
         membershipSecretRef.current = secret;
         setMembershipSecret(secret);
 
-        connectedAPIRef.current = connected;
-        setConnectedAPI(connected);
+        // MidnightTrace (Level 4) contract joining — probe first to prevent watchForDeployTxData hanging
+        if (MIDNIGHTTRACE_CONTRACT_ADDRESS) {
+          try {
+            const midProviders = await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace');
+            midProvidersRef.current = midProviders;
+            const midState = await withTimeout(
+              midProviders.publicDataProvider.queryContractState(MIDNIGHTTRACE_CONTRACT_ADDRESS),
+              6000,
+              'MidnightTrace contract probe',
+            ).catch(() => null);
 
-        setWalletInfo({
-          address: shielded.shieldedAddress,
-          walletName: wallet.name,
-          networkId: config.networkId,
-        });
-        setWalletState({ status: 'connected' });
-        isConnectingRef.current = false;
+            if (midState) {
+              const midDeployed = await withTimeout(
+                findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS),
+                10000,
+                'Find deployed MidnightTrace',
+              ).catch((e) => {
+                console.warn('findDeployedMidnightTrace warning:', e);
+                return null;
+              });
+              if (midDeployed) {
+                midContractRef.current = midDeployed;
+                setMidContract(midDeployed);
+                setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
+              }
+            } else {
+              console.warn('[MidnightTrace] Contract address not found on chain:', MIDNIGHTTRACE_CONTRACT_ADDRESS);
+            }
+          } catch (e) {
+            console.warn('midnighttrace join failed (non-fatal):', e);
+          }
+        }
 
-        await Promise.allSettled([refreshLedger(), refreshMidnight()]);
+        // Optional Counter contract
+        if (CONTRACT_ADDRESS) {
+          try {
+            const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
+            providersRef.current = providers;
+            const counterState = await withTimeout(
+              providers.publicDataProvider.queryContractState(CONTRACT_ADDRESS),
+              5000,
+              'Counter contract probe',
+            ).catch(() => null);
+
+            if (counterState) {
+              const deployed = await withTimeout(
+                findDeployedCounter(providers, CONTRACT_ADDRESS),
+                8000,
+                'Find deployed Counter',
+              ).catch((e) => {
+                console.warn('findDeployedCounter warning:', e);
+                return null;
+              });
+              if (deployed) {
+                contractRef.current = deployed;
+                setContract(deployed);
+                setContractAddress(CONTRACT_ADDRESS);
+              }
+            }
+          } catch (e) {
+            console.warn('counter contract join failed (non-fatal):', e);
+          }
+        }
+
+        await Promise.allSettled([refreshMidnight(), refreshLedger()]);
         return;
       } catch (e: unknown) {
         lastErr = e;

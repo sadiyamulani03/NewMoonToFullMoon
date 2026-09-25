@@ -56,7 +56,7 @@ export default function Dashboard() {
             {isConnected && walletInfo ? (
               <span className="mono" style={{ fontSize: '0.76rem', color: 'var(--verify)', fontWeight: 700 }}>● {walletInfo.address.slice(0, 6)}… connected</span>
             ) : (
-              <button className="btn btn-secondary" onClick={() => void connect()} disabled={walletState.status === 'idle' || walletState.status === 'connecting'}>
+              <button className="btn btn-secondary" onClick={() => void connect()} disabled={walletState.status === 'connecting'}>
                 {walletState.status === 'connecting' ? 'Connecting…' : 'Connect wallet'}
               </button>
             )}

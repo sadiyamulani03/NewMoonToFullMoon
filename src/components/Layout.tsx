@@ -7,7 +7,7 @@ import { BrandMark } from './BrandMark';
 export default function Layout() {
   const { isConnected, walletInfo, walletState, connect } = useMidnightContext();
   const { isDemo, toggleDemo } = useDemo();
-  const connecting = walletState.status === 'connecting' || walletState.status === 'idle';
+  const connecting = walletState.status === 'connecting';
 
   return (
     <div className="shell">

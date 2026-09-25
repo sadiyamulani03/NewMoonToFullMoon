@@ -42,14 +42,14 @@ export default function WalletStatus({ walletState, isMobile }: Props) {
       );
     case 'connecting':
       return (
-        <div className="wallet-connecting">
-          <p className="ok-text">Waiting for wallet approval…</p>
-          <p className="muted-text" style={{ fontSize: '0.88rem' }}>
-            Check the wallet extension popup and approve. This usually takes a few seconds.
+        <div className="wallet-connecting" style={{ padding: '16px', background: 'rgba(56, 189, 248, 0.06)', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+          <p className="ok-text" style={{ fontWeight: 600, color: '#38BDF8', marginBottom: '6px' }}>Connecting to wallet…</p>
+          <p className="muted-text" style={{ fontSize: '0.88rem', lineHeight: 1.5 }}>
+            Check your wallet popup and approve. If prompted to sign <code className="code" style={{ color: '#F59E0B' }}>MidnightTrace private-state</code>, click <strong>Sign</strong> — this derives your private encryption key securely on your device (no seed exposed, 0 funds at risk).
           </p>
-          <div className="loading-row" style={{ marginTop: '10px' }}>
+          <div className="loading-row" style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="spinner" />
-            <span className="muted-text">Connecting</span>
+            <span className="muted-text" style={{ fontSize: '0.85rem' }}>Waiting for wallet approval</span>
           </div>
         </div>
       );

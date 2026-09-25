@@ -68,10 +68,10 @@ export default function MarketingLayout() {
               <button
                 className="btn btn-primary"
                 onClick={() => void connect()}
-                disabled={isConnecting || isIdle}
-                style={{ padding: '9px 18px', fontSize: '0.86rem', fontWeight: 700, opacity: isIdle ? 0.6 : 1 }}
+                disabled={isConnecting}
+                style={{ padding: '9px 18px', fontSize: '0.86rem', fontWeight: 700 }}
               >
-                {isConnecting ? 'Connecting…' : isIdle ? 'Initializing…' : 'Connect wallet'}
+                {isConnecting ? 'Connecting…' : 'Connect wallet'}
               </button>
             )}
           </div>

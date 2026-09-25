@@ -118,13 +118,4 @@ export class MidnightTraceSimulator {
       secret,
     ).context;
   }
-
-  public updateCaseMetadata(caseId: bigint, newMetadataHash: Uint8Array, secret: Uint8Array): void {
-    this.circuitContext = this.contract.impureCircuits.updateCaseMetadata(
-      this.circuitContext,
-      caseId,
-      newMetadataHash,
-      secret,
-    ).context;
-  }
 }

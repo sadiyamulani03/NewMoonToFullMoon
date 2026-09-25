@@ -153,39 +153,6 @@
         "types": [
         ]
       }
-    },
-    {
-      "name": "updateCaseMetadata",
-      "pure": false,
-      "proof": true,
-      "arguments": [
-        {
-          "name": "caseId",
-          "type": {
-            "type-name": "Uint",
-            "maxval": 4294967295
-          }
-        },
-        {
-          "name": "newMetadataHash",
-          "type": {
-            "type-name": "Bytes",
-            "length": 32
-          }
-        },
-        {
-          "name": "secret",
-          "type": {
-            "type-name": "Bytes",
-            "length": 32
-          }
-        }
-      ],
-      "result-type": {
-        "type-name": "Tuple",
-        "types": [
-        ]
-      }
     }
   ],
   "witnesses": [
@@ -299,13 +266,6 @@
           },
           {
             "name": "metadataHash",
-            "type": {
-              "type-name": "Bytes",
-              "length": 32
-            }
-          },
-          {
-            "name": "creatorCommitment",
             "type": {
               "type-name": "Bytes",
               "length": 32

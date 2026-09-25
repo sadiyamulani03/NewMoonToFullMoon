@@ -27,14 +27,11 @@ export const PRIVATE_STATE_ID = 'midnighttraceCounterPrivateState';
 /**
  * MidnightTrace — Level 4 configuration.
  *
- * The two contract addresses are MANDATORY. The counter address was deployed
- * in Level 1/2; the midnighttrace address must be pasted after deploying the
- * Level 4 contract with `npm run deploy:midnighttrace` (Step 5).
- * Currently set to the v1.2 local devnet deployment.
+ * Live Preprod contract address deployed on Midnight Preprod (Level 4).
  */
 export const MIDNIGHTTRACE_CONTRACT_ADDRESS =
   import.meta.env.VITE_MIDNIGHTTRACE_CONTRACT_ADDRESS ??
-  '66efd99ed2ca06363e37c6ccd2acd616da3e63294531085da69aa4b159ccaedc';
+  'df5e0583af7a3beca784ca0520b90614b2942f0daf76b37682868e766d129501';
 
 /** Private state id used by the midnighttrace contract. */
 export const MIDNIGHTTRACE_PRIVATE_STATE_ID = 'midnighttracePrivateState';

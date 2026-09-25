@@ -88,6 +88,8 @@ function resolveIndexerUris(config: { networkId: string; indexerUri: string; ind
  * wallet does not expose a proving provider, we fall back to the wallet's
  * configured proof server URI.
  */
+const derivedPasswordCache = new Map<string, string>();
+
 /**
  * Create a private-state password provider that derives a stable, per-wallet
  * password via wallet `signData` (no seed extraction). The wallet signs a
@@ -95,45 +97,72 @@ function resolveIndexerUris(config: { networkId: string; indexerUri: string; ind
  * with `keyType: unshielded` (deterministic for the wallet's unshielded key).
  * The signature hex is hashed (SHA-256) and formatted to satisfy
  * `validatePassword` (≥16 chars, 3 classes, no 3 identical, no sequential).
- * Cached in-memory for the session so we prompt only once; never persisted.
- * If `signData` is rejected/unsupported, we throw with a clear message — the
- * caller (`useMidnight`) surfaces it and offers Demo fallback.
+ * Cached in-memory across the session so we prompt at most once; never persisted.
+ * If `signData` is rejected or unsupported, it gracefully derives a deterministic
+ * per-account password from the shielded address so the user is never blocked.
  */
 export async function createPrivateStatePasswordProvider(
   connectedAPI: ConnectedAPI,
   shieldedAddress: string,
   networkId: string,
 ): Promise<() => Promise<string>> {
-  let cached: string | null = null;
+  const cacheKey = `${shieldedAddress}:${networkId}`;
   return async () => {
-    if (cached) return cached;
+    if (derivedPasswordCache.has(cacheKey)) {
+      return derivedPasswordCache.get(cacheKey)!;
+    }
     const message = `MidnightTrace private-state v1:${shieldedAddress}:${networkId}`;
     try {
       // Hint wallet that signData will be used (lets it pre-request permission)
       await connectedAPI.hintUsage(['signData']).catch(() => {});
       const sig = await connectedAPI.signData(message, { encoding: 'text', keyType: 'unshielded' });
-      const sigHex: string = (sig as unknown as { signature: string }).signature ?? String(sig);
+      let sigHex = '';
+      if (typeof sig === 'string') {
+        sigHex = sig;
+      } else if (sig && typeof sig === 'object') {
+        if ('signature' in sig && typeof (sig as any).signature === 'string') {
+          sigHex = (sig as any).signature;
+        } else if ('signature' in sig && (sig as any).signature instanceof Uint8Array) {
+          sigHex = Array.from((sig as any).signature as Uint8Array)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+        } else {
+          sigHex = JSON.stringify(sig);
+        }
+      }
       // Hash signature to get uniform 32-byte hex, then format to pass validatePassword
       const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sigHex));
       const hashHex = Array.from(new Uint8Array(hashBuf))
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
-      // Construct: Mt + 8 lower + - + 6 upper + !A1 + 6 lower + xQ => 16+ chars, 3+ classes
-      // Example: Mt a3f9c2d1-4B8E2F!A1b9e4c7xQ (mixed case, digits, - and !)
       let pwd = `Mt${hashHex.slice(0, 8)}-${hashHex.slice(8, 14).toUpperCase()}!A1${hashHex.slice(14, 20)}xQ`;
-      // Defensive: if somehow fails policy (extremely unlikely — hash is random), fallback
       try {
         const { validatePassword } = await import('@midnight-ntwrk/midnight-js-utils');
         validatePassword(pwd);
       } catch {
         pwd = `MidnightTrace-${hashHex.slice(0, 12)}!A1b2${hashHex.slice(12, 16).toUpperCase()}`;
       }
-      cached = pwd;
+      derivedPasswordCache.set(cacheKey, pwd);
       return pwd;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      if (/reject/i.test(msg)) throw new Error(`Private-state key derivation was cancelled — signature rejected. You can use Demo mode or try again and approve the signature (no funds at risk).`);
-      throw new Error(`Wallet does not support private-state signing (${msg}). Use Demo mode or a wallet that supports signData (Lace/IAM).`);
+      console.warn(`[MidnightTrace] Wallet signData unavailable or declined (${msg}) — using deterministic fallback storage password.`);
+      const fallbackBuf = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(`MidnightTrace-fallback:${shieldedAddress}:${networkId}`),
+      );
+      const fallbackHex = Array.from(new Uint8Array(fallbackBuf))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      let fallbackPwd = `Mt${fallbackHex.slice(0, 8)}-${fallbackHex.slice(8, 14).toUpperCase()}!A1${fallbackHex.slice(14, 20)}xQ`;
+      try {
+        const { validatePassword } = await import('@midnight-ntwrk/midnight-js-utils');
+        validatePassword(fallbackPwd);
+      } catch {
+        fallbackPwd = `MidnightTrace-${fallbackHex.slice(0, 12)}!A1b2${fallbackHex.slice(12, 16).toUpperCase()}`;
+      }
+      derivedPasswordCache.set(cacheKey, fallbackPwd);
+      return fallbackPwd;
     }
   };
 }

@@ -6,8 +6,7 @@ export type Case = { total: bigint;
                      lastDisclosed: bigint;
                      eventCount: bigint;
                      phase: Phase;
-                     metadataHash: Uint8Array;
-                     creatorCommitment: Uint8Array
+                     metadataHash: Uint8Array
                    };
 
 export type Witnesses<PS> = {
@@ -39,10 +38,6 @@ export type ImpureCircuits<PS> = {
   closeCase(context: __compactRuntime.CircuitContext<PS>,
             caseId_0: bigint,
             secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  updateCaseMetadata(context: __compactRuntime.CircuitContext<PS>,
-                     caseId_0: bigint,
-                     newMetadataHash_0: Uint8Array,
-                     secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type ProvableCircuits<PS> = {
@@ -64,10 +59,6 @@ export type ProvableCircuits<PS> = {
   closeCase(context: __compactRuntime.CircuitContext<PS>,
             caseId_0: bigint,
             secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  updateCaseMetadata(context: __compactRuntime.CircuitContext<PS>,
-                     caseId_0: bigint,
-                     newMetadataHash_0: Uint8Array,
-                     secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type PureCircuits = {
@@ -92,10 +83,6 @@ export type Circuits<PS> = {
   closeCase(context: __compactRuntime.CircuitContext<PS>,
             caseId_0: bigint,
             secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  updateCaseMetadata(context: __compactRuntime.CircuitContext<PS>,
-                     caseId_0: bigint,
-                     newMetadataHash_0: Uint8Array,
-                     secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type Ledger = {

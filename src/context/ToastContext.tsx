@@ -6,6 +6,7 @@ export interface ToastItem {
   id: string;
   message: string;
   type: ToastType;
+  duration: number;
 }
 
 interface ToastContextValue {
@@ -24,7 +25,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const toast = useCallback((message: string, type: ToastType = 'success', duration = 3200) => {
     const id = Math.random().toString(36).slice(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type, duration }]);
 
     if (duration > 0) {
       setTimeout(() => {
@@ -53,6 +54,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             >
               ×
             </button>
+            <div
+              className="toast-progress"
+              style={{ animationDuration: `${t.duration}ms` }}
+            />
           </div>
         ))}
       </div>

@@ -96,7 +96,7 @@ export default function Dashboard() {
       {/* OPEN STATS — with subtle glowing icons */}
       <section aria-label="Ledger at a glance">
         <div className="stat-strip">
-          <div className="stat-open">
+          <div className="stat-open anim-fade-up anim-stagger-1">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="stat-open-label">Cases on ledger</span>
               <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>📁</span>
@@ -104,7 +104,7 @@ export default function Dashboard() {
             <span className="stat-open-value">{displayCases ? displayCases.length : '—'}</span>
             <span className="stat-open-sub">{open} open · {disclosed} disclosed</span>
           </div>
-          <div className="stat-open">
+          <div className="stat-open anim-fade-up anim-stagger-2">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="stat-open-label">Private findings</span>
               <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>🔒</span>
@@ -112,7 +112,7 @@ export default function Dashboard() {
             <span className="stat-open-value">{displayCases ? findings : '—'}</span>
             <span className="stat-open-sub">amounts stay redacted</span>
           </div>
-          <div className="stat-open">
+          <div className="stat-open anim-fade-up anim-stagger-3">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="stat-open-label">Verified · 7 days</span>
               <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>🛡️</span>
@@ -120,7 +120,7 @@ export default function Dashboard() {
             <span className="stat-open-value" style={{ color: 'var(--verify)' }}>{displayCases ? verifiedWeek : '—'}</span>
             <span className="stat-open-sub">proofs checked</span>
           </div>
-          <div className="stat-open">
+          <div className="stat-open anim-fade-up anim-stagger-4">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="stat-open-label">Awaiting review</span>
               <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>⏳</span>
@@ -132,7 +132,7 @@ export default function Dashboard() {
       </section>
 
       {/* WORKSPACE SPLIT — queue + river */}
-      <div className="split">
+      <div className="split anim-fade-up anim-stagger-3">
         <section className="section" aria-label="Priority queue">
           <div className="section-head">
             <div>

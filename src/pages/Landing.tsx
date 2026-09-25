@@ -82,22 +82,22 @@ export default function Landing() {
     <>
       {/* FLAGSHIP HERO SECTION */}
       <section className="mk-hero" aria-label="Hero">
-        <span className="mk-eyebrow">
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block', boxShadow: '0 0 10px #10B981' }} />
+        <span className="mk-eyebrow anim-fade-up">
+          <span className="pulse-dot" />
           LIVE ON MIDNIGHT PREPROD · ZERO-KNOWLEDGE FORENSICS
         </span>
         
-        <h1 className="mk-title">
+        <h1 className="mk-title anim-fade-up anim-stagger-1">
           Prove what matters. <em>Keep evidence shielded.</em>
         </h1>
         
-        <p className="mk-sub">
+        <p className="mk-sub anim-fade-up anim-stagger-2">
           MidnightTrace is the privacy-first compliance workspace for sensitive blockchain investigations.
           Amounts stay redacted on your device — the ledger carries only verified cryptographic proofs.
           Anyone can audit. Zero evidence leaked.
         </p>
 
-        <div className="mk-ctas">
+        <div className="mk-ctas anim-fade-up anim-stagger-3">
           <button className="btn btn-primary" onClick={goDemo} style={{ padding: '14px 28px', fontSize: '0.96rem', fontWeight: 700 }}>
             Launch Live Demo →
           </button>

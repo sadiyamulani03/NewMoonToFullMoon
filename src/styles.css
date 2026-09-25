@@ -2258,6 +2258,8 @@ small, .meta {
 
 .toast-card {
   pointer-events: auto;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2272,6 +2274,22 @@ small, .meta {
   font-size: 0.88rem;
   animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transition: all 0.2s ease;
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.45;
+  width: 100%;
+  animation: toast-drain linear forwards;
+}
+
+@keyframes toast-drain {
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 @keyframes toast-slide-in {
@@ -2526,5 +2544,142 @@ small, .meta {
   text-transform: uppercase;
   color: var(--cyan);
   font-weight: 700;
+}
+
+/* ============================================================
+   NEXT-GEN ANIMATION SUITE & MICRO-INTERACTIONS
+   ============================================================ */
+
+/* Staggered Fade-and-Slide Up Entrances */
+@keyframes anim-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-fade-up {
+  animation: anim-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-stagger-1 { animation-delay: 50ms; }
+.anim-stagger-2 { animation-delay: 110ms; }
+.anim-stagger-3 { animation-delay: 170ms; }
+.anim-stagger-4 { animation-delay: 230ms; }
+
+/* Aurora Radial Glow Breathing Effect */
+@keyframes aurora-pulse {
+  0% {
+    transform: translate(-50%, -10%) scale(0.92);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(-50%, 0%) scale(1.08);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -5%) scale(0.96);
+    opacity: 0.55;
+  }
+}
+
+.mk-hero::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 680px;
+  height: 380px;
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.16) 0%, rgba(56, 189, 248, 0.1) 42%, transparent 70%);
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+  animation: aurora-pulse 8s ease-in-out infinite alternate;
+}
+
+/* Cryptographic Shield & Redaction Breathing Glow */
+@keyframes lock-breathe {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
+    border-color: rgba(56, 189, 248, 0.75);
+  }
+}
+
+.formula-pill-private {
+  animation: lock-breathe 3.5s ease-in-out infinite;
+}
+
+/* Continuous Light Sweep for Primary Actions */
+@keyframes shimmer-sweep {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.btn-primary:hover:not(:disabled)::before,
+.btn-verify:hover:not(:disabled)::before {
+  animation: shimmer-sweep 1.2s ease infinite;
+}
+
+/* Gentle Floating Micro-Motion */
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-anim {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+/* Pulsing Live Radar Indicator */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse-radar 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Interactive Table Row Hover with Cyan Accent */
+.table tr {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(56, 189, 248, 0.05) !important;
+}
+
+/* Smooth Dialog & Drawer Scale Entrance */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+[role="dialog"] > .card {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

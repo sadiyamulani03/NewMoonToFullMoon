@@ -120,7 +120,16 @@ export default function Cases() {
 
         {cases && cases.length === 0 && (
           <div className="empty-open">
-            <div style={{ fontSize: '1.8rem' }}>🗂️</div>
+            <div style={{ fontSize: '2.4rem', lineHeight: 1, position: 'relative' }}>
+              🗂️
+              <span style={{
+                position: 'absolute', inset: -6,
+                borderRadius: '50%',
+                border: '1.5px solid rgba(56,189,248,0.3)',
+                animation: 'pulse-radar 2.5s ease-in-out infinite',
+                pointerEvents: 'none',
+              }} />
+            </div>
             <h3>The ledger just reset</h3>
             <p>The API store is ephemeral and clears on cold start — expected on Vercel. On-chain totals remain. Add a case or switch on demo for seeded files.</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -151,8 +160,8 @@ export default function Cases() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((c) => (
-                  <tr key={c.id}>
+                {filtered.map((c, i) => (
+                  <tr key={c.id} className={`anim-fade-up anim-stagger-${Math.min(i + 1, 4) as 1|2|3|4}`}>
                     <td style={{ minWidth: 260 }}>
                       <Link to={`/cases/${c.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <span className="queue-row-title" style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem' }}>{c.title}</span>

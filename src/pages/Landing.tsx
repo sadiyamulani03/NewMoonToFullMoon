@@ -1,15 +1,138 @@
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDemo } from '../context/DemoContext';
 import { useMidnightContext } from '../context/MidnightContext';
 import { useToast } from '../context/ToastContext';
 import FaucetDrawer from '../components/FaucetDrawer';
+import { useScrollReveal } from '../hooks/useScrollReveal';
+
+interface PinItem {
+  id: string;
+  category: 'defi' | 'circuit' | 'bridge' | 'treasury' | 'allowlist';
+  categoryLabel: string;
+  title: string;
+  desc: string;
+  badge: string;
+  badgeType: 'emerald' | 'cyan' | 'amber' | 'indigo';
+  icon: string;
+  gradientClass: string;
+  block: string;
+  tags: string[];
+  metrics: { label: string; val: string }[];
+}
+
+const PIN_ITEMS: PinItem[] = [
+  {
+    id: 'demo-7-multisig',
+    category: 'defi',
+    categoryLabel: 'DeFi Exploit Trace',
+    title: 'Flash Loan Pool Drain Invariant #0042',
+    desc: 'Tracing 4 AMM pools where liquidity imbalances occurred without leaking constituent wallet amounts.',
+    badge: '● Active Proving',
+    badgeType: 'emerald',
+    icon: '⚡',
+    gradientClass: 'pin-banner-gradient-1',
+    block: '#412,398',
+    tags: ['ZK-SNARK', 'AMM Invariant', 'Redacted Witness'],
+    metrics: [
+      { label: 'Inserts', val: '12 Steps' },
+      { label: 'Disclosed', val: '1,420 tNIGHT' }
+    ]
+  },
+  {
+    id: 'circuit-01',
+    category: 'circuit',
+    categoryLabel: 'Compact ZK Circuit',
+    title: 'Non-Interactive Ledger Arithmetic Verifier',
+    desc: 'Mathematical constraint verifying total\' = total + amount strictly within browser client memory.',
+    badge: '● Math Enforced',
+    badgeType: 'cyan',
+    icon: '⬢',
+    gradientClass: 'pin-banner-gradient-4',
+    block: 'Circuit v1.1',
+    tags: ['Compact Lang', 'Zero Knowledge', 'Merkle Proof'],
+    metrics: [
+      { label: 'Prover Time', val: '480ms' },
+      { label: 'Leakage', val: '0 Bytes' }
+    ]
+  },
+  {
+    id: 'demo-2-bridge',
+    category: 'bridge',
+    categoryLabel: 'Cross-Chain Bridge',
+    title: 'Sovereign Bridge Settlement Reconciliation',
+    desc: 'Verifying deposit-mint equivalence between L1 rollup contracts and Midnight sovereign execution layers.',
+    badge: '● Verified Chain',
+    badgeType: 'emerald',
+    icon: '🌉',
+    gradientClass: 'pin-banner-gradient-2',
+    block: '#409,112',
+    tags: ['Cross-Chain', 'Deposit Quorum', 'Preprod'],
+    metrics: [
+      { label: 'Inserts', val: '8 Steps' },
+      { label: 'Disclosed', val: '840 tNIGHT' }
+    ]
+  },
+  {
+    id: 'demo-1-exchange',
+    category: 'treasury',
+    categoryLabel: 'Treasury Audit',
+    title: 'Institutional Proof of Reserves Solvency',
+    desc: 'Cryptographic attestation proving non-negative liabilities without exposing private client deposit balances.',
+    badge: '● Sealed Dossier',
+    badgeType: 'amber',
+    icon: '🏛️',
+    gradientClass: 'pin-banner-gradient-3',
+    block: '#398,540',
+    tags: ['Solvency', 'Liabilities Proof', 'Institutional'],
+    metrics: [
+      { label: 'Inserts', val: '19 Steps' },
+      { label: 'Disclosed', val: '4,650 tNIGHT' }
+    ]
+  },
+  {
+    id: 'allowlist-tree',
+    category: 'allowlist',
+    categoryLabel: 'Identity & Access',
+    title: 'Merkle Tree Membership Privacy Engine',
+    desc: 'Investigator secrets hashed and committed to Merkle tree root. Identity never stored or broadcast.',
+    badge: '● Cryptographic Root',
+    badgeType: 'cyan',
+    icon: '🔑',
+    gradientClass: 'pin-banner-gradient-1',
+    block: 'Root Pinned',
+    tags: ['Merkle Tree', 'Access Control', 'Private Key'],
+    metrics: [
+      { label: 'Members', val: '3 Active' },
+      { label: 'Privacy', val: '100% Shielded' }
+    ]
+  },
+  {
+    id: 'demo-3-mixer',
+    category: 'defi',
+    categoryLabel: 'Forensic Taint',
+    title: 'Selective Disclosure Arbiter Statement',
+    desc: 'Court-admissible compliance dossier revealing aggregated damage claims while shielding proprietary telemetry.',
+    badge: '● Ready to Audit',
+    badgeType: 'emerald',
+    icon: '📜',
+    gradientClass: 'pin-banner-gradient-2',
+    block: '#411,890',
+    tags: ['Compliance', 'Court Proof', 'Zero Gas'],
+    metrics: [
+      { label: 'Auditable', val: 'Wallet-Free' },
+      { label: 'Total', val: '920 tNIGHT' }
+    ]
+  }
+];
 
 export default function Landing() {
   const { isDemo, enableDemo, mockCases, mockLedger, demoLogStep, demoDisclose } = useDemo();
   const { isConnected, connect } = useMidnightContext();
   const { toast } = useToast();
   const navigate = useNavigate();
+
   const goDemo = () => {
     if (!isDemo) enableDemo();
     toast('✓ Launching interactive demo sandbox', 'info');
@@ -19,16 +142,31 @@ export default function Landing() {
   const [demoAmt, setDemoAmt] = useState('25');
   const [demoMsg, setDemoMsg] = useState<string | null>(null);
   const [isProving, setIsProving] = useState(false);
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(0);
   const demoCase = mockCases.find((c) => c.id.startsWith('demo-7')) ?? mockCases[0];
   const [faucetOpen, setFaucetOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const scrollRevealRef = useScrollReveal();
+
+  // Pinterest-Style Discovery Filter & Search State
+  const [discoveryFilter, setDiscoveryFilter] = useState<string>('all');
+  const [discoverySearch, setDiscoverySearch] = useState<string>('');
+
+  const filteredPins = useMemo(() => {
+    return PIN_ITEMS.filter((item) => {
+      const matchCat = discoveryFilter === 'all' || item.category === discoveryFilter;
+      const q = discoverySearch.trim().toLowerCase();
+      const matchSearch = !q || item.title.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q) || item.tags.some(t => t.toLowerCase().includes(q));
+      return matchCat && matchSearch;
+    });
+  }, [discoveryFilter, discoverySearch]);
 
   // Local live timeline entries for real-time interactive demo feel
   const [liveRows, setLiveRows] = useState([
-    { id: '1', t: 'OPENED', d: 'Case #0042 initialized — Phase ACTIVE', s: 'Open', c: '#94A3B8' },
+    { id: '1', t: 'OPENED', d: 'Matter #0042 initialized — Status ACTIVE', s: 'Open', c: '#94A3B8' },
     { id: '2', t: 'EVIDENCE', d: 'Private step logged — Amount redacted, ZK-Proof valid', s: 'Verified', c: '#10B981' },
     { id: '3', t: 'EVIDENCE', d: 'Private step logged — Amount redacted, ZK-Proof valid', s: 'Verified', c: '#10B981' },
-    { id: '4', t: 'DISCLOSED', d: 'Selective disclosure published by case owner', s: 'Public', c: '#F59E0B' },
+    { id: '4', t: 'DISCLOSED', d: 'Selective disclosure published by case investigator', s: 'Public', c: '#F59E0B' },
   ]);
 
   const handleLogStep = () => {
@@ -50,14 +188,14 @@ export default function Landing() {
         {
           id: String(Date.now()),
           t: 'EVIDENCE',
-          d: `Private step logged — Amount redacted, ZK-Proof valid`,
+          d: `Private step logged — Amount [${n}] redacted, ZK-Proof valid`,
           s: 'Verified',
           c: '#10B981'
         }
       ]);
 
       setTimeout(() => setDemoMsg(null), 3500);
-    }, 500);
+    }, 600);
   };
 
   const handleDisclose = () => {
@@ -70,7 +208,7 @@ export default function Landing() {
       {
         id: String(Date.now()),
         t: 'DISCLOSED',
-        d: `Selective disclosure recorded — Ledger reflects new total`,
+        d: `Selective disclosure recorded — Ledger reflects new aggregate total`,
         s: 'Public',
         c: '#F59E0B'
       }
@@ -79,37 +217,69 @@ export default function Landing() {
   };
 
   return (
-    <>
-      {/* FLAGSHIP HERO SECTION */}
-      <section className="mk-hero" aria-label="Hero">
-        <span className="mk-eyebrow anim-fade-up">
+    <div ref={scrollRevealRef as React.Ref<HTMLDivElement>}>
+      {/* FLAGSHIP HERO SECTION WITH FLOATING INTERACTIVE PINS */}
+      <section className="mk-hero hero-float-container" aria-label="Hero">
+        {/* Left Floating Interactive Card */}
+        <div className="hero-floating-badge hero-badge-left" onClick={goDemo} title="Click to test live witness prover">
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'grid', placeItems: 'center', fontSize: '1.2rem' }}>
+            🔒
+          </div>
+          <div>
+            <div className="mono" style={{ fontSize: '0.64rem', color: '#10B981', fontWeight: 700 }}>
+              ZK WITNESS SHIELDED
+            </div>
+            <div style={{ fontSize: '0.84rem', color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>+250 tNIGHT</span>
+              <span className="badge badge-verify" style={{ fontSize: '0.58rem', padding: '2px 6px' }}>✓ Verified</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Floating Interactive Card */}
+        <div className="hero-floating-badge hero-badge-right" onClick={() => navigate('/audit')} title="Click to open public audit console">
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', display: 'grid', placeItems: 'center', fontSize: '1.2rem' }}>
+            🛡️
+          </div>
+          <div>
+            <div className="mono" style={{ fontSize: '0.64rem', color: '#38BDF8', fontWeight: 700 }}>
+              INVARIANT QUORUM
+            </div>
+            <div style={{ fontSize: '0.84rem', color: '#fff', fontWeight: 600 }}>
+              Σ Totals == Aggregate · 100%
+            </div>
+          </div>
+        </div>
+
+        <span className="neon-badge neon-badge-emerald anim-fade-up">
           <span className="pulse-dot" />
-          LIVE ON MIDNIGHT PREPROD · ZERO-KNOWLEDGE FORENSICS
+          MIDNIGHT PREPROD · ZERO-KNOWLEDGE FORENSICS DESK
         </span>
         
         <h1 className="mk-title anim-fade-up anim-stagger-1">
-          Prove what matters. <em>Keep evidence shielded.</em>
+          Prove what happened. <br />
+          <span className="hero-gradient-text">Keep evidence shielded.</span>
         </h1>
         
         <p className="mk-sub anim-fade-up anim-stagger-2">
-          MidnightTrace is the privacy-first compliance workspace for sensitive blockchain investigations.
-          Amounts stay redacted on your device — the ledger carries only verified cryptographic proofs.
-          Anyone can audit. Zero evidence leaked.
+          The visual discovery and verification suite for sensitive blockchain investigations.
+          Amounts stay encrypted on your device — the Midnight ledger carries only zero-knowledge proofs.
+          Anyone can independently audit. Zero records leaked.
         </p>
 
         <div className="mk-ctas anim-fade-up anim-stagger-3">
-          <button className="btn btn-primary" onClick={goDemo} style={{ padding: '14px 28px', fontSize: '0.96rem', fontWeight: 700 }}>
+          <button className="btn btn-primary" onClick={goDemo} style={{ padding: '14px 28px', fontSize: '1rem', fontWeight: 700 }}>
             Launch Live Demo →
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => { if (isConnected) navigate('/dashboard'); else void connect(); }}
-            style={{ padding: '14px 24px', fontSize: '0.96rem' }}
+            style={{ padding: '14px 24px', fontSize: '1rem' }}
           >
-            {isConnected ? 'Open Workspace' : 'Connect Wallet'}
+            {isConnected ? 'Open Workspace' : 'Connect Lace Wallet'}
           </button>
-          <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ padding: '14px 20px', fontSize: '0.92rem' }}>
-            Setup in 60s →
+          <button className="btn btn-ghost" onClick={() => setFaucetOpen(true)} style={{ padding: '14px 20px', fontSize: '0.94rem' }}>
+            Setup in 60s ↗
           </button>
         </div>
 
@@ -126,8 +296,141 @@ export default function Landing() {
         <FaucetDrawer open={faucetOpen} onClose={() => setFaucetOpen(false)} />
       </section>
 
+      {/* PINTEREST-INSPIRED VISUAL DISCOVERY BOARD SECTION */}
+      <section className="mk-section" aria-label="Forensic Discovery Pinboard" data-reveal>
+        <div className="mk-section-head" style={{ textAlign: 'center', alignItems: 'center' }}>
+          <span className="bento-tag">Visual Investigation Board</span>
+          <h2>Explore Active Cryptographic Vectors</h2>
+          <p style={{ marginInline: 'auto' }}>
+            Discover active investigation matters, zero-knowledge circuits, and audit proofs. Filter by category or search vectors below.
+          </p>
+        </div>
+
+        {/* Pinterest-Style Search & Tag Filter Bar */}
+        <div className="discovery-bar-wrapper">
+          <div className="discovery-search-box">
+            <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>🔍</span>
+            <input
+              className="discovery-search-input"
+              placeholder="Search dossiers, circuits, bridge anomalies, or ZK tags..."
+              value={discoverySearch}
+              onChange={(e) => setDiscoverySearch(e.target.value)}
+              aria-label="Search discovery pinboard"
+            />
+            {discoverySearch && (
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setDiscoverySearch('')}
+                style={{ padding: '2px 8px', fontSize: '0.75rem' }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div className="discovery-tags-row">
+            {[
+              { id: 'all', label: 'All Vectors' },
+              { id: 'defi', label: '⚡ DeFi Exploits' },
+              { id: 'circuit', label: '⬢ ZK Circuits' },
+              { id: 'bridge', label: '🌉 Cross-Chain' },
+              { id: 'treasury', label: '🏛️ Treasury Audits' },
+              { id: 'allowlist', label: '🔑 Allowlist Identity' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`discovery-tag ${discoveryFilter === cat.id ? 'active' : ''}`}
+                onClick={() => setDiscoveryFilter(cat.id)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Pinterest-Style Masonry Pinboard Grid */}
+        <div className="pinboard-grid">
+          {filteredPins.map((pin) => (
+            <div
+              key={pin.id}
+              className="pin-card"
+              onClick={() => {
+                if (pin.id.startsWith('demo-')) {
+                  navigate(`/cases/${pin.id}`);
+                } else if (pin.id.startsWith('circuit')) {
+                  setActiveTab(1);
+                  document.getElementById('terminal-simulator')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  navigate('/audit');
+                }
+              }}
+            >
+              {/* Visual Banner Header */}
+              <div className={`pin-banner ${pin.gradientClass}`}>
+                <div className="pin-banner-pattern" />
+                <span className="pin-banner-icon">{pin.icon}</span>
+                <span className="pin-banner-chip">{pin.categoryLabel}</span>
+                <span className={`neon-badge neon-badge-${pin.badgeType} pin-banner-badge`} style={{ fontSize: '0.62rem' }}>
+                  {pin.badge}
+                </span>
+              </div>
+
+              {/* Pin Body Content */}
+              <div className="pin-body">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--cyan)', fontWeight: 700 }}>
+                    BLOCK {pin.block}
+                  </span>
+                  <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                    PREPROD
+                  </span>
+                </div>
+
+                <h3 className="pin-title">{pin.title}</h3>
+                <p className="pin-desc">{pin.desc}</p>
+
+                <div className="pin-tags-list">
+                  {pin.tags.map((tag) => (
+                    <span key={tag} className="pin-tag-badge">#{tag}</span>
+                  ))}
+                </div>
+
+                <div className="pin-footer">
+                  <div style={{ display: 'flex', gap: 14 }}>
+                    {pin.metrics.map((m) => (
+                      <div key={m.label} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="mono" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{m.label}</span>
+                        <strong className="mono" style={{ fontSize: '0.8rem', color: '#fff' }}>{m.val}</strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className="pin-quick-btn" onClick={(e) => {
+                    e.stopPropagation();
+                    if (pin.id.startsWith('demo-')) navigate(`/cases/${pin.id}`);
+                    else navigate('/audit');
+                  }}>
+                    Inspect →
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FULL-WIDTH INTERACTIVE TERMINAL SIMULATOR */}
-      <section aria-label="Product visualization">
+      <section id="how-it-works" aria-label="Product visualization" style={{ scrollMarginTop: 90 }}>
+        <div className="mk-section-head" style={{ textAlign: 'center', marginBottom: 12 }}>
+          <span className="bento-tag">Interactive Proving Studio</span>
+          <h2>Test Client-Side Zero-Knowledge Proving</h2>
+          <p style={{ marginInline: 'auto' }}>
+            Run the actual proof generation circuit right in your browser. Watch sensitive input stay local while the ledger verifies the result.
+          </p>
+        </div>
+
         <div className="mk-viz">
           {/* Top Window Bar */}
           <div className="mk-viz-bar">
@@ -139,9 +442,9 @@ export default function Landing() {
             </span>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
               <span className="mono" style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>
-                BLOCK: 412,398
+                BLOCK: #412,398
               </span>
-              <span className="mono" style={{ fontSize: '0.64rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '3px 10px', borderRadius: 999, fontWeight: 700 }}>
+              <span className="neon-badge neon-badge-emerald" style={{ padding: '3px 9px', fontSize: '0.62rem' }}>
                 ● PREPROD SYNCED
               </span>
             </div>
@@ -149,116 +452,215 @@ export default function Landing() {
 
           {/* Terminal Body */}
           <div className="mk-viz-body">
-            {/* Left Rail — Navigation Tabs */}
+            {/* Left Rail — Interactive View Switcher */}
             <div className="mk-viz-rail">
               <div className="mono" style={{ fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: 8 }}>
-                Forensic Views
+                Forensic Console
               </div>
-              {['Case Overview', 'Evidence Timeline', 'ZK Circuit Decks', 'Public Audit Log'].map((t, i) => (
+              {[
+                { title: 'Evidence Timeline', badge: 'Live' },
+                { title: 'ZK Circuit Pipeline', badge: 'Math' },
+                { title: 'Selective Disclosure', badge: 'Access' },
+                { title: 'Public Audit Log', badge: 'Zero-Wallet' }
+              ].map((t, i) => (
                 <div
-                  key={t}
+                  key={t.title}
                   className={`mk-viz-railitem${activeTab === i ? ' on' : ''}`}
                   onClick={() => setActiveTab(i)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 >
-                  {t}
+                  <span>{t.title}</span>
+                  <span className="mono" style={{ fontSize: '0.58rem', opacity: activeTab === i ? 1 : 0.6, background: activeTab === i ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)', padding: '1px 6px', borderRadius: 4 }}>
+                    {t.badge}
+                  </span>
                 </div>
               ))}
               <div style={{ marginTop: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
                 <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>Ledger Aggregate:</span> {mockLedger.aggregate.toString()}<br />
-                <span style={{ color: 'var(--text-secondary)' }}>Cases Indexed:</span> {mockLedger.cases.length}
+                <span style={{ color: 'var(--text-secondary)' }}>Indexed Cases:</span> {mockLedger.cases.length}
               </div>
             </div>
 
             {/* Main Interactive Work Area */}
             <div className="mk-viz-main">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
-                  Cryptographic Timeline · Case #0042
-                </div>
-                <span className="mono" style={{ fontSize: '0.66rem', color: '#10B981' }}>
-                  {liveRows.length} Verified Proofs Filed
-                </span>
-              </div>
-
-              {/* Live Rows */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 220, overflowY: 'auto' }}>
-                {liveRows.map((r) => (
-                  <div key={r.id} className="mk-viz-row">
-                    <span className="mono" style={{ fontSize: '0.64rem', color: 'var(--text-muted)', fontWeight: 700 }}>
-                      {r.t}
-                    </span>
-                    <span style={{ color: '#fff', fontSize: '0.86rem' }}>{r.d}</span>
-                    <span className="mono" style={{ fontSize: '0.64rem', color: r.c, border: `1px solid ${r.c}55`, background: `${r.c}15`, padding: '3px 9px', borderRadius: 999, fontWeight: 700 }}>
-                      {r.s}
+              {activeTab === 0 && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
+                      Cryptographic Timeline · Case #0042
+                    </div>
+                    <span className="mono" style={{ fontSize: '0.66rem', color: '#10B981' }}>
+                      {liveRows.length} Verified Proofs Filed
                     </span>
                   </div>
-                ))}
-              </div>
 
-              {/* Interactive Simulator Deck */}
-              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                  <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                    Step Amount (Private Witness):
-                  </span>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {['10', '25', '50', '100'].map(val => (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => setDemoAmt(val)}
-                        style={{
-                          background: demoAmt === val ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                          border: demoAmt === val ? '1px solid var(--cyan)' : '1px solid var(--border-subtle)',
-                          color: demoAmt === val ? 'var(--cyan)' : 'var(--text-secondary)',
-                          borderRadius: 6,
-                          padding: '3px 8px',
-                          fontSize: '0.72rem',
-                          fontFamily: 'var(--font-mono)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        +{val}
-                      </button>
+                  {/* Live Rows */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 220, overflowY: 'auto' }}>
+                    {liveRows.map((r) => (
+                      <div key={r.id} className="mk-viz-row">
+                        <span className="mono" style={{ fontSize: '0.64rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                          {r.t}
+                        </span>
+                        <span style={{ color: '#fff', fontSize: '0.86rem' }}>{r.d}</span>
+                        <span className="mono" style={{ fontSize: '0.64rem', color: r.c, border: `1px solid ${r.c}55`, background: `${r.c}15`, padding: '3px 9px', borderRadius: 999, fontWeight: 700 }}>
+                          {r.s}
+                        </span>
+                      </div>
                     ))}
                   </div>
-                </div>
 
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <input
-                    className="input"
-                    value={demoAmt}
-                    onChange={e => setDemoAmt(e.target.value.replace(/[^0-9]/g,''))}
-                    placeholder="amount"
-                    inputMode="numeric"
-                    maxLength={5}
-                    aria-label="Demo private amount"
-                    style={{ maxWidth: 110, padding: '9px 12px', fontSize: '0.88rem' }}
-                  />
-                  <button
-                    className="btn btn-primary"
-                    style={{ padding: '9px 18px', fontSize: '0.84rem' }}
-                    onClick={handleLogStep}
-                    disabled={isProving}
-                  >
-                    {isProving ? 'Proving ZK Circuit…' : 'Log Hidden Finding'}
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    style={{ padding: '9px 16px', fontSize: '0.84rem' }}
-                    onClick={handleDisclose}
-                  >
-                    Disclose Total
-                  </button>
-                </div>
+                  {/* Interactive Simulator Deck */}
+                  <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        Preset Evidence Value (Witness):
+                      </span>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {['10', '25', '50', '100', '250'].map(val => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setDemoAmt(val)}
+                            style={{
+                              background: demoAmt === val ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                              border: demoAmt === val ? '1px solid var(--cyan)' : '1px solid var(--border-subtle)',
+                              color: demoAmt === val ? 'var(--cyan)' : 'var(--text-secondary)',
+                              borderRadius: 6,
+                              padding: '3px 9px',
+                              fontSize: '0.72rem',
+                              fontFamily: 'var(--font-mono)',
+                              cursor: 'pointer',
+                              fontWeight: demoAmt === val ? 700 : 500
+                            }}
+                          >
+                            +{val}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                {demoMsg && (
-                  <div role="status" style={{ fontSize: '0.84rem', color: '#10B981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
-                    {demoMsg}
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <input
+                        className="input"
+                        value={demoAmt}
+                        onChange={e => setDemoAmt(e.target.value.replace(/[^0-9]/g,''))}
+                        placeholder="amount"
+                        inputMode="numeric"
+                        maxLength={5}
+                        aria-label="Demo private amount"
+                        style={{ maxWidth: 110, padding: '9px 12px', fontSize: '0.88rem' }}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        style={{ padding: '9px 18px', fontSize: '0.84rem' }}
+                        onClick={handleLogStep}
+                        disabled={isProving}
+                      >
+                        {isProving ? 'Proving ZK Circuit…' : 'Log Hidden Finding'}
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ padding: '9px 16px', fontSize: '0.84rem' }}
+                        onClick={handleDisclose}
+                      >
+                        Disclose Total
+                      </button>
+                    </div>
+
+                    {demoMsg && (
+                      <div role="status" style={{ fontSize: '0.84rem', color: '#10B981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
+                        {demoMsg}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
+
+              {activeTab === 1 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cyan)', fontWeight: 700 }}>
+                    Compact Zero-Knowledge Circuit Flow
+                  </div>
+                  <div className="circuit-visualizer" style={{ marginTop: 0 }}>
+                    <div className="circuit-step-box">
+                      <span className="circuit-step-num">Step 01</span>
+                      <strong className="circuit-step-title">Client Witness</strong>
+                      <p className="circuit-step-body">Amount: <span className="redacted redacted-sm">hidden</span></p>
+                      <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Kept strictly in browser RAM</div>
+                    </div>
+                    <div className="circuit-step-box" style={{ borderColor: 'rgba(56, 189, 248, 0.4)' }}>
+                      <span className="circuit-step-num" style={{ color: 'var(--cyan)' }}>Step 02</span>
+                      <strong className="circuit-step-title">Compact ZK Circuit</strong>
+                      <p className="circuit-step-body">total&apos; = total + amount</p>
+                      <div className="mono" style={{ fontSize: '0.7rem', color: '#38BDF8' }}>Generates non-interactive SNARK</div>
+                    </div>
+                    <div className="circuit-step-box" style={{ borderColor: 'rgba(16, 185, 129, 0.4)' }}>
+                      <span className="circuit-step-num" style={{ color: '#10B981' }}>Step 03</span>
+                      <strong className="circuit-step-title">Midnight Preprod</strong>
+                      <p className="circuit-step-body">Ledger registers increment</p>
+                      <div className="mono" style={{ fontSize: '0.7rem', color: '#10B981' }}>Zero transaction details exposed</div>
+                    </div>
+                  </div>
+                  <div style={{ background: 'rgba(0, 0, 0, 0.3)', border: '1px solid var(--border-subtle)', borderRadius: 10, padding: '12px 16px', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+                    <strong>Mathematical Invariant:</strong> The Midnight network verifies that arithmetic was computed accurately against an authorized investigator key without observing the operands.
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 2 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', fontWeight: 700 }}>
+                    Selective Disclosure Deck
+                  </div>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Selective disclosure allows the case investigator to reveal the running total to judges, regulators, or clients without exposing any individual evidence steps.
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 4 }}>
+                    <div style={{ padding: '14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                      <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>CURRENT DISCLOSED TOTAL</div>
+                      <div className="display" style={{ fontSize: '1.6rem', color: '#F59E0B', marginTop: 4 }}>42 tNIGHT</div>
+                      <span className="badge badge-pending" style={{ marginTop: 8 }}>Public on Ledger</span>
+                    </div>
+                    <div style={{ padding: '14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                      <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>INDIVIDUAL STEPS</div>
+                      <div className="display" style={{ fontSize: '1.6rem', color: '#94A3B8', marginTop: 4 }}>[REDACTED]</div>
+                      <span className="badge badge-verify" style={{ marginTop: 8 }}>Never Transmitted</span>
+                    </div>
+                  </div>
+                  <button className="btn btn-secondary" onClick={handleDisclose} style={{ alignSelf: 'flex-start' }}>
+                    Publish Updated Disclosure Statement →
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 3 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div className="mono" style={{ fontSize: '0.64rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#10B981', fontWeight: 700 }}>
+                    Universal Invariant Auditor
+                  </div>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    Every user, compliance officer, or member of the public can independently audit the state of the Midnight contract without connecting a wallet or paying gas fees.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 8, fontSize: '0.84rem' }}>
+                      <span>Σ Case Totals = On-Chain Aggregate</span>
+                      <strong style={{ color: '#10B981' }}>✓ 100% Consistent</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 8, fontSize: '0.84rem' }}>
+                      <span>Allowlist Merkle Root Pinned</span>
+                      <strong style={{ color: '#10B981' }}>✓ Verified</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 8, fontSize: '0.84rem' }}>
+                      <span>Phase Ordering (ACTIVE → CLOSED)</span>
+                      <strong style={{ color: '#10B981' }}>✓ Strictly Enforced</strong>
+                    </div>
+                  </div>
+                  <Link to="/audit" className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '8px 16px', fontSize: '0.84rem' }}>
+                    Open Public Audit Console →
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Right Telemetry Column */}
@@ -298,70 +700,113 @@ export default function Landing() {
                 </div>
               </div>
 
-              <Link to="/audit" style={{ color: '#38BDF8', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 'auto' }}>
+              <Link to="/audit" style={{ color: '#38BDF8', fontWeight: 700, fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 'auto' }}>
                 Verify On-Chain Audit →
               </Link>
             </div>
           </div>
         </div>
-
-        <div className="mk-caption">
-          Live Interactive Simulator — test private zero-knowledge proving above or open the complete investigation workspace.
-        </div>
       </section>
 
-      {/* REPUTATION & PLATFORM CAPABILITIES STRIP */}
-      <div className="mk-logo-strip" aria-label="Assurances">
-        <span>Zero-Knowledge Proofs</span>
-        <span>·</span>
-        <span>Compact Circuit Enforced</span>
-        <span>·</span>
-        <span>Selective Disclosure</span>
-        <span>·</span>
-        <span>Append-Only Immutability</span>
-        <span>·</span>
-        <span>Wallet-Free Public Audit</span>
-      </div>
+      {/* 4 CORE STARTUP PILLARS — BENTO GRID */}
+      <section id="privacy" className="mk-section" aria-label="Platform Architecture" style={{ scrollMarginTop: 90 }}>
+        <div className="mk-section-head">
+          <span className="bento-tag">Zero-Knowledge Architecture</span>
+          <h2>Engineered for confidential compliance.</h2>
+          <p>
+            Standard blockchains leak transaction volumes and participant identities. MidnightTrace combines client-side zero-knowledge proofs with the Midnight Network to eliminate evidence leakage.
+          </p>
+        </div>
+
+        <div className="bento-grid">
+          <div className="bento-card bento-card-8">
+            <div className="bento-icon-badge" style={{ color: '#10B981' }}>🛡️</div>
+            <span className="bento-tag" style={{ color: '#10B981' }}>01 / Core Shield</span>
+            <h3 className="bento-title">Client-Side Witness Isolation</h3>
+            <p className="bento-desc">
+              All transaction values, private finding parameters, and investigator notes are compiled into private zero-knowledge witnesses in your browser&apos;s isolated memory space. Not a single byte of sensitive evidence is dispatched to an RPC node or block explorer.
+            </p>
+            <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <span className="neon-badge neon-badge-emerald">100% Local Witness</span>
+              <span className="neon-badge neon-badge-cyan">Sub-Second Proofs</span>
+              <span className="neon-badge neon-badge-amber">Zero RPC Exposure</span>
+            </div>
+          </div>
+
+          <div className="bento-card bento-card-4">
+            <div className="bento-icon-badge" style={{ color: '#38BDF8' }}>⚡</div>
+            <span className="bento-tag">02 / Execution</span>
+            <h3 className="bento-title">Compact ZK Circuits</h3>
+            <p className="bento-desc">
+              Written in Midnight&apos;s Compact smart contract language. State transitions are verified by succinct cryptographic proofs rather than public re-execution.
+            </p>
+          </div>
+
+          <div className="bento-card bento-card-4">
+            <div className="bento-icon-badge" style={{ color: '#F59E0B' }}>🔑</div>
+            <span className="bento-tag" style={{ color: '#F59E0B' }}>03 / Governance</span>
+            <h3 className="bento-title">Selective Disclosure</h3>
+            <p className="bento-desc">
+              Retain absolute sovereignty over when and how much finding data is published to counterparties, arbiters, or regulatory bodies.
+            </p>
+          </div>
+
+          <div className="bento-card bento-card-8">
+            <div className="bento-icon-badge" style={{ color: '#818CF8' }}>🌐</div>
+            <span className="bento-tag" style={{ color: '#818CF8' }}>04 / Universal Access</span>
+            <h3 className="bento-title">Wallet-Free Public Audit Console</h3>
+            <p className="bento-desc">
+              External stakeholders, courts, and independent auditors can inspect on-chain ledger state directly at <Link to="/audit">/audit</Link>. No crypto wallet required, no gas fees, no friction. Cryptographic proofs speak for themselves.
+            </p>
+            <div style={{ marginTop: 20 }}>
+              <Link to="/audit" className="btn btn-secondary" style={{ padding: '8px 18px', fontSize: '0.86rem' }}>
+                Open Public Audit Console →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* EDITORIAL PROBLEM VS OUTCOME COMPARISON */}
       <section id="product" className="mk-section">
         <div className="mk-section-head">
+          <span className="bento-tag" style={{ color: '#F43F5E' }}>Comparative Analysis</span>
           <h2>Evidence that does not leak when verified.</h2>
           <p>
-            Spreadsheets expose private identities. Paper logs cannot be audited remotely. MidnightTrace keeps sensitive amounts shielded while proving the exact calculation outcome on-chain.
+            Traditional audit logs require handing over full constituent records. MidnightTrace keeps sensitive transaction amounts hidden while mathematically proving the ledger total.
           </p>
         </div>
 
         <div className="mk-compare">
           <div className="mk-compare-old">
             <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F43F5E', fontWeight: 700 }}>
-              Traditional Forensics — Vulnerable
+              Traditional Forensics — Vulnerable & Exposed
             </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1.55rem', color: '#fff' }}>
-              Verification means exposure
+              Verification requires total disclosure
             </h3>
-            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 12, color: 'var(--text-secondary)', fontSize: '0.94rem' }}>
-              <li>✗ Raw transaction amounts leaked across email threads and PDFs</li>
-              <li>✗ Auditing a balance requires disclosing every constituent evidence item</li>
-              <li>✗ Chain of custody relies on institutional goodwill, not math</li>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 14, color: 'var(--text-secondary)', fontSize: '0.94rem' }}>
+              <li>✗ Raw transaction values shared over unencrypted email and PDFs</li>
+              <li>✗ Auditing an aggregate balance requires disclosing every evidence item</li>
+              <li>✗ Custody logs rely on institutional trust rather than math</li>
               <li>✗ Public audit impossible without granting complete data access</li>
             </ul>
           </div>
 
           <div className="mk-compare-new">
             <span className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#10B981', fontWeight: 700 }}>
-              With MidnightTrace — Shielded by ZK
+              With MidnightTrace — Shielded by Zero-Knowledge
             </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1.55rem', color: '#fff' }}>
               Private inputs, cryptographic truth
             </h3>
-            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 12, fontSize: '0.94rem', color: 'var(--text-secondary)' }}>
-              <li>✓ Private witness stays on your local device — forever redacted</li>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 14, fontSize: '0.94rem', color: 'var(--text-secondary)' }}>
+              <li>✓ Private witness stays on your local device — permanently redacted</li>
               <li>✓ Every forensic increment carries a verifiable zero-knowledge proof</li>
               <li>✓ Chain of custody anchored immutably on Midnight Preprod</li>
               <li>✓ Independent auditors verify invariants at /audit without a wallet</li>
             </ul>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 10 }}>
               <Link to="/dashboard" className="btn btn-primary">
                 Open Workspace →
               </Link>
@@ -370,129 +815,60 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* HOW IT WORKS — 4-STEP WORKFLOW */}
-      <section id="how-it-works" className="mk-section">
+      {/* INTERACTIVE FAQ ACCORDION */}
+      <section className="mk-section" aria-label="Frequently Asked Questions" data-reveal>
         <div className="mk-section-head">
-          <h2>From intake to audit in four moves.</h2>
+          <span className="bento-tag">Frequently Asked Questions</span>
+          <h2>Everything you need to know.</h2>
           <p>
-            No complex setup. Connect your wallet or explore in one-click demo mode. Open a dossier, log findings in zero-knowledge, and selectively disclose when you choose.
+            Clear answers about MidnightTrace, zero-knowledge privacy, and our Midnight Preprod implementation.
           </p>
         </div>
 
-        <div className="mk-steps">
+        <div className="faq-grid">
           {[
             {
-              n: '01',
-              t: 'Connect or Demo',
-              d: 'Pair Lace or 1AM extension on Midnight Preprod — or click Demo mode for instant wallet-free testing.'
+              q: 'How does MidnightTrace guarantee that raw transaction values never leak?',
+              a: 'All evidence calculations happen client-side using Zero-Knowledge proofs. When you log a step, your browser computes a cryptographic witness and compiles a succinct proof verifying that total\' = total + amount. Only the proof and cryptographic commitments touch the Midnight ledger; the raw operand remains strictly in your device RAM.'
             },
             {
-              n: '02',
-              t: 'Open Case Dossier',
-              d: 'Define the investigation matter. Only the numeric caseId and cryptographic metadata hash land on-chain.'
+              q: 'Can external auditors verify my investigation without a crypto wallet?',
+              a: 'Yes. MidnightTrace provides a dedicated, wallet-free public verification portal at /audit. Anyone with a web browser can query the on-chain contract state to verify that the aggregate total matches the sum of case totals, that the allowlist Merkle root is securely pinned, and that phase ordering rules were respected.'
             },
             {
-              n: '03',
-              t: 'Log Step in ZK',
-              d: 'Enter sensitive transaction amounts. They stay completely redacted while your browser proves the ledger increment.'
+              q: 'What is the Demo mode and do I need testnet tokens to try it?',
+              a: 'Demo mode is a full-featured in-memory sandbox that lets you test all forensic workflows — opening cases, logging redacted findings, generating ZK witness simulations, and disclosing totals — instantly with zero wallet extensions and zero tokens.'
             },
             {
-              n: '04',
-              t: 'Disclose & Seal',
-              d: 'Publish running totals selectively or close the case to lock totals. Public audit portal remains accessible forever.'
+              q: 'How does Selective Disclosure work in practice?',
+              a: 'During an active investigation, all finding steps remain private. When you are ready to produce a formal report for a court or client, you can publish a selective disclosure transaction that records the confirmed running total on the public ledger without exposing the individual granular steps.'
             },
-          ].map((s) => (
-            <div key={s.n} className="mk-step">
-              <div className="mk-step-num">{s.n}</div>
-              <strong style={{ color: '#fff', fontSize: '1.08rem' }}>{s.t}</strong>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* PRIVACY MODEL MATRIX */}
-      <section id="privacy" className="mk-section">
-        <div className="mk-section-head">
-          <h2>Zero-knowledge architecture, verified.</h2>
-          <p>
-            Three cryptographic planes enforced by Compact smart contract rules — not marketing promises.
-          </p>
-        </div>
-
-        <div className="mk-privacy">
-          <div className="mk-privacy-card">
-            <div className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)' }}>
-              🔒 Private Plane
-            </div>
-            <strong style={{ color: '#fff', fontSize: '1.1rem' }}>Witness · Amounts · Secrets</strong>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.65 }}>
-              Step amounts and investigator secrets never touch the chain, indexer, or RPC node. They exist strictly in client memory.
-            </p>
-          </div>
-
-          <div style={{ alignSelf: 'center', color: 'var(--cyan)', fontWeight: 700, fontSize: '1.4rem' }}>→</div>
-
-          <div className="mk-privacy-card">
-            <div className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: 'var(--cyan)' }}>
-              ⬢ Circuit Prover
-            </div>
-            <strong style={{ color: '#fff', fontSize: '1.1rem' }}>total&apos; = total + amount</strong>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.65 }}>
-              Merkle allowlist membership and arithmetic validity are compiled into a succinct zero-knowledge SNARK.
-            </p>
-          </div>
-
-          <div style={{ alignSelf: 'center', color: '#10B981', fontWeight: 700, fontSize: '1.4rem' }}>→</div>
-
-          <div className="mk-privacy-card accent">
-            <div className="mono" style={{ fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: '#10B981' }}>
-              ✓ Public Plane
-            </div>
-            <strong style={{ color: '#fff', fontSize: '1.1rem' }}>Totals · Phases · Audit Proofs</strong>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.65 }}>
-              On-chain totals and proof receipts are universally verifiable at <Link to="/audit">/audit</Link> without passwords or keys.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* LIVE LEDGER PREVIEW */}
-      <section className="mk-section">
-        <div className="mk-section-head">
-          <h2>Active Preprod evidence ledger.</h2>
-          <p>Live sample data below. Connect your wallet to inspect live contract state.</p>
-        </div>
-
-        <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 20, overflow: 'hidden', background: 'var(--bg-card)', backdropFilter: 'blur(16px)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '18px 24px', borderBottom: '1px solid var(--border-subtle)', alignItems: 'center' }}>
-            <span className="mono" style={{ fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--cyan)', fontWeight: 700 }}>
-              Evidence Ledger · Aggregate {mockLedger.aggregate.toString()}
-            </span>
-            <Link to="/cases" className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.82rem' }}>
-              Browse All Cases →
-            </Link>
-          </div>
-
-          {mockCases.slice(0, 4).map((c) => (
-            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.8fr 0.7fr 0.8fr auto', gap: 16, alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid var(--border-subtle)', fontSize: '0.92rem' }}>
-              <span style={{ fontWeight: 600, color: '#fff' }}>{c.title}</span>
-              <span className="mono" style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                {c.receipts[0]?.stepType ?? 'logStep'}
-              </span>
-              <span className="badge badge-verify">Verified</span>
-              <span className="mono" style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                {new Date(c.createdAt).toLocaleDateString()}
-              </span>
-              <Link to={`/cases/${c.id}`} style={{ color: 'var(--cyan)', fontSize: '0.86rem', fontWeight: 600 }}>
-                View Dossier →
-              </Link>
-            </div>
-          ))}
-
-          <div className="mono" style={{ padding: '14px 24px', fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-            Cryptographically anchored on Midnight Preprod.
-          </div>
+            {
+              q: 'What blockchain network does MidnightTrace run on?',
+              a: 'MidnightTrace is built specifically for the Midnight Network (currently live on Preprod testnet), leveraging Midnight\'s native Compact smart contracts and privacy-preserving ledger architecture.'
+            }
+          ].map((item, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div key={idx} className={`faq-card ${isOpen ? 'open' : ''}`}>
+                <button
+                  className="faq-trigger"
+                  onClick={() => setOpenFaq(isOpen ? null : idx)}
+                  aria-expanded={String(isOpen) as 'true' | 'false'}
+                >
+                  <span>{item.q}</span>
+                  <span className="faq-chevron">+</span>
+                </button>
+                <div className="faq-body-wrapper">
+                  <div className="faq-body-inner">
+                    <div className="faq-body">
+                      {item.a}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -501,18 +877,18 @@ export default function Landing() {
         <div>
           <h2>Ready to audit with zero leaks?</h2>
           <p>
-            Experience privacy-preserving blockchain forensics on Midnight. Zero setup required to explore.
+            Experience privacy-preserving blockchain forensics on Midnight. Zero setup required to explore the sandbox.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <Link to="/dashboard" className="btn btn-primary" style={{ padding: '14px 28px', fontSize: '0.96rem' }}>
-            Open MidnightTrace →
-          </Link>
+          <button onClick={goDemo} className="btn btn-primary" style={{ padding: '14px 28px', fontSize: '0.96rem' }}>
+            Open Demo Sandbox →
+          </button>
           <Link to="/audit" className="btn btn-secondary" style={{ padding: '14px 24px', fontSize: '0.96rem' }}>
             Audit Public Ledger
           </Link>
         </div>
       </section>
-    </>
+    </div>
   );
 }

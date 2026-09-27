@@ -59,10 +59,17 @@ export default function CreateCase() {
   return (
     <>
       <header className="masthead">
-        <div className="eyebrow eyebrow-verify">New matter · guided filing · {step} of 4</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div className="eyebrow eyebrow-verify">New matter · guided filing · {step} of 4</div>
+          <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--cyan)', fontWeight: 700, letterSpacing: '0.1em' }}>
+            {Math.round((step / 4) * 100)}% complete
+          </div>
+        </div>
         <h1 className="display masthead-title">File a new case.</h1>
         <p className="masthead-sub">Four moves. Nothing sensitive touches the chain — you&apos;re opening a folder, not uploading evidence.</p>
-        <div className="progress-hairline" aria-hidden="true"><i style={{ width: `${(step / 4) * 100}%` }} /></div>
+        <div className="progress-hairline" aria-label={`Step ${step} of 4`} aria-valuenow={step} aria-valuemin={1} aria-valuemax={4} role="progressbar">
+          <i style={{ width: `${(step / 4) * 100}%` }} />
+        </div>
       </header>
 
       <div className="flow">
@@ -86,8 +93,9 @@ export default function CreateCase() {
           })}
         </ol>
 
-        {/* RIGHT — open canvas */}
+        {/* RIGHT — open canvas with step-change animation */}
         <form onSubmit={onSubmit} className="flow-canvas">
+          <div key={step} className="anim-fade-up">
           {step === 1 && (
             <div>
               <h2>What is this matter called?</h2>
@@ -183,6 +191,7 @@ export default function CreateCase() {
               <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 16 }}>{isDemo ? '● Demo — not on-chain' : 'Midnight Preprod · proof required at next step, not here'}</div>
             </div>
           )}
+          </div>
         </form>
       </div>
     </>

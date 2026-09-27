@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { GITHUB_URL } from '../config';
 import { BrandMark } from './BrandMark';
 import FaucetDrawer from './FaucetDrawer';
+import { useScrolledPast } from '../hooks/useScrolledPast';
 
 export default function Layout() {
   const { isConnected, walletInfo, walletState, connect } = useMidnightContext();
@@ -14,6 +15,7 @@ export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [faucetOpen, setFaucetOpen] = useState(false);
   const connecting = walletState.status === 'connecting';
+  const scrolled = useScrolledPast(32);
 
   const handleCopyAddress = async () => {
     if (!walletInfo?.address) return;
@@ -35,7 +37,7 @@ export default function Layout() {
 
   return (
     <div className="shell">
-      <header className="topbar">
+      <header className={`topbar${scrolled ? ' topbar-scrolled' : ''}`}>
         <div className="topbar-inner">
           <Link to="/dashboard" className="brand-link" aria-label="MidnightTrace workspace">
             <BrandMark size={38} />
@@ -95,18 +97,26 @@ export default function Layout() {
               >
                 ● {walletInfo.address.slice(0, 6)}…{walletInfo.address.slice(-4)}
               </button>
+            ) : connecting ? (
+              <button className="wallet-pill wallet-pill-connecting" disabled title="Check your wallet extension popup">
+                <span className="spinner" style={{ width: 10, height: 10, borderWidth: 1.5 }} />
+                Check wallet popup…
+              </button>
             ) : (
-              <button className="wallet-pill" onClick={() => void connect()} disabled={connecting}>
-                {walletState.status === 'connecting' ? 'Connecting…' : 'Connect'}
+              <button
+                className="wallet-pill"
+                onClick={() => void connect()}
+                title={walletState.status === 'error' ? `Last error: ${(walletState as {status:'error';message:string}).message} — click to retry` : 'Connect Midnight wallet'}
+              >
+                {walletState.status === 'error' || walletState.status === 'rejected' ? 'Retry connect' : 'Connect'}
               </button>
             )}
 
             <button
               className="marketing-menu-toggle"
               aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
-              aria-expanded={mobileMenuOpen}
+              aria-expanded={String(mobileMenuOpen) as 'true' | 'false'}
               onClick={() => setMobileMenuOpen((v) => !v)}
-              style={{ display: 'none' }}
             >
               <span />
               <span />

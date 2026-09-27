@@ -392,10 +392,21 @@ export default function CaseDetail() {
                             <h4>{r.stepType === 'discloseFinding' ? 'Disclosed running total' : r.stepType === 'closeCase' ? 'Sealed the matter' : 'Logged a hidden finding'}</h4>
                             {r.stepType === 'discloseFinding' ? <span className="stamp stamp-pending stamp-small">Disclosed</span> : <span className="stamp stamp-verify stamp-small">Verified</span>}
                           </div>
-                          <div className="mono" style={{ marginTop: 8, fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                            <span>tx <span style={{ color: 'var(--ink)' }}>{r.txId.slice(0, 12)}…</span></span>
+                          <div className="mono" style={{ marginTop: 8, fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                            <span
+                              className="copy-chip"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(r.txId);
+                                  toast(`Copied tx hash: ${r.txId.slice(0, 10)}…`, 'success');
+                                } catch {}
+                              }}
+                              title="Click to copy full transaction ID"
+                            >
+                              tx {r.txId.slice(0, 8)}…
+                            </span>
                             <span>case #{r.caseIndex ?? '—'}</span>
-                            <span className="redacted redacted-sm">amount</span>
+                            <span className="redacted redacted-sm" title="Amount is redacted in zero-knowledge">amount hidden</span>
                             {r.stepType === 'discloseFinding' && <span>→ total <strong style={{ color: 'var(--ochre)' }}>{r.total}</strong></span>}
                           </div>
                           <div style={{ marginTop: 6, fontSize: '0.82rem', color: 'var(--muted)' }}>{fmtTime(r.createdAt)}</div>
@@ -470,7 +481,33 @@ export default function CaseDetail() {
 
                 {action !== 'closeCase' && (
                   <div>
-                    <label className="field-label" htmlFor="amt">{action === 'logStep' ? 'Hidden amount — 🔒 never leaves device' : 'Total to publish'}</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label className="field-label" htmlFor="amt" style={{ margin: 0 }}>
+                        {action === 'logStep' ? 'Hidden amount — 🔒 on-device' : 'Total to publish'}
+                      </label>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        {['10', '25', '50', '100'].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setAmount(preset)}
+                            style={{
+                              background: amount === preset ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                              border: amount === preset ? '1px solid var(--cyan)' : '1px solid var(--border-subtle)',
+                              color: amount === preset ? 'var(--cyan)' : 'var(--text-secondary)',
+                              borderRadius: 4,
+                              padding: '2px 7px',
+                              fontSize: '0.72rem',
+                              fontFamily: 'var(--font-mono)',
+                              cursor: 'pointer',
+                              fontWeight: amount === preset ? 700 : 500
+                            }}
+                          >
+                            +{preset}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <input id="amt" className="input mono" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} placeholder={action === 'logStep' ? 'e.g. 18 (max 65,535)' : 'e.g. 42'} maxLength={5} style={{ fontSize: '1.3rem', textAlign: 'center' }} />
                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 6, lineHeight: 1.55 }}>
                       {action === 'logStep'

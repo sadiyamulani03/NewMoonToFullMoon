@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { GITHUB_URL, DEMO_VIDEO_URL } from '../config';
 import { BrandMark } from './BrandMark';
 import FaucetDrawer from './FaucetDrawer';
+import { useScrolledPast } from '../hooks/useScrolledPast';
 
 export default function MarketingLayout() {
   const { isDemo, toggleDemo } = useDemo();
@@ -14,6 +15,7 @@ export default function MarketingLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [faucetOpen, setFaucetOpen] = useState(false);
   const isConnecting = walletState.status === 'connecting';
+  const scrolled = useScrolledPast(32);
 
   const handleCopyAddress = async () => {
     if (!walletInfo?.address) return;
@@ -40,15 +42,15 @@ export default function MarketingLayout() {
         <Link to="/audit">Verify contract without a wallet →</Link>
       </div>
 
-      <header className="marketing-header">
+      <header className={`marketing-header${scrolled ? ' topbar-scrolled' : ''}`}>
         <div className="marketing-header-inner">
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
             <BrandMark size={38} />
-            <div style={{ lineHeight: 1.15 }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.15rem', color: '#ffffff', letterSpacing: '-0.03em' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.15rem', color: '#ffffff', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
                 Midnight<span style={{ color: '#F59E0B' }}>Trace</span>
-              </span>
-              <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+              </span>{' '}
+              <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.64rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-muted)', lineHeight: 1.2, marginTop: 1 }}>
                 ZK Forensics Desk
               </span>
             </div>
@@ -76,7 +78,7 @@ export default function MarketingLayout() {
               <i /> Preprod
             </span>
 
-            <button className="marketing-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+            <button className="marketing-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={String(menuOpen) as 'true' | 'false'} onClick={() => setMenuOpen(v => !v)}>
               <span />
               <span />
               <span />
@@ -99,14 +101,24 @@ export default function MarketingLayout() {
               >
                 ● {walletInfo.address.slice(0, 6)}…{walletInfo.address.slice(-4)}
               </button>
+            ) : isConnecting ? (
+              <button
+                className="wallet-pill wallet-pill-connecting"
+                disabled
+                title="Check your wallet extension popup"
+                style={{ padding: '9px 18px', fontSize: '0.86rem', fontWeight: 700 }}
+              >
+                <span className="spinner" style={{ width: 10, height: 10, borderWidth: 1.5 }} />
+                Check wallet popup…
+              </button>
             ) : (
               <button
                 className="btn btn-primary"
                 onClick={() => void connect()}
-                disabled={isConnecting}
                 style={{ padding: '9px 18px', fontSize: '0.86rem', fontWeight: 700 }}
+                title={walletState.status === 'error' ? `Last error: ${(walletState as {status:'error';message:string}).message} — click to retry` : 'Connect Midnight wallet'}
               >
-                {isConnecting ? 'Connecting…' : 'Connect wallet'}
+                {walletState.status === 'error' || walletState.status === 'rejected' ? 'Retry connect' : 'Connect wallet'}
               </button>
             )}
           </div>
@@ -117,7 +129,7 @@ export default function MarketingLayout() {
 
       <main className="marketing-container">
         {isDemo && (
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 14, padding: '12px 18px', background: 'rgba(16, 185, 129, 0.08)', fontSize: '0.88rem' }}>
+          <div className="context-ribbon" style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: 14, padding: '12px 18px', background: 'rgba(16, 185, 129, 0.08)', fontSize: '0.88rem' }}>
             <span>
               <strong style={{ color: '#34D399' }}>● Demo Sandbox Active</strong>{' '}
               <span style={{ color: 'var(--text-secondary)' }}>Explore all workflows without a wallet — mock ledger with zero tokens.</span>

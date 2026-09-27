@@ -80,7 +80,7 @@ export function BrandMark({ size = 40, showVerified = true }: { size?: number; s
 
 export function BrandWordmark({ compact = false }: { compact?: boolean }) {
   return (
-    <div style={{ lineHeight: 1, minWidth: 0 }}>
+    <div style={{ lineHeight: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
       <div
         style={{
           fontFamily: 'var(--font-display)',

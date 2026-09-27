@@ -197,6 +197,9 @@ export function useMidnight() {
 
   const connect = useCallback(async () => {
     // Prevent concurrent invocations (double click while connecting).
+    // IMPORTANT: always ensure isConnectingRef is reset in every exit path
+    // (including finally below) so a single failed attempt never permanently
+    // blocks subsequent connect clicks.
     if (isConnectingRef.current) return;
     // Give injection a moment before deciding wallet is missing.
     let wallet = findFirstWallet();
@@ -223,164 +226,164 @@ export function useMidnight() {
     // because the wallet can report "Wallet is syncing" for 20-40s.
     let lastErr: unknown = null;
     const MAX_ATTEMPTS = 6;
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      try {
-        const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
-        const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
+    try {
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        try {
+          const connected = await withTimeout(wallet.connect(NETWORK_ID), CONNECT_TIMEOUT_MS, 'Wallet connect');
+          const config = await withTimeout(connected.getConfiguration(), CONNECT_TIMEOUT_MS, 'Wallet configuration');
 
-        if (config.networkId !== NETWORK_ID) {
-          isConnectingRef.current = false;
-          setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });
-          return;
-        }
-
-        const shielded = await connected.getShieldedAddresses();
-
-        // Mark wallet as connected immediately after handshake and address retrieval
-        connectedAPIRef.current = connected;
-        setConnectedAPI(connected);
-
-        setWalletInfo({
-          address: shielded.shieldedAddress,
-          walletName: wallet.name,
-          networkId: config.networkId,
-        });
-        setWalletState({ status: 'connected' });
-        isConnectingRef.current = false;
-
-        // Member secret: the deployer-printed owner secret wins when configured;
-        // otherwise derive a stable per-wallet secret from the shielded address.
-        let secret: Uint8Array | null = null;
-        if (MIDNIGHTTRACE_OWNER_SECRET) {
-          try {
-            secret = fromHex(MIDNIGHTTRACE_OWNER_SECRET);
-          } catch {
-            secret = null;
+          if (config.networkId !== NETWORK_ID) {
+            setWalletState({ status: 'network-mismatch', expected: NETWORK_ID, actual: config.networkId });
+            return;
           }
-        }
-        if (!secret) {
-          secret = await defaultMemberSecret(shielded.shieldedAddress);
-        }
-        membershipSecretRef.current = secret;
-        setMembershipSecret(secret);
 
-        // MidnightTrace (Level 4) contract joining — probe first to prevent watchForDeployTxData hanging
-        if (MIDNIGHTTRACE_CONTRACT_ADDRESS) {
-          try {
-            const midProviders = await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace');
-            midProvidersRef.current = midProviders;
-            const midState = await withTimeout(
-              midProviders.publicDataProvider.queryContractState(MIDNIGHTTRACE_CONTRACT_ADDRESS),
-              6000,
-              'MidnightTrace contract probe',
-            ).catch(() => null);
+          const shielded = await connected.getShieldedAddresses();
 
-            if (midState) {
-              const midDeployed = await withTimeout(
-                findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS),
-                10000,
-                'Find deployed MidnightTrace',
-              ).catch((e) => {
-                console.warn('findDeployedMidnightTrace warning:', e);
-                return null;
-              });
-              if (midDeployed) {
-                midContractRef.current = midDeployed;
-                setMidContract(midDeployed);
-                setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
-              }
-            } else {
-              console.warn('[MidnightTrace] Contract address not found on chain:', MIDNIGHTTRACE_CONTRACT_ADDRESS);
+          // Mark wallet as connected immediately after handshake and address retrieval
+          connectedAPIRef.current = connected;
+          setConnectedAPI(connected);
+
+          setWalletInfo({
+            address: shielded.shieldedAddress,
+            walletName: wallet.name,
+            networkId: config.networkId,
+          });
+          setWalletState({ status: 'connected' });
+
+          // Member secret: the deployer-printed owner secret wins when configured;
+          // otherwise derive a stable per-wallet secret from the shielded address.
+          let secret: Uint8Array | null = null;
+          if (MIDNIGHTTRACE_OWNER_SECRET) {
+            try {
+              secret = fromHex(MIDNIGHTTRACE_OWNER_SECRET);
+            } catch {
+              secret = null;
             }
-          } catch (e) {
-            console.warn('midnighttrace join failed (non-fatal):', e);
           }
-        }
+          if (!secret) {
+            secret = await defaultMemberSecret(shielded.shieldedAddress);
+          }
+          membershipSecretRef.current = secret;
+          setMembershipSecret(secret);
 
-        // Optional Counter contract
-        if (CONTRACT_ADDRESS) {
-          try {
-            const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
-            providersRef.current = providers;
-            const counterState = await withTimeout(
-              providers.publicDataProvider.queryContractState(CONTRACT_ADDRESS),
-              5000,
-              'Counter contract probe',
-            ).catch(() => null);
+          // MidnightTrace (Level 4) contract joining — probe first to prevent watchForDeployTxData hanging
+          if (MIDNIGHTTRACE_CONTRACT_ADDRESS) {
+            try {
+              const midProviders = await buildProvidersFromConnectedAPI<MidnightTraceCircuits>(connected, 'midnighttrace');
+              midProvidersRef.current = midProviders;
+              const midState = await withTimeout(
+                midProviders.publicDataProvider.queryContractState(MIDNIGHTTRACE_CONTRACT_ADDRESS),
+                6000,
+                'MidnightTrace contract probe',
+              ).catch(() => null);
 
-            if (counterState) {
-              const deployed = await withTimeout(
-                findDeployedCounter(providers, CONTRACT_ADDRESS),
-                8000,
-                'Find deployed Counter',
-              ).catch((e) => {
-                console.warn('findDeployedCounter warning:', e);
-                return null;
-              });
-              if (deployed) {
-                contractRef.current = deployed;
-                setContract(deployed);
-                setContractAddress(CONTRACT_ADDRESS);
+              if (midState) {
+                const midDeployed = await withTimeout(
+                  findDeployedMidnightTrace(midProviders, MIDNIGHTTRACE_CONTRACT_ADDRESS),
+                  10000,
+                  'Find deployed MidnightTrace',
+                ).catch((e) => {
+                  console.warn('findDeployedMidnightTrace warning:', e);
+                  return null;
+                });
+                if (midDeployed) {
+                  midContractRef.current = midDeployed;
+                  setMidContract(midDeployed);
+                  setMidContractAddress(MIDNIGHTTRACE_CONTRACT_ADDRESS);
+                }
+              } else {
+                console.warn('[MidnightTrace] Contract address not found on chain:', MIDNIGHTTRACE_CONTRACT_ADDRESS);
               }
+            } catch (e) {
+              console.warn('midnighttrace join failed (non-fatal):', e);
             }
-          } catch (e) {
-            console.warn('counter contract join failed (non-fatal):', e);
           }
-        }
 
-        await Promise.allSettled([refreshMidnight(), refreshLedger()]);
-        return;
-      } catch (e: unknown) {
-        lastErr = e;
-        const err = e as Error & { code?: string; reason?: string };
-        const reason = err?.reason ?? '';
-        const message = err?.message ?? String(e);
-        const isRejected = err?.code === 'Rejected' || /reject/i.test(reason + ' ' + message);
-        if (isRejected) {
-          isConnectingRef.current = false;
-          setWalletState({ status: 'rejected' });
-          console.error('connect error', e);
+          // Optional Counter contract
+          if (CONTRACT_ADDRESS) {
+            try {
+              const providers = await buildProvidersFromConnectedAPI<CounterCircuits>(connected, 'counter');
+              providersRef.current = providers;
+              const counterState = await withTimeout(
+                providers.publicDataProvider.queryContractState(CONTRACT_ADDRESS),
+                5000,
+                'Counter contract probe',
+              ).catch(() => null);
+
+              if (counterState) {
+                const deployed = await withTimeout(
+                  findDeployedCounter(providers, CONTRACT_ADDRESS),
+                  8000,
+                  'Find deployed Counter',
+                ).catch((e) => {
+                  console.warn('findDeployedCounter warning:', e);
+                  return null;
+                });
+                if (deployed) {
+                  contractRef.current = deployed;
+                  setContract(deployed);
+                  setContractAddress(CONTRACT_ADDRESS);
+                }
+              }
+            } catch (e) {
+              console.warn('counter contract join failed (non-fatal):', e);
+            }
+          }
+
+          await Promise.allSettled([refreshMidnight(), refreshLedger()]);
           return;
+        } catch (e: unknown) {
+          lastErr = e;
+          const err = e as Error & { code?: string; reason?: string };
+          const reason = err?.reason ?? '';
+          const message = err?.message ?? String(e);
+          const isRejected = err?.code === 'Rejected' || /reject/i.test(reason + ' ' + message);
+          if (isRejected) {
+            setWalletState({ status: 'rejected' });
+            console.error('connect error', e);
+            return;
+          }
+          const isSyncing = /sync/i.test(message + ' ' + reason);
+          const isPrivateState = /private-state/i.test(message);
+          // Allow 3 attempts for transient failures (extension waking, locked, timeout)
+          // and up to 6 for syncing (wallet can report "syncing" for 20-40s on first launch).
+          const isLastAttempt = isSyncing ? attempt >= 5 : attempt >= 2;
+          if (isPrivateState) {
+            // Private-state derivation requires explicit user approval of a signature.
+            // Do not auto-retry a rejection — surface the wallet's message and offer Demo.
+            setWalletState({ status: 'error', message: message });
+            console.error('private-state connect error', e);
+            return;
+          }
+          if (isLastAttempt) {
+            // Map common transient messages to a less scary, actionable copy.
+            let friendly = message;
+            if (isSyncing) friendly = 'Wallet is syncing — open 1AM and wait for sync to finish (first sync can take 20–40s). Keep the tab open and retry in a few seconds.';
+            else if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
+            else if (/timeout|timed out|no response/i.test(message)) friendly = 'Wallet did not respond in time — extension may be waking. Please retry.';
+            setWalletState({ status: 'error', message: friendly });
+            console.error('connect error', e);
+            return;
+          }
+          // Transient failure — auto-retry without flashing an error. This fixes
+          // the "Retry on second click" bug where the extension was still
+          // waking/initializing. Syncing gets a longer backoff.
+          const backoffMs = isSyncing ? 2500 : 800;
+          await new Promise((r) => setTimeout(r, backoffMs));
+          // Give the extension more time to recover before re-polling.
+          const refreshed = await waitForWalletReady(1500);
+          if (refreshed) wallet = refreshed;
         }
-        // Network mismatch is a definitive state — no retry.
-        if (/network/i.test(message + ' ' + reason) && /mismatch|expected|actual/i.test(message + ' ' + reason)) {
-          // handled inside try as explicit network-mismatch; treat as non-retry here
-        }
-        const isSyncing = /sync/i.test(message + ' ' + reason);
-        const isPrivateState = /private-state/i.test(message);
-        const isLastAttempt = isSyncing ? attempt >= 5 : attempt >= 1;
-        if (isPrivateState) {
-          // Private-state derivation requires explicit user approval of a signature.
-          // Do not auto-retry a rejection — surface the wallet's message and offer Demo.
-          isConnectingRef.current = false;
-          setWalletState({ status: 'error', message: message });
-          console.error('private-state connect error', e);
-          return;
-        }
-        if (isLastAttempt) {
-          // Map common transient messages to a less scary, actionable copy.
-          let friendly = message;
-          if (isSyncing) friendly = 'Wallet is syncing — open 1AM and wait for sync to finish (first sync can take 20–40s). Keep the tab open and retry in a few seconds.';
-          else if (/locked/i.test(message)) friendly = 'Wallet is locked — unlock the extension and retry. The popup may be behind this window.';
-          else if (/timeout|timed out|no response/i.test(message)) friendly = 'Wallet did not respond in time — extension may be waking. Please retry.';
-          isConnectingRef.current = false;
-          setWalletState({ status: 'error', message: friendly });
-          console.error('connect error', e);
-          return;
-        }
-        // Transient failure — auto-retry without flashing an error. This fixes
-        // the "Retry on second click" bug where the extension was still
-        // waking/initializing. Syncing gets a longer backoff.
-        const backoffMs = isSyncing ? 2500 : 700;
-        await new Promise((r) => setTimeout(r, backoffMs));
-        const refreshed = await waitForWalletReady(900);
-        if (refreshed) wallet = refreshed;
       }
+      // Fallback (should be unreachable — loop handles all exits)
+      const fallbackMsg = lastErr instanceof Error ? lastErr.message : String(lastErr ?? 'Unknown error');
+      setWalletState({ status: 'error', message: fallbackMsg });
+    } finally {
+      // ALWAYS release the connecting lock, no matter which code path exits.
+      // This prevents a permanent block where a single failed/thrown attempt
+      // makes every subsequent connect click a silent no-op.
+      isConnectingRef.current = false;
     }
-    // Fallback (should be unreachable — loop handles all exits)
-    isConnectingRef.current = false;
-    const fallbackMsg = lastErr instanceof Error ? lastErr.message : String(lastErr ?? 'Unknown error');
-    setWalletState({ status: 'error', message: fallbackMsg });
   }, [refreshLedger, refreshMidnight]);
 
   const disconnect = useCallback(() => {

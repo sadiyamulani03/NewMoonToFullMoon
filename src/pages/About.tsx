@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const VOCABULARY = [
   ['Aggregate', 'Sum of all active dossier totals on-chain. Provably verified by contract invariant.'],
@@ -16,6 +17,7 @@ const VOCABULARY = [
 
 export default function About() {
   const [glossaryQuery, setGlossaryQuery] = useState('');
+  const scrollRevealRef = useScrollReveal();
 
   const filteredVocab = useMemo(() => {
     const q = glossaryQuery.trim().toLowerCase();
@@ -24,7 +26,7 @@ export default function About() {
   }, [glossaryQuery]);
 
   return (
-    <>
+    <div ref={scrollRevealRef as React.Ref<HTMLDivElement>}>
       <header className="masthead">
         <div className="eyebrow eyebrow-verify">Field guide · Zero-Knowledge Cryptography on Midnight</div>
         <h1 className="display masthead-title" style={{ maxWidth: '18ch' }}>Private proof, public trust.</h1>
@@ -78,7 +80,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" data-reveal>
         <div className="section-head">
           <div>
             <h2>The wire — private → ZK → verifiable</h2>
@@ -109,7 +111,7 @@ export default function About() {
         </ol>
       </section>
 
-      <section className="section">
+      <section className="section" data-reveal="1">
         <div className="section-head">
           <div>
             <h2>Worked example — three hidden batches in case #07</h2>
@@ -144,7 +146,7 @@ export default function About() {
         </div>
       </section>
 
-      <section id="glossary" className="section">
+      <section id="glossary" className="section" data-reveal="2">
         <div className="section-head">
           <div>
             <h2>Ledger Vocabulary</h2>
@@ -184,6 +186,6 @@ export default function About() {
         </div>
       </section>
       <style>{`@media(max-width:860px){.about-3{grid-template-columns:1fr !important;}.about-3>div{border-left:none !important;padding-left:0 !important;border-top:1px solid var(--border-subtle);padding-top:20px;}.about-3>div:first-child{border-top:none;padding-top:0;}}`}</style>
-    </>
+    </div>
   );
 }

@@ -195,7 +195,7 @@ export default function Auditor() {
             </div>
           ) : (
             <>
-              <div className={`verdict ${allPass ? 'verdict-ok' : 'verdict-bad'}`}>
+              <div className={`verdict ${allPass ? 'verdict-ok' : 'verdict-bad'} anim-fade-up`}>
                 <span className="verdict-mark">{allPass ? '✓' : '!'}</span>
                 <div>
                   <p className="mono" style={{ margin: 0, fontSize: '0.66rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>Verdict · {new Date(result.auditedAt).toLocaleString()}</p>
@@ -213,7 +213,7 @@ export default function Auditor() {
               </div>
               <div>
                 {result.checks.map((c, i) => (
-                  <div key={i} className="check-row">
+                  <div key={i} className={`check-row anim-fade-up anim-stagger-${Math.min(i + 1, 4) as 1|2|3|4}`}>
                     <span className={`check-ico ${c.ok ? 'check-ico-ok' : 'check-ico-bad'}`}>{c.ok ? '✓' : '✗'}</span>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{String(i + 1).padStart(2, '0')} · {c.label}</div>
